@@ -15,8 +15,8 @@ export default function ResultsTable({results}) {
                 <Table.Cell>
                     <Label ribbon color={color}>{ index + 1 }</Label>
                 </Table.Cell>
-                <Table.Cell>{ result.name }</Table.Cell>
-                <Table.Cell>{ result.time }</Table.Cell>
+                <Table.Cell>{ result.pair }</Table.Cell>
+                <Table.Cell>{ result.amount }</Table.Cell>
                 <Table.Cell>{ result.pool_sz }</Table.Cell>
             </Table.Row>
         );
@@ -24,13 +24,13 @@ export default function ResultsTable({results}) {
     return (
         <div className="ui container">
             <Segment>
-                <Header>Results</Header>
+                <Header>Optimal Portfolio</Header>
                 <Table striped>
                     <Table.Header>
                         <Table.Row>
-                            <Table.HeaderCell>Position</Table.HeaderCell>
-                            <Table.HeaderCell>Name</Table.HeaderCell>
-                            <Table.HeaderCell>Time</Table.HeaderCell>
+                            <Table.HeaderCell>Ranking</Table.HeaderCell>
+                            <Table.HeaderCell>Pair</Table.HeaderCell>
+                            <Table.HeaderCell>Amount</Table.HeaderCell>
                             <Table.HeaderCell>Pool Size</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
