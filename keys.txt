@@ -1,0 +1,4 @@
+app_id = "1139323"
+key = "7885860875bb513c3e34"
+secret = "3633fcf50bba02630b0c"
+cluster = "eu"
