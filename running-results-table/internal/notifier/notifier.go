@@ -1,6 +1,8 @@
 package notifier
+
 import (
-	"pusher/running-results-table/internal/db"
+	"pusher/defi_aggregator/running-results-table/internal/db"
+
 	"github.com/pusher/pusher-http-go"
 )
 
