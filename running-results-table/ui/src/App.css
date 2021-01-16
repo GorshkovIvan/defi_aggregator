@@ -15,3 +15,9 @@ h1 {
   border-top: 1px solid red;
   margin-bottom: 5px;
 ;}
+
+.Applogo{
+  width: 1%;
+  height: 1%;
+  align-items: center;
+;}

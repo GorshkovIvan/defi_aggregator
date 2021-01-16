@@ -1,3 +1,5 @@
+import logo from './eth.png';
+
 import React, { Component } from 'react';
 import ConnectedResultsTable from './ConnectedResultsTable';
 import NewResultsForm from './NewResultsForm';
@@ -12,6 +14,8 @@ class App extends Component {
 
     <div className="App">
     <div className ="App2"><h1> Welcome to HighYield4Me! </h1> </div>
+
+    <div class="center"><img src={logo} className="Applogo" class="center" width="1%" /> </div>
 
         <ConnectedResultsTable />
         <NewResultsForm />
