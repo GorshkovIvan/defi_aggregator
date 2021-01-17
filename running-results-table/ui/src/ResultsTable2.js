@@ -1,25 +1,19 @@
 import React from 'react';
 import { Table, Header, Segment, Label } from 'semantic-ui-react'
 
-export default function ResultsTable2({results}) {
-    const rows = results.map(((result, index) => {
-        let color;
-        if (index === 0) {
-            color='blue';
-        } else if (index === 1) {
-            color='blue';
-        } else if (index === 2) {
-            color='blue';
-        }
+export default function ResultsTable2({currencyoutputtable}) {
+    const rows = currencyoutputtable.map(((result, index) => {
+        let color = 'blue';
+
         return (
             <Table.Row key={ index }>
                 <Table.Cell>
                     <Label ribbon color={color}>{ index + 1 }</Label>
                 </Table.Cell>
-                <Table.Cell>{ result.cryptocurrency_pair }</Table.Cell>
-                <Table.Cell>{ result.max_amount }</Table.Cell>
-                <Table.Cell>{ result.raw_yield }</Table.Cell>
-                <Table.Cell>{ result.normalized_yield }</Table.Cell>
+                <Table.Cell>{ result.backend_pair }</Table.Cell>
+                <Table.Cell>{ result.backend_amount }</Table.Cell>
+                <Table.Cell>{ result.backend_yield }</Table.Cell>
+   
             </Table.Row>
         );
     }));
@@ -45,3 +39,19 @@ export default function ResultsTable2({results}) {
         </div>
     );
 }
+
+
+       /*
+        if (index === 0) {
+            color='blue';
+        } else if (index === 1) {
+            color='blue';
+        } else if (index === 2) {
+            color='blue';
+        }
+
+             <Table.Cell>{ result.max_amount }</Table.Cell>
+                <Table.Cell>{ result.raw_yield }</Table.Cell>
+                <Table.Cell>{ result.normalized_yield }</Table.Cell>
+
+        */

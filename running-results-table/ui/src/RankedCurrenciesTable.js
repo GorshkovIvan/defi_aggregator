@@ -9,21 +9,21 @@ const socket = new Pusher('7885860875bb513c3e34', {
 
 export default class ConnectedResultsTable2 extends React.Component {
     state = {
-        results: []
+        currencyoutputtable: []
     };
     componentDidMount() {
-        const channel = socket.subscribe('results');
-        channel.bind('results', (data) => {
+        const channel = socket.subscribe('currencyoutputtable');
+        channel.bind('currencyoutputtable', (data) => {
             this.setState(data);
         });
 
         // change this url:
 
-        fetch('http://localhost:8080/results')
+        fetch('http://localhost:8080/currencyoutputtable')
             .then((response) => response.json())
             .then((response) => this.setState(response));
     }
     render() {
-        return <ResultsTable2 results={this.state.results} />;
+        return <ResultsTable2 currencyoutputtable={this.state.currencyoutputtable} />;
     }
 }

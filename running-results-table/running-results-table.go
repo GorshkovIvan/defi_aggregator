@@ -8,6 +8,7 @@ import (
 
 func main() {
 	database := db.New()
+
 	notifierClient := notifier.New(&database)
 	webapp.StartServer(&database, &notifierClient)
 }
