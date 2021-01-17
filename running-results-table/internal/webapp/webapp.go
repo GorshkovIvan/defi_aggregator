@@ -46,6 +46,7 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 	// This is the backend algo
 	database.RankBestCurrencies()
 
+	// Next steps:
 	// Get API pull to work with Notifier update frequency
 	// Connect a real database
 	// Create an ugly front end like Curve
