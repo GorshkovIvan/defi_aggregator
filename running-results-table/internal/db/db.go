@@ -18,23 +18,31 @@ type CurrencyInputData struct {
 
 func NewCurrencyInputData() CurrencyInputData {
 	currencyinputdata := CurrencyInputData{}
-	currencyinputdata.Pair = "ETH/BTC"
+	currencyinputdata.Pair = "ETH/DAI"
 	currencyinputdata.Amount = 420.69
 	currencyinputdata.Yield = 0.08
 	return currencyinputdata
 }
 
+func NewCurrencyInputDataAct(pair string, amount float32, yield float32) CurrencyInputData {
+	currencyinputdata := CurrencyInputData{}
+	currencyinputdata.Pair = pair
+	currencyinputdata.Amount = amount
+	currencyinputdata.Yield = yield
+	return currencyinputdata
+}
+
 type Database struct {
-	contents          []Record
-	currencyinputdata []CurrencyInputData
+	contents []Record
+	// currencyinputdata[0] = ETH/DAI [1] = DAI USDC
+	currencyinputdata []CurrencyInputData // this will store the LATEST currency pair info
 }
 
 func New() Database {
 	contents := make([]Record, 0)
 	currencyinputdata := make([]CurrencyInputData, 0)
 
-	currencyinputdata = append(currencyinputdata, NewCurrencyInputData())
-
+	// append being moved from HERE
 	return Database{contents, currencyinputdata}
 }
 func (database *Database) AddRecord(r Record) {
@@ -42,6 +50,10 @@ func (database *Database) AddRecord(r Record) {
 }
 func (database *Database) GetRecords() []Record {
 	return database.contents
+}
+
+func (database *Database) AddRecordfromAPI(c CurrencyInputData) {
+	database.currencyinputdata = append(database.currencyinputdata, c)
 }
 
 func (database *Database) GetCurrencyInputData() []CurrencyInputData {

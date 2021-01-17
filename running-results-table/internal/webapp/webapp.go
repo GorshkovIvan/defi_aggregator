@@ -37,5 +37,20 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 			c.JSON(http.StatusBadRequest, gin.H{})
 		}
 	})
+
+	// post it to DB - table 2
+	r.POST("/currencyoutputtable", func(c *gin.Context) {
+		var json db.CurrencyInputData
+		// {"ETH/DAI",420,0.069} // download data from API - here?
+
+		if err := c.BindJSON(&json); err == nil {
+			database.AddRecordfromAPI(json)
+			c.JSON(http.StatusCreated, json)
+			notifierClient.Notify()
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{})
+		}
+	})
+
 	r.Run()
 }
