@@ -39,18 +39,32 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 	})
 
 	// post it to DB - table 2
-	r.POST("/currencyoutputtable", func(c *gin.Context) {
-		var json db.CurrencyInputData
-		// {"ETH/DAI",420,0.069} // download data from API - here?
+	database.AddRecordfromAPI()
+	database.AddRecordfromAPI2("USDT/USDC", 420420, 6969)
+	database.AddRecordfromAPI2("HighYield4meToken", 1337, 420.69)
 
-		if err := c.BindJSON(&json); err == nil {
-			database.AddRecordfromAPI(json)
-			c.JSON(http.StatusCreated, json)
-			notifierClient.Notify()
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{})
-		}
-	})
+	// This is the backend algo
+	database.RankBestCurrencies()
+
+	// Get API pull to work with Notifier update frequency
+	// Connect a real database
+	// Create an ugly front end like Curve
+	// Profit
+
+	/*
+		r.POST("/currencyoutputtable", func(c *gin.Context) {
+			var json db.CurrencyInputData
+			// {"ETH/DAI",420,0.069} // download data from API - here?
+
+			if err := c.BindJSON(&json); err == nil {
+				database.AddRecordfromAPI(json)
+				c.JSON(http.StatusCreated, json)
+				notifierClient.Notify()
+			} else {
+				c.JSON(http.StatusBadRequest, gin.H{})
+			}
+		})
+	*/
 
 	r.Run()
 }

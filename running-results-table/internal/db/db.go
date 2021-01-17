@@ -1,5 +1,7 @@
 package db
 
+import "sort"
+
 type Record struct {
 	Pair    string  `json:"pair"`
 	Amount  float32 `json:"amount"`
@@ -52,10 +54,23 @@ func (database *Database) GetRecords() []Record {
 	return database.contents
 }
 
-func (database *Database) AddRecordfromAPI(c CurrencyInputData) {
-	database.currencyinputdata = append(database.currencyinputdata, c)
+func (database *Database) AddRecordfromAPI() {
+	//c CurrencyInputData = NewCurrencyInputData()
+	database.currencyinputdata = append(database.currencyinputdata, NewCurrencyInputData())
+}
+
+func (database *Database) AddRecordfromAPI2(pair string, amount float32, yield float32) {
+	//c CurrencyInputData = NewCurrencyInputData()
+	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{pair, amount, yield})
 }
 
 func (database *Database) GetCurrencyInputData() []CurrencyInputData {
 	return database.currencyinputdata
+}
+
+func (database *Database) RankBestCurrencies() {
+
+	sort.Slice(database.currencyinputdata, func(i, j int) bool {
+		return database.currencyinputdata[i].Yield > database.currencyinputdata[j].Yield
+	})
 }
