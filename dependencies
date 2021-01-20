@@ -21,3 +21,9 @@ sudo npm install -g express
 sudo npm i react-scripts
 sudo npm install -g react-scripts
 sudo npm install
+
+To run:
+go to go/src/pusher/defi_aggregator/running-results-table and "go run running-results-table.go"
+
+Then in a new terminal window:
+go to /go/src/pusher/defi_aggregator/ui/ and "npm start"
