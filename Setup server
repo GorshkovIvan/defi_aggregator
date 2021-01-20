@@ -1,5 +1,9 @@
+Install golang (https://golang.org/doc/install)
+Install node (https://nodejs.org/en/download/)
+Install dep (https://golang.github.io/dep/docs/installation.html)
+
 git clone defi_aggregator to go/src/pusher
-Install dep via: https://golang.github.io/dep/docs/installation.html (sudo apt install go-dep)
+
 go get github.com/pusher/pusher-http-go
 go get github.com/gin-gonic/gin
 go get github.com/gin-contrib/sse
