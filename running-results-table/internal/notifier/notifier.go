@@ -18,10 +18,14 @@ func notifier(database *db.Database, notifyChannel <-chan bool) {
 		Cluster: "eu",
 		Secure:  true,
 	}
+	// infinite loop for both results and currencyoutputtable
+	// we have to put everything in this one for loop
 	for {
 		<-notifyChannel
 		data := map[string][]db.Record{"results": database.GetRecords()}
 		client.Trigger("results", "results", data)
+		currencyoutputtable := map[string][]db.CurrencyInputData{"currencyoutputtable": database.GetCurrencyInputData()}
+		client.Trigger("currencyoutputtable", "currencyoutputtable", currencyoutputtable)
 	}
 }
 func New(database *db.Database) Notifier {
