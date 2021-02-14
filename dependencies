@@ -1,0 +1,29 @@
+Install golang (https://golang.org/doc/install)
+Install node (https://nodejs.org/en/download/)
+Install dep (https://golang.github.io/dep/docs/installation.html)
+
+git clone defi_aggregator to go/src/pusher
+
+go get github.com/pusher/pusher-http-go
+go get github.com/gin-gonic/gin
+go get github.com/gin-contrib/sse
+go get github.com/gin-contrib/cors
+go get github.com/go-playground/validator
+go get github.com/go-playground/universal-translator
+go get github.com/go-playground/locales
+go get github.com/mattn/go-isatty
+go get github.com/ugorji/go
+go get gopkg.in/yaml.v2
+
+sudo npm install --save pusher-js
+sudo npm install --save semantic-ui-react semantic-ui-css
+sudo npm install -g express
+sudo npm i react-scripts
+sudo npm install -g react-scripts
+sudo npm install
+
+To run:
+go to go/src/pusher/defi_aggregator/running-results-table and "go run running-results-table.go"
+
+Then in a new terminal window:
+go to /go/src/pusher/defi_aggregator/ui/ and "npm start"
