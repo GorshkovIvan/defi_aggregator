@@ -72,7 +72,7 @@ type CurvePool struct {
 	A string `json:"A"`
 	Fee string `json:"fee"`
 	AdminFee string `json:"adminFee"`
-	Balances string `json:"balances"`
+	Balances []string `json:"balances"`
 	Coins []CurveCoin `json:"coins"`
 }
 
