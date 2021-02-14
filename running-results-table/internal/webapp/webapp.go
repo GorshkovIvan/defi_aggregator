@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	
+
 	// for adding data after a certain number of seconds
 	// can be deleted
 	"time"
@@ -49,13 +49,15 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 	database.RankBestCurrencies()
 
 	time.AfterFunc(5 * time.Second, func() {
-		database.AddRecordfromAPI2("USDT/USDC", 420420, 6969)		
+		database.AddRecordfromAPI()
+		//database.AddRecordfromAPI2("USDT/USDC", 420420, 6969)		
 		// backend algo
 		database.RankBestCurrencies()
 		notifierClient.Notify()
 	})
 	time.AfterFunc(10 * time.Second, func() {
-		database.AddRecordfromAPI2("HighYield4meToken", 1337, 420.69)
+		database.AddRecordfromAPI()
+		//database.AddRecordfromAPI2("HighYield4meToken", 1337, 420.69)
 		// backend algo
 		database.RankBestCurrencies()
 		notifierClient.Notify()
