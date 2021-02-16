@@ -350,7 +350,13 @@ func main() {
 	fmt.Printf("%+v\n", len(dUniHist.Data.TokenDayDatas))
 
 	for i := 0; i < len(dUniHist.Data.TokenDayDatas); i++ {
-		fmt.Printf("%+v:", dUniHist.Data.TokenDayDatas[i].Date)
+		//fmt.Printf("%+v:", dUniHist.Data.TokenDayDatas[i].Date)
+		//i, err := strconv.ParseInt(dUniHist.Data.TokenDayDatas[i].Date, 10, 64)
+		//if err != nil {
+		//	panic(err)
+		//}
+		tm := time.Unix(int64(dUniHist.Data.TokenDayDatas[i].Date), 0)
+		fmt.Printf("%+v: ", tm)
 		fmt.Printf("%+v\n", dUniHist.Data.TokenDayDatas[i].PriceUSD)
 	}
 
