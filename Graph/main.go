@@ -24,6 +24,18 @@ type UniswapData struct {
 	} `json:"data"`
 }
 
+type UniswapDataHistorical struct {
+	Data struct {
+		TokenDayDatas []struct {
+			Date     int    `json:"date"`
+			PriceUSD string `json:"priceUSD"`
+			Token    struct {
+				ID string `json:"id"`
+			} `json:"token"`
+		} `json:"tokenDayDatas"`
+	} `json:"data"`
+}
+
 type CompoundData struct {
 	Data struct {
 		Markets []struct {
@@ -169,6 +181,25 @@ func main() {
 					`,
 	}
 
+	//6-UniswapHist
+	jsonData6 := map[string]string{
+		"query": `
+		{
+			tokenDayDatas(first: 30 orderBy: date, orderDirection: asc,
+			 where: {
+			   token: "0x6b175474e89094c44da98b954eedeac495271d0f"
+			 }
+			) {
+				 token {
+				   id
+				 }
+			   date
+			   priceUSD
+			}
+		   }
+					`,
+	}
+
 	// Address
 	uniswapaddress := "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"          // Liquidity
 	compound_address := "https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2" // Interest
@@ -178,6 +209,8 @@ func main() {
 	/*
 		bancor_address := "https://api.thegraph.com/subgraphs/name/blocklytics/bancor"
 	*/
+
+	// poloniex_address = "https://poloniex.com/public"
 
 	// 1-Uniswap
 	jsonValue, _ := json.Marshal(jsonData1)
@@ -270,6 +303,7 @@ func main() {
 	fmt.Printf("%+v: \n", dAave.Data.Reserves[0].VariableBorrowRate)
 	fmt.Printf("%+v: ", dAave.Data.Reserves[1].Name)
 	fmt.Printf("%+v: ", dAave.Data.Reserves[1].VariableBorrowRate)
+
 	// 5 - Curve
 	jsonValue5, _ := json.Marshal(jsonData5)
 	request5, err := http.NewRequest("POST", curve_address, bytes.NewBuffer(jsonValue5))
@@ -291,6 +325,35 @@ func main() {
 
 	fmt.Printf("%+v\n", dCurve.Data.Pool.PoolToken.Symbol)
 	fmt.Printf("%+v", dCurve.Data.Pool.Balances[0])
+
+	// 6 - Uniswap Historical
+	jsonValue6, _ := json.Marshal(jsonData6)
+	request6, err := http.NewRequest("POST", uniswapaddress, bytes.NewBuffer(jsonValue6))
+	client6 := &http.Client{Timeout: time.Second * 10}
+	response6, err := client6.Do(request6)
+	if err != nil {
+		fmt.Printf("Curve request failed with error %s\n", err)
+	}
+
+	defer response6.Body.Close()
+	data6, _ := ioutil.ReadAll(response6.Body)
+	fmt.Println("\nUniswap Historical:")
+
+	var dUniHist UniswapDataHistorical
+	//datastr = string(data6)
+	//fmt.Println(datastr)
+	err = json.Unmarshal([]byte(data6), &dUniHist)
+	if err != nil {
+		fmt.Printf("Uniswap historical unmarshalling failed with error: %s\n", err)
+	}
+
+	fmt.Printf("%+v\n", len(dUniHist.Data.TokenDayDatas))
+
+	for i := 0; i < len(dUniHist.Data.TokenDayDatas); i++ {
+		fmt.Printf("%+v:", dUniHist.Data.TokenDayDatas[i].Date)
+		fmt.Printf("%+v\n", dUniHist.Data.TokenDayDatas[i].PriceUSD)
+	}
+
 }
 
 // dec := json.NewDecoder(bytes.NewReader(data))
