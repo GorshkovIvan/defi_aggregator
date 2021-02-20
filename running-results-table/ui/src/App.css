@@ -1,23 +1,73 @@
+.App{
+  font-family:'Consolas';
+  background-color: grey;
+}
+
 h1 {
     color: navy;
     margin-left: 20px;
-    margin-top: 50px;
+    margin-top: 10px;
     text-align: center;
   }
 
-.App2{
-    margin-top: 25px;
-    margin-bottom: 25px;
+h2{
+  font-family:'Consolas';
 }
 
-.App3{
+h3{
+  font-family:'Consolas';
+  text-align: center;
+  font-size: 14px;
+}
+
+h5{
+  font-family:'Consolas';
+  text-align: center;
+  font-size: 10px;
+  margin-top: 5px
+}
+
+.TopTable{
+    background-color: grey;
+    margin-bottom: 2px;
+    padding-top: 5px;
+    width: 100%;
+}
+
+.Table1Header{
+    background-color: darkgrey;
+    font-size: 10;
+}
+
+.MiddleDivider{
   margin-top: 5px;
   border-top: 1px solid red;
   margin-bottom: 5px;
 ;}
 
 .Applogo{
-  width: 1%;
-  height: 1%;
   align-items: center;
+  padding-left: 25px;
+  margin-left: 10px;
 ;}
+
+.HeaderBox{
+  float: left;
+  text-align: right;
+  width: 65%;
+  font-family: 'Consolas';
+  font-size: 18px;
+  font-weight: bold;
+  padding-right: 50px;
+;}
+
+.ResultsTable{
+  font-family: 'Consolas';
+  font-size: 10px;
+;}
+
+
+.ResultsTableHeader {
+  font-size: 10;
+  font-weight: bold;
+}

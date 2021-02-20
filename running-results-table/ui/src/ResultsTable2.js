@@ -13,7 +13,7 @@ export default function ResultsTable2({currencyoutputtable}) {
                 <Table.Cell>{ result.backend_pair }</Table.Cell>
                 <Table.Cell>{ result.backend_amount }</Table.Cell>
                 <Table.Cell>{ result.backend_yield }</Table.Cell>
-   
+                <Table.Cell>{ result.pool_source }</Table.Cell>
             </Table.Row>
         );
     }));
@@ -28,6 +28,7 @@ export default function ResultsTable2({currencyoutputtable}) {
                             <Table.HeaderCell>Currency Pair</Table.HeaderCell>
                             <Table.HeaderCell>Amount</Table.HeaderCell>
                             <Table.HeaderCell>Yield raw</Table.HeaderCell>
+                            <Table.HeaderCell>Pool</Table.HeaderCell>
                             <Table.HeaderCell>Yield normalized by vol</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
