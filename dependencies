@@ -16,6 +16,8 @@ go get github.com/ugorji/go
 go get gopkg.in/yaml.v2
 go get github.com/machinebox/graphql
 
+npm install --save styled-components // to run from the project directory
+
 sudo npm install --save pusher-js
 sudo npm install --save semantic-ui-react semantic-ui-css
 sudo npm install -g express
