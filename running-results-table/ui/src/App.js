@@ -15,7 +15,7 @@ class App extends Component {
     <div className="App">
     <div className ="App2"><h1> Welcome to HighYield4Me! </h1> </div>
 
-    <div class="center"><img src={logo} className="Applogo" class="center" width="1%" /> </div>
+    <div class="center"><img src={logo} alt="our logo" className="Applogo" class="center" width="1%" /> </div>
 
         <ConnectedResultsTable />
         <NewResultsForm />
