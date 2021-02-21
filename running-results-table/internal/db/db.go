@@ -102,6 +102,10 @@ type UniswapQuery struct {
 	UniswapFactories []UniswapFactory `json:"uniswapFactories"`
 }
 
+type UniswapTickerQuery struct {
+	IDsforticker []UniswapTokenDayData2 `json:"tokens"`
+}
+
 type UniswapFactory struct {
 	ID                 string                `json:"id"`
 	PairCount          int                   `json:"pairCount"`
@@ -116,7 +120,22 @@ type UniswapFactory struct {
 
 type UniswapTokenDayData struct {
 	ID string `json:"id"`
-	// Other fields can be added as necessary
+}
+
+type UniswapTokenDayData2 struct {
+	ID     string `json:"id"`
+	symbol string `json:"symbol"`
+}
+
+// Uniswap historical
+type UniswapHistQuery struct {
+	DailyTimeSeries []UniswapDaily `json:"tokenDayDatas"`
+}
+
+type UniswapDaily struct {
+	Date     int                  `json:"date"`
+	PriceUSD string               `json:"priceUSD"`
+	Token    UniswapTokenDayData2 `json:"token"`
 }
 
 // ---Bancor---
@@ -172,11 +191,55 @@ func NewRecord(pair string, amount float32, pool_sz float32) Record {
 	return Record{pair, amount, pool_sz}
 }
 
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+func calculatehistoricalvolatility(H UniswapHistQuery, days int) float32 {
+	vol := 0.05
+
+	// math.Min(int(len(H.DailyTimeSeries)),
+	for i := 0; i < days; i++ {
+		// calculate deviation
+	}
+
+	// placeholder for case where no historical data is not available
+	if len(H.DailyTimeSeries) == 0 {
+		return -1
+	}
+
+	return float32(vol)
+}
+
+func calculateROI(interestrate float32, shareofvolume float32, poolvolume float32, volatility float32) float32 {
+
+	var ROI float32
+	ROI = 0.069
+
+	// to be updated
+	ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume)) / float32(volatility)
+
+	return float32(ROI)
+}
+
 type CurrencyInputData struct {
-	Pair   string  `default0:"ETH/DAI" json:"backend_pair"`
-	Amount float32 `default0:"123" json:"backend_amount"`
-	Yield  float32 `default0:"0.05" json:"backend_yield"`
-	Pool   string  `default0:"Uniswap" json:"pool_source"`
+	Pair        string  `default0:"ETH/DAI" json:"backend_pair"`
+	Amount      float32 `default0:"123" json:"backend_amount"`
+	Yield       float32 `default0:"0.05" json:"backend_yield"`
+	Pool        string  `default0:"Uniswap" json:"pool_source"`
+	Volatility  float32 `default0:"-9.00" json:"volatility"`
+	ROIestimate float32 `default0:"42.69%" json:"ROIestimate"`
+}
+
+type HistoricalCurrencyData struct {
+	Date   []float32 `default0:"ETH/DAI" json:"date"`
+	Price  []float32 `default0:"123" json:"price"`
+	Ticker string    `default0:"0.05" json:"ticker"`
 }
 
 func NewCurrencyInputData() CurrencyInputData {
@@ -185,30 +248,36 @@ func NewCurrencyInputData() CurrencyInputData {
 	currencyinputdata.Amount = 420.69
 	currencyinputdata.Yield = 0.08
 	currencyinputdata.Pool = "Uniswap"
+	currencyinputdata.Volatility = -0.09
+	currencyinputdata.ROIestimate = 0.4269
 	return currencyinputdata
 }
 
-func NewCurrencyInputDataAct(pair string, amount float32, yield float32, pool string) CurrencyInputData {
+func NewCurrencyInputDataAct(pair string, amount float32, yield float32, pool string, volatility float32, roi float32) CurrencyInputData {
 	currencyinputdata := CurrencyInputData{}
 	currencyinputdata.Pair = pair
 	currencyinputdata.Amount = amount
 	currencyinputdata.Yield = yield
 	currencyinputdata.Pool = pool
+	currencyinputdata.Volatility = volatility
+	currencyinputdata.ROIestimate = roi
 	return currencyinputdata
 }
 
 type Database struct {
 	contents []Record
-	// currencyinputdata[0] = ETH/DAI [1] = DAI USDC
+
 	currencyinputdata []CurrencyInputData // this will store the LATEST currency pair info
+	//	historicalcurrencydata []HistoricalCurrencyData
 }
 
 func New() Database {
 	contents := make([]Record, 0)
 	currencyinputdata := make([]CurrencyInputData, 0)
 
-	// append being moved from HERE
-	return Database{contents, currencyinputdata}
+	//historicalcurrencydata := make([]HistoricalCurrencyData, 0)
+	//append being moved from HERE
+	return Database{contents, currencyinputdata} // ,historicalcurrencydata
 }
 func (database *Database) AddRecord(r Record) {
 	database.contents = append(database.contents, r)
@@ -383,6 +452,34 @@ func (database *Database) AddRecordfromAPI() {
 			}
 				`)
 
+	// ($tokenid:String!)
+	reqUniswapHist := graphql.NewRequest(`
+				query ($tokenid:String!){      
+						tokenDayDatas(first: 30 orderBy: date, orderDirection: asc,
+						 where: {
+						   token:$tokenid
+						 }
+						) {
+						   date
+						   priceUSD
+						   token{
+							   id
+							   symbol
+						   }
+						}		
+				  }
+			`)
+
+	reqUniswapTickerID := graphql.NewRequest(`
+			query ($ticker:String!){      
+				tokens(where:{symbol:$ticker}) 
+				{
+					id
+					symbol
+				  }	
+			  }
+		`)
+
 	// set any variables
 	reqBalancer.Var("key", "value")
 	reqCompound.Var("key", "value")
@@ -401,7 +498,8 @@ func (database *Database) AddRecordfromAPI() {
 	reqBancor.Header.Set("Cache-Control", "no-cache")
 	reqBalancerListOfPools.Header.Set("Cache-Control", "no-cache")
 	reqAave.Header.Set("Cache-Control", "no-cache")
-
+	reqUniswapHist.Header.Set("Cache-Control", "no-cache")
+	reqUniswapTickerID.Header.Set("Cache-Control", "no-cache")
 	// define a Context for the request
 	ctx := context.Background()
 
@@ -414,6 +512,8 @@ func (database *Database) AddRecordfromAPI() {
 	var respBalancerById BalancerById
 	var respBalancerPoolList BalancerPoolList
 	var respAave AaveQuery
+	var respUniswapHist UniswapHistQuery
+	var respUniswapTicker UniswapTickerQuery
 
 	if err := clientAave.Run(ctx, reqAave, &respAave); err != nil {
 		log.Fatal(err)
@@ -421,8 +521,8 @@ func (database *Database) AddRecordfromAPI() {
 
 	value, _ := strconv.ParseFloat(respAave.Reserve.TotalBorrows, 32)
 	float := float32(value)
-	float2 := float32(111)
-	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{respAave.Reserve.Symbol, float, float2, "Aave"})
+	float2 := float32(-0.0125)
+	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{respAave.Reserve.Symbol, float, float2, "Aave", 0.01, -0.0125})
 
 	if err := clientBalancer.Run(ctx, reqBalancerListOfPools, &respBalancerPoolList); err != nil {
 		log.Fatal(err)
@@ -446,10 +546,12 @@ func (database *Database) AddRecordfromAPI() {
 
 	//fmt.Println(len(BalancerWETHPoolList))
 	var BalancerETHPools BalancerQuery
+	var listofassets []string // vector for unique tickers from balancer - which contain ETH
+	var listofids []string    // list of corresponding uniswap ticker ids - to download historicals
+	// We should probably manually store this list of ids within the program - it is cumbersome to download each time
+	// x :=  - 0
 
-	x := len(BalancerWETHPoolList) - 0
-
-	for i := 0; i < x; i++ {
+	for i := 0; i < len(BalancerWETHPoolList); i++ { // Pull each volume + download historical data for it
 		reqBalancerbyIDvar.Var("poolid", BalancerWETHPoolList[i])
 		fmt.Print(i)
 		fmt.Print(": ")
@@ -465,17 +567,81 @@ func (database *Database) AddRecordfromAPI() {
 		fmt.Println(BalancerETHPools.Pools[i].Tokens[1].Symbol)
 
 		value, _ := strconv.ParseFloat(BalancerETHPools.Pools[i].TotalSwapVolume, 32)
-		value2, _ := strconv.ParseFloat(BalancerETHPools.Pools[i].TotalSwapVolume, 32) // float32(), 0 // strconv.ParseFloat(float32(len(respBalancerPoolList.Pools)), 32)
-		float := float32(value)                                                        // float32(respBalancerById.Data.Pool.TotalSwapVolume)
-		float2 := float32(value2)                                                      // float32(respBalancerById.Data.Pool.TotalSwapVolume)
+		//value2, _ := strconv.ParseFloat(BalancerETHPools.Pools[i].TotalSwapVolume, 32) // float32(), 0 // strconv.ParseFloat(float32(len(respBalancerPoolList.Pools)), 32)
+		float := float32(value) // float32(respBalancerById.Data.Pool.TotalSwapVolume)
+		float2 := float32(0)    // shld be interest = 0 for liquidity pools                                                       // float32(respBalancerById.Data.Pool.TotalSwapVolume)
 
+		if len(BalancerETHPools.Pools[i].Tokens) > 1 {
+			token0 := BalancerETHPools.Pools[i].Tokens[0].Symbol
+			token1 := BalancerETHPools.Pools[i].Tokens[1].Symbol
+			fmt.Print("token0 = " + token0)
+			fmt.Println("token1 = " + token1)
+
+			if !stringInSlice(token0, listofassets) {
+				listofassets = append(listofassets, token0)
+				if token0 == "WETH" {
+					token0 = "ETH" // Ticker is different on Uniswap - ETH only exists
+				}
+				reqUniswapTickerID.Var("ticker", token0) // 			look up their uniswap addresses
+
+				if token0 == "DAI" {
+					id := "0x6b175474e89094c44da98b954eedeac495271d0f"
+					listofids = append(listofids, id)
+				}
+
+				if token0 != "USDC" && token0 != "DAI" { // for some reason cannot get the ids from uniswap
+					if err := clientUniswap.Run(ctx, reqUniswapTickerID, &respUniswapTicker); err != nil {
+						log.Fatal(err)
+					}
+
+					if len(respUniswapTicker.IDsforticker) >= 1 {
+						fmt.Println("Downloaded ticker: " + respUniswapTicker.IDsforticker[0].ID)
+						// set the found id as new request ticker
+						reqUniswapHist.Var("tokenid", respUniswapTicker.IDsforticker[0].ID)
+						// 			download their historical price data
+						if err := clientUniswap.Run(ctx, reqUniswapHist, &respUniswapHist); err != nil {
+							log.Fatal(err)
+						}
+						// store it in list of ids
+						listofids = append(listofids, respUniswapTicker.IDsforticker[0].ID)
+
+						fmt.Println("Successfully got the historical for ticker: " + respUniswapTicker.IDsforticker[0].ID)
+						fmt.Println(len(respUniswapHist.DailyTimeSeries))
+						fmt.Print("date: :")
+						fmt.Print(respUniswapHist.DailyTimeSeries[0].Date)
+						fmt.Print(" | price: ")
+						fmt.Println(respUniswapHist.DailyTimeSeries[0].PriceUSD)
+						//fmt.Print(respUniswapHist.DailyTimeSeries[1].Date)
+						//fmt.Println(respUniswapHist.DailyTimeSeries[1].PriceUSD)
+					}
+				}
+			}
+
+			if !stringInSlice(token1, listofassets) {
+				listofassets = append(listofassets, token1)
+				// in this case also need to do the lookup and download like for token0
+			}
+		}
+
+		// compute historical stdev
+		// append it to database
+		// if hist response is longer than 0
+		vol := calculatehistoricalvolatility(respUniswapHist, 30)
 		//		fmt.Print("Appending to database: ")
 		//		fmt.Print(i)
 		//		fmt.Print(": ")
+		// get reward mechanism?
+		// calculate ROI
+		ROI := calculateROI(0, 0.003, float32(value), vol)
 		fmt.Println(BalancerETHPools.Pools[i].Tokens[0].Symbol + "/" + BalancerETHPools.Pools[i].Tokens[1].Symbol)
-		database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{BalancerETHPools.Pools[i].Tokens[0].Symbol + "/" + BalancerETHPools.Pools[i].Tokens[1].Symbol, float, float2, "Balancer"})
+		database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{BalancerETHPools.Pools[i].Tokens[0].Symbol + "/" + BalancerETHPools.Pools[i].Tokens[1].Symbol, float, float2, "Balancer", vol, ROI})
 
-	}
+		/*
+
+			normalise by volatility
+		*/
+
+	} // for len x
 
 	//	fmt.Println("Downloaded data for pools with ETH: ")
 	//	fmt.Println(len(BalancerETHPools.Pools))
@@ -483,6 +649,14 @@ func (database *Database) AddRecordfromAPI() {
 	//if err := clientBalancer.Run(ctx, reqBalancer, &respBalancer); err != nil {
 	//	log.Fatal(err)
 	//}
+
+	fmt.Print("Number of unique tickers = ")
+	fmt.Println(len(listofassets))
+
+	for i := 0; i < len(listofassets); i++ {
+		fmt.Print(listofassets[i] + ": ")
+		//fmt.Println(listofids[i])
+	}
 
 	if err := clientCompound.Run(ctx, reqCompound, &respCompound); err != nil {
 		log.Fatal(err)
@@ -513,9 +687,9 @@ func (database *Database) AddRecordfromAPI() {
 	//database.currencyinputdata = append(database.currencyinputdata, NewCurrencyInputData())
 }
 
-func (database *Database) AddRecordfromAPI2(pair string, amount float32, yield float32, pool string) {
+func (database *Database) AddRecordfromAPI2(pair string, amount float32, yield float32, pool string, volatility float32, ROIestimate float32) {
 	//c CurrencyInputData = NewCurrencyInputData()
-	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{pair, amount, yield, pool})
+	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{pair, amount, yield, pool, volatility, ROIestimate})
 }
 
 func (database *Database) GetCurrencyInputData() []CurrencyInputData {
