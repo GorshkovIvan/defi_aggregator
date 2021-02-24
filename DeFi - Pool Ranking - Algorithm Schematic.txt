@@ -1,0 +1,39 @@
+Do for each Pool:
+1: Get list of PAIRS (i.e. ETH/DAI) from Pool (Balancer/Uniswap). Save in individual variable list UniswapPairs, BalancerPairs. 
+2: Narrow list down to PAIRS which contain: any TWO of: ETH, DAI, USDC, USDT, WETH, WBTC
+3: Create list of TOKENS (ETH, DAI, USDC) by splitting list of PAIRS and save both TOKEN name (ETH) and TOKEN id from Uniswap (0x111234034252376586)
+4: Cycle through list of TOKENS (by name) and check if DATABASE contains up to date historical data for each of these TOKENS
+5: If NO historical data found for TOKEN in DATABASE:  
+	6: If not querying Uniswap historical, query Uniswap for ID (looks like: 0x111234034252376586) for these TOKENS (i.e. ETH,DAI)
+	Save results in TOKEN-NAME - UNISWAP ID MAPPING in database
+	
+	7: Download historical price data (array[date,price]) for TOKEN (i.e. DAI, always against USD) and append historical to database
+
+8: [Query historical VOLUME data] (Not clear how to do this yet for non-Uniswap) - just use latest volume as estimate for now
+9: [Query pool for reward mechanism %] - not figured out how yet, just hardcode mechanism in code for now
+
+12: Consolidate UniswapPairs, BalancerPairs into consolidated PAIR-POOL tuple list. For lending pools, set the second token to 'USD'
+11: Cycle through this list of PAIRS, download CURRENT data:
+	Interest rate
+	Volume
+	TokenPrice
+	Append it to the data structure in 12
+
+-----------------------------------------------------------------
+At this point should have:
+
+Database
+	Consolidated TOKEN LIST (format ETH, DAI, USDC)
+	TOKEN-NAME - UNISWAP ID MAPPING
+	Consolidated PAIR-POOL-CURRENTDATA tuple LIST  
+	HistoricalRecords:
+	ETH					DAI				WBTC
+	date,price			date,price		date,price
+-----------------------------------------------------------------
+
+12: For each PAIR in consolidated PAIR-POOL tuple LIST:
+		calculate historical_volatility(historical_data(PAIR))
+		calculate ROI(historical volatility, interest rate, volume, reward%mechanism)
+		append to database(PAIR,POOL,historical_volatility,ROI)
+	
+= GET ACCURATE RANKING ON FRONT END
