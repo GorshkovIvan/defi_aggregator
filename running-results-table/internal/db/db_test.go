@@ -2,7 +2,7 @@ package db
 
 import "testing"
 
-func TestNewRecord( t *testing.T) {
+func TestNewRecord(t *testing.T) {
 	new_record := NewRecord("DAI/ETH", 12.34, 100.0)
 
 	if new_record.Pair != "DAI/ETH" {
@@ -111,8 +111,6 @@ func TestAddRecordfromAPI2(t *testing.T) {
 	}
 }
 
-
-
 func TestGetCurrencyInputData(t *testing.T) {
 	new_database := New()
 	new_database.currencyinputdata = nil
@@ -132,7 +130,7 @@ func TestGetCurrencyInputData(t *testing.T) {
 	}
 }
 
-func TestRankBestCurrencies(t *testing.T){
+func TestRankBestCurrencies(t *testing.T) {
 	new_database := New()
 	new_database.AddRecordfromAPI2("DAI/ETH", 12.34, 0.05)
 	new_database.AddRecordfromAPI2("DAI/USDC", 24.34, 0.13)
