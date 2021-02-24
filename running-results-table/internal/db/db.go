@@ -6,7 +6,7 @@ import (
 	"log"
 	"sort"
 	"strconv"
-
+	aave "pusher/defi_aggregator/running-results-table/internal/aave_graph"
 	"github.com/machinebox/graphql"
 )
 
@@ -167,19 +167,6 @@ type BancorSwap struct {
 	LogIndex  int    `json:"logIndex"`
 }
 
-// --AAVE--
-type AaveQuery struct {
-	Reserve AaveData `json:"reserve"`
-}
-
-type AaveData struct {
-	ID                 string `json:"id"`
-	Symbol             string `json:"symbol"`
-	LiquidityRate      string `json:"liquidityRate"`
-	StableBorrowRate   string `json:"stableBorrowRate"`
-	VariableBorrowRate string `json:"variableBorrowRate"`
-	TotalBorrows       string `json:"totalBorrows"`
-}
 
 type Record struct {
 	Pair    string  `json:"pair"`
@@ -294,10 +281,10 @@ func (database *Database) AddRecordfromAPI() {
 	clientUniswap := graphql.NewClient("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
 	clientCurve := graphql.NewClient("https://api.thegraph.com/subgraphs/name/protofire/curve")
 	clientBancor := graphql.NewClient("https://api.thegraph.com/subgraphs/name/blocklytics/bancor")
-	clientAave := graphql.NewClient("https://api.thegraph.com/subgraphs/name/aave/protocol")
+
 
 	reqBalancerListOfPools := graphql.NewRequest(`
-	query {      
+	query {
         pools{
         id
         tokens {
@@ -332,7 +319,7 @@ func (database *Database) AddRecordfromAPI() {
 	`)
 
 	reqBalancerbyIDvar := graphql.NewRequest(`
-	query ($poolid:String!){      
+	query ($poolid:String!){
 		pool(id:$poolid) {
 			id
 			finalized
@@ -376,7 +363,7 @@ func (database *Database) AddRecordfromAPI() {
 				reserveFactor
 				underlyingPriceUSD
 			}
-		}  
+		}
 	`)
 
 	// More parameters to be added as necessary
@@ -438,23 +425,10 @@ func (database *Database) AddRecordfromAPI() {
 		}
 	`)
 
-	reqAave := graphql.NewRequest(`
-		query($address: ID!)
-		{
-				reserve(id: $address){
-				id
-				symbol
-				liquidityRate
-				stableBorrowRate
-				variableBorrowRate
-				totalBorrows
-			}
-			}
-				`)
 
 	// ($tokenid:String!)
 	reqUniswapHist := graphql.NewRequest(`
-				query ($tokenid:String!){      
+				query ($tokenid:String!){
 						tokenDayDatas(first: 30 orderBy: date, orderDirection: asc,
 						 where: {
 						   token:$tokenid
@@ -466,17 +440,17 @@ func (database *Database) AddRecordfromAPI() {
 							   id
 							   symbol
 						   }
-						}		
+						}
 				  }
 			`)
 
 	reqUniswapTickerID := graphql.NewRequest(`
-			query ($ticker:String!){      
-				tokens(where:{symbol:$ticker}) 
+			query ($ticker:String!){
+				tokens(where:{symbol:$ticker})
 				{
 					id
 					symbol
-				  }	
+				  }
 			  }
 		`)
 
@@ -487,7 +461,6 @@ func (database *Database) AddRecordfromAPI() {
 	reqCurve.Var("key", "value")
 	reqBancor.Var("key", "value")
 	reqBalancerListOfPools.Var("key", "value")
-	reqAave.Var("address", "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") // Ether address
 
 	// set header fields
 	reqBalancer.Header.Set("Cache-Control", "no-cache")
@@ -497,7 +470,6 @@ func (database *Database) AddRecordfromAPI() {
 	reqCurve.Header.Set("Cache-Control", "no-cache")
 	reqBancor.Header.Set("Cache-Control", "no-cache")
 	reqBalancerListOfPools.Header.Set("Cache-Control", "no-cache")
-	reqAave.Header.Set("Cache-Control", "no-cache")
 	reqUniswapHist.Header.Set("Cache-Control", "no-cache")
 	reqUniswapTickerID.Header.Set("Cache-Control", "no-cache")
 	// define a Context for the request
@@ -511,40 +483,36 @@ func (database *Database) AddRecordfromAPI() {
 	var respBancor BancorQuery
 	var respBalancerById BalancerById
 	var respBalancerPoolList BalancerPoolList
-	var respAave AaveQuery
 	var respUniswapHist UniswapHistQuery
 	var respUniswapTicker UniswapTickerQuery
 
-	if err := clientAave.Run(ctx, reqAave, &respAave); err != nil {
-		log.Fatal(err)
-	}
+  // AAVE
 
-	value, _ := strconv.ParseFloat(respAave.Reserve.TotalBorrows, 32)
-	float := float32(value)
-	float2 := float32(-0.0125)
-	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{respAave.Reserve.Symbol, float, float2, "Aave", 0.01, -0.0125})
+	symbol, float, float2 := aave.GetData()
+	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{symbol, float, float2, "Aave", 0.01, -0.0125})
 
+	//BALANCER
 	if err := clientBalancer.Run(ctx, reqBalancerListOfPools, &respBalancerPoolList); err != nil {
 		log.Fatal(err)
 	}
 
 	var BalancerWETHPoolList []string
-	fmt.Println(len(BalancerWETHPoolList))
-	fmt.Println("how many pools in total:")
-	fmt.Println(len(respBalancerPoolList.Pools))
+	//fmt.Println(len(BalancerWETHPoolList))
+	//fmt.Println("how many pools in total:")
+	//fmt.Println(len(respBalancerPoolList.Pools))
 
 	for i := 0; i < len(respBalancerPoolList.Pools); i++ {
 		if len(respBalancerPoolList.Pools[i].Tokens) > 1 {
 			if respBalancerPoolList.Pools[i].Tokens[0].Symbol == "WETH" || respBalancerPoolList.Pools[i].Tokens[1].Symbol == "WETH" {
 				//fmt.Print(respBalancerPoolList.Pools[i].Tokens[0].Symbol)
-				//fmt.Println(respBalancerPoolList.Pools[i].Tokens[1].Symbol)
+				////fmt.Println(respBalancerPoolList.Pools[i].Tokens[1].Symbol)
 				BalancerWETHPoolList = append(BalancerWETHPoolList, respBalancerPoolList.Pools[i].ID)
 			}
 		}
 
 	}
 
-	//fmt.Println(len(BalancerWETHPoolList))
+	////fmt.Println(len(BalancerWETHPoolList))
 	var BalancerETHPools BalancerQuery
 	var listofassets []string // vector for unique tickers from balancer - which contain ETH
 	var listofids []string    // list of corresponding uniswap ticker ids - to download historicals
@@ -564,7 +532,7 @@ func (database *Database) AddRecordfromAPI() {
 
 		BalancerETHPools.Pools = append(BalancerETHPools.Pools, respBalancerById.BalancerPool) //
 		fmt.Print(BalancerETHPools.Pools[i].Tokens[0].Symbol)
-		fmt.Println(BalancerETHPools.Pools[i].Tokens[1].Symbol)
+		//fmt.Println(BalancerETHPools.Pools[i].Tokens[1].Symbol)
 
 		value, _ := strconv.ParseFloat(BalancerETHPools.Pools[i].TotalSwapVolume, 32)
 		//value2, _ := strconv.ParseFloat(BalancerETHPools.Pools[i].TotalSwapVolume, 32) // float32(), 0 // strconv.ParseFloat(float32(len(respBalancerPoolList.Pools)), 32)
@@ -575,7 +543,7 @@ func (database *Database) AddRecordfromAPI() {
 			token0 := BalancerETHPools.Pools[i].Tokens[0].Symbol
 			token1 := BalancerETHPools.Pools[i].Tokens[1].Symbol
 			fmt.Print("token0 = " + token0)
-			fmt.Println("token1 = " + token1)
+			//fmt.Println("token1 = " + token1)
 
 			if !stringInSlice(token0, listofassets) {
 				listofassets = append(listofassets, token0)
@@ -595,7 +563,7 @@ func (database *Database) AddRecordfromAPI() {
 					}
 
 					if len(respUniswapTicker.IDsforticker) >= 1 {
-						fmt.Println("Downloaded ticker: " + respUniswapTicker.IDsforticker[0].ID)
+						//fmt.Println("Downloaded ticker: " + respUniswapTicker.IDsforticker[0].ID)
 						// set the found id as new request ticker
 						reqUniswapHist.Var("tokenid", respUniswapTicker.IDsforticker[0].ID)
 						// 			download their historical price data
@@ -605,14 +573,14 @@ func (database *Database) AddRecordfromAPI() {
 						// store it in list of ids
 						listofids = append(listofids, respUniswapTicker.IDsforticker[0].ID)
 
-						fmt.Println("Successfully got the historical for ticker: " + respUniswapTicker.IDsforticker[0].ID)
-						fmt.Println(len(respUniswapHist.DailyTimeSeries))
+						//fmt.Println("Successfully got the historical for ticker: " + respUniswapTicker.IDsforticker[0].ID)
+						//fmt.Println(len(respUniswapHist.DailyTimeSeries))
 						fmt.Print("date: :")
 						fmt.Print(respUniswapHist.DailyTimeSeries[0].Date)
 						fmt.Print(" | price: ")
-						fmt.Println(respUniswapHist.DailyTimeSeries[0].PriceUSD)
+						//fmt.Println(respUniswapHist.DailyTimeSeries[0].PriceUSD)
 						//fmt.Print(respUniswapHist.DailyTimeSeries[1].Date)
-						//fmt.Println(respUniswapHist.DailyTimeSeries[1].PriceUSD)
+						////fmt.Println(respUniswapHist.DailyTimeSeries[1].PriceUSD)
 					}
 				}
 			}
@@ -633,7 +601,7 @@ func (database *Database) AddRecordfromAPI() {
 		// get reward mechanism?
 		// calculate ROI
 		ROI := calculateROI(0, 0.003, float32(value), vol)
-		fmt.Println(BalancerETHPools.Pools[i].Tokens[0].Symbol + "/" + BalancerETHPools.Pools[i].Tokens[1].Symbol)
+		//fmt.Println(BalancerETHPools.Pools[i].Tokens[0].Symbol + "/" + BalancerETHPools.Pools[i].Tokens[1].Symbol)
 		database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{BalancerETHPools.Pools[i].Tokens[0].Symbol + "/" + BalancerETHPools.Pools[i].Tokens[1].Symbol, float, float2, "Balancer", vol, ROI})
 
 		/*
@@ -643,19 +611,19 @@ func (database *Database) AddRecordfromAPI() {
 
 	} // for len x
 
-	//	fmt.Println("Downloaded data for pools with ETH: ")
-	//	fmt.Println(len(BalancerETHPools.Pools))
+	//	//fmt.Println("Downloaded data for pools with ETH: ")
+	//	//fmt.Println(len(BalancerETHPools.Pools))
 
 	//if err := clientBalancer.Run(ctx, reqBalancer, &respBalancer); err != nil {
 	//	log.Fatal(err)
 	//}
 
 	fmt.Print("Number of unique tickers = ")
-	fmt.Println(len(listofassets))
+	//fmt.Println(len(listofassets))
 
 	for i := 0; i < len(listofassets); i++ {
 		fmt.Print(listofassets[i] + ": ")
-		//fmt.Println(listofids[i])
+		////fmt.Println(listofids[i])
 	}
 
 	if err := clientCompound.Run(ctx, reqCompound, &respCompound); err != nil {
