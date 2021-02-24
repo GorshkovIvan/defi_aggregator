@@ -13,7 +13,7 @@ Do for each Pool:
 9: [Query pool for reward mechanism %] - not figured out how yet, just hardcode mechanism in code for now
 
 12: Consolidate UniswapPairs, BalancerPairs into consolidated PAIR-POOL tuple list. For lending pools, set the second token to 'USD'
-11: Cycle through this list of PAIRS, download CURRENT data:
+13: Cycle through this list of PAIRS, download CURRENT data:
 	Interest rate
 	Volume
 	TokenPrice
@@ -31,7 +31,7 @@ Database
 	date,price			date,price		date,price
 -----------------------------------------------------------------
 
-12: For each PAIR in consolidated PAIR-POOL tuple LIST:
+14: For each PAIR in consolidated PAIR-POOL tuple LIST:
 		calculate historical_volatility(historical_data(PAIR))
 		calculate ROI(historical volatility, interest rate, volume, reward%mechanism)
 		append to database(PAIR,POOL,historical_volatility,ROI)
