@@ -53,7 +53,7 @@ func TestNewCurrencyInputDataAct(t *testing.T) {
 func TestNew(t *testing.T) {
 	new_database := New()
 
-	if new_database.contents == nil {
+	if new_database.ownstartingportfolio == nil {
 		t.Errorf("fail!")
 	}
 
@@ -67,7 +67,7 @@ func TestAddRecord(t *testing.T) {
 	new_record := NewRecord("DAI/ETH", 12.34, 100.0)
 	new_database.AddRecord(new_record)
 
-	if new_database.contents[0] != new_record {
+	if new_database.ownstartingportfolio[0] != new_record {
 		t.Errorf("fail!")
 	}
 }

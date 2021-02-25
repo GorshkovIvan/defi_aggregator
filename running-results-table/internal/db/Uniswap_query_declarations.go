@@ -36,23 +36,3 @@ type UniswapPair struct {
 	Token0             UniswapTokenDayData2 `json:"token0"`
 	Token1             UniswapTokenDayData2 `json:"token1"`
 }
-
-/*
-type UniswapQuery struct {
-	UniswapFactories []UniswapFactory `json:"uniswapFactories"`
-}
-*/
-
-/*
-type UniswapFactory struct {
-	ID                 string                `json:"id"`
-	PairCount          int                   `json:"pairCount"`
-	TotalVolumeUSD     string                `json:"totalVolumeUSD"`
-	TotalVolumeETH     string                `json:"totalVolumeETH"`
-	UntrackedVolumeUSD string                `json:"untrackedVolumeUSD"`
-	TotalLiquidityUSD  string                `json:"totalLiquidityUSD"`
-	TotalLiquidityETH  string                `json:"totalLiquidityETH"`
-	TXCount            string                `json:"txCount"`
-	MostLiquidTokens   []UniswapTokenDayData `json:"mostLiquidTokens"`
-}
-*/

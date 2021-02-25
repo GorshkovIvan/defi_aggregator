@@ -15,9 +15,10 @@ export default function ResultsTable({results}) {
                 <Table.Cell>
                     <Label ribbon color={color}>{ index + 1 }</Label>
                 </Table.Cell>
-                <Table.Cell>{ result.pair }</Table.Cell>
-                <Table.Cell>{ result.amount }</Table.Cell>
-                <Table.Cell>{ result.pool_sz }</Table.Cell>
+                <Table.Cell>{ result.token }</Table.Cell>
+                <Table.Cell>{ "Uniswap" }</Table.Cell>
+                <Table.Cell>{ 1 }</Table.Cell>
+                <Table.Cell>{ result.amount/100 }</Table.Cell>
             </Table.Row>
         );
     }));
@@ -29,9 +30,10 @@ export default function ResultsTable({results}) {
                     <Table.Header>
                         <Table.Row>
                             <Table.HeaderCell>Ranking</Table.HeaderCell>
-                            <Table.HeaderCell>Pair</Table.HeaderCell>
-                            <Table.HeaderCell>Amount</Table.HeaderCell>
-                            <Table.HeaderCell>Pool Size</Table.HeaderCell>
+                            <Table.HeaderCell>Pair/Token</Table.HeaderCell>
+                            <Table.HeaderCell>Pool</Table.HeaderCell>
+                            <Table.HeaderCell>ROI Estimate</Table.HeaderCell>
+                            <Table.HeaderCell>% Portfolio</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>

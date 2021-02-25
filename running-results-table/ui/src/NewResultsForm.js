@@ -4,13 +4,13 @@ import { Form, Header, Segment, Button } from 'semantic-ui-react'
 // does not do any validation
 export default class NewResultsForm extends React.Component {
     state = {
-        pair: '',
+        token: '',
         amount: '',
-        pool_sz: ''
+//        pool_sz: ''
     };
     onChangeName = this._onChangeName.bind(this);
     onChangeTime = this._onChangeTime.bind(this);
-    onChangePool_sz = this._onChangePool_sz.bind(this);
+  //  onChangePool_sz = this._onChangePool_sz.bind(this);
     onSubmit = this._onSubmit.bind(this);
     render() {
         return (
@@ -19,17 +19,14 @@ export default class NewResultsForm extends React.Component {
                     <Header>Please Enter Your Cryptocurrency Portfolio and we will suggest how to maximize its yield:</Header>
                     <Form onSubmit={this.onSubmit}>
                         <Form.Field>
-                            <label>Pair</label>
-                            <input placeholder='ETH' value={this.state.pair} onChange={this.onChangeName} />
+                            <label>Token</label>
+                            <input placeholder='ETH' value={this.state.token} onChange={this.onChangeName} />
                         </Form.Field>
                         <Form.Field>
                             <label>Amount</label>
                             <input placeholder='Amount' value={this.state.amount} onChange={this.onChangeTime} />
                         </Form.Field>
-                        <Form.Field>
-                            <label>Pool Size</label>
-                            <input placeholder='Pool Size' value={this.state.pool_sz} onChange={this.onChangePool_sz} />
-                        </Form.Field>
+
                         <Button type='submit'>Submit</Button>
                     </Form>
                 </Segment>
@@ -38,7 +35,7 @@ export default class NewResultsForm extends React.Component {
     }
     _onChangeName(e) {
         this.setState({
-            pair: e.target.value
+            token: e.target.value
         });
     }
     _onChangeTime(e) {
@@ -46,16 +43,16 @@ export default class NewResultsForm extends React.Component {
             amount: e.target.value
         });
     }
-    _onChangePool_sz(e) {
+/*    _onChangePool_sz(e) {
         this.setState({
             pool_sz: e.target.value
         });
-    }
+    }*/
     _onSubmit() {
         const payload = {
-            pair: this.state.pair,
+            token: this.state.token,
             amount: parseFloat(this.state.amount),
-            pool_sz: parseFloat(this.state.pool_sz)
+           // pool_sz: parseFloat(this.state.pool_sz)
         };
         fetch('http://localhost:8080/results', {
             method: 'POST',
@@ -65,9 +62,16 @@ export default class NewResultsForm extends React.Component {
             body: JSON.stringify(payload)
         });
         this.setState({
-            pair: '',
+            token: '',
             amount: '',
-            pool_sz: ''
+        //    pool_sz: ''
         });
     }
 }
+
+/*
+                        <Form.Field>
+                            <label>Pool Size</label>
+                            <input placeholder='Pool Size' value={this.state.pool_sz} onChange={this.onChangePool_sz} />
+                        </Form.Field>
+*/

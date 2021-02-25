@@ -1,0 +1,6 @@
+isHistDataAlreadyDownloaded - Check for dates
+calculatehistoricalvolatility - Need to check if works correctly - done quickly
+calculateROI - need to implement properly
+NewHistoricalCurrencyDataFromRaw - fill in 
+retrieveDataForTokensFromDatabase - fill in
+WETH Data not downloading correctly - just 1 historical day

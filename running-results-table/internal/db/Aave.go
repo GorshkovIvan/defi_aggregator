@@ -21,7 +21,7 @@ type AaveData struct {
 	TotalBorrows       string `json:"totalBorrows"`
 }
 
-func GetAaveData() (string, float32, float32) {
+func GetAaveData() (string, float32, float32, float32, float32) {
 
 	clientAave := graphql.NewClient("https://api.thegraph.com/subgraphs/name/aave/protocol")
 	ctx := context.Background()
@@ -52,5 +52,5 @@ func GetAaveData() (string, float32, float32) {
 	float := float32(value)
 	float2 := float32(-0.0125)
 
-	return respAave.Reserve.Symbol, float, float2
+	return respAave.Reserve.Symbol, float, float2, float32(0.01), float32(0.001)
 }

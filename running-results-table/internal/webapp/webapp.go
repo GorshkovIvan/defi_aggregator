@@ -32,7 +32,8 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 	})
 
 	r.POST("/results", func(c *gin.Context) {
-		var json db.Record
+		//		var json db.Record
+		var json db.OwnPortfolioRecord
 		if err := c.BindJSON(&json); err == nil {
 			database.AddRecord(json)
 			c.JSON(http.StatusCreated, json)
@@ -48,14 +49,14 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 	// This is the backend algo
 	database.RankBestCurrencies()
 
-	time.AfterFunc(5 * time.Second, func() {
+	time.AfterFunc(5*time.Second, func() {
 		database.AddRecordfromAPI()
-		//database.AddRecordfromAPI2("USDT/USDC", 420420, 6969)		
+		//database.AddRecordfromAPI2("USDT/USDC", 420420, 6969)
 		// backend algo
 		database.RankBestCurrencies()
 		notifierClient.Notify()
 	})
-	time.AfterFunc(10 * time.Second, func() {
+	time.AfterFunc(10*time.Second, func() {
 		database.AddRecordfromAPI()
 		//database.AddRecordfromAPI2("HighYield4meToken", 1337, 420.69)
 		// backend algo

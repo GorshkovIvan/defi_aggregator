@@ -277,12 +277,14 @@ func (database *Database) AddRecordfromAPI() {
 					tokenqueue = append(tokenqueue, token1symbol)
 				}
 
-				fmt.Print("tokenqueue len: ")
-				fmt.Println(len(tokenqueue))
+				/*
+					fmt.Print("tokenqueue len: ")
+					fmt.Println(len(tokenqueue))
+				*/
 
 				for j := 0; j < len(tokenqueue); j++ {
 					// Check if database already has historical data
-					if !isHistDataAlreadyDownloaded(convBalancerToken(tokenqueue[j])) {
+					if !isHistDataAlreadyDownloaded(convBalancerToken(tokenqueue[j]), database) {
 						// Get Uniswap Ids of these tokens
 						reqUniswapIDFromTokenTicker.Var("ticker", convBalancerToken(tokenqueue[j]))
 						if err := clientUniswap.Run(ctx, reqUniswapIDFromTokenTicker, &respUniswapTicker); err != nil {
@@ -318,14 +320,15 @@ func (database *Database) AddRecordfromAPI() {
 					log.Fatal(err)
 				}
 
+				currentSize := float32(10000.0)                                              // TO DO: Size
 				currentVolume, _ := strconv.ParseFloat(respBalancerById.TotalSwapVolume, 32) // No historical for now
 				currentInterestrate := float32(0.00)                                         // Zero for liquidity pool
-				BalancerRewardPercentage := float32(0.003)                                   // Placeholder
+				BalancerRewardPercentage := float32(0.003)                                   // TO DO
 
 				volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
 				ROI := calculateROI(currentInterestrate, BalancerRewardPercentage, float32(currentVolume), volatility)
 
-				database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentVolume), currentInterestrate, "Balancer", volatility, ROI})
+				database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize), float32(currentVolume), currentInterestrate, "Balancer", volatility, ROI})
 
 			} // if pool is within pre filtered list ends
 		} // if pool has some tokens ends
@@ -368,7 +371,7 @@ func (database *Database) AddRecordfromAPI() {
 
 			for j := 0; j < len(tokenqueueIDs); j++ {
 				// Check if database already has historical data
-				if !isHistDataAlreadyDownloaded(tokenqueue[j]) {
+				if !isHistDataAlreadyDownloaded(tokenqueue[j], database) {
 					// No need to get uniswap ids of these tokens
 					// Download historical data for each token for which data is missing
 					// request data from uniswap using this queried ticker
@@ -396,6 +399,7 @@ func (database *Database) AddRecordfromAPI() {
 				log.Fatal(err)
 			}
 
+			currentSize := float32(1000.000)
 			currentVolume, _ := strconv.ParseFloat(respUniswapById.Pair.VolumeUSD, 32) // No historical for now
 			currentInterestrate := float32(0.00)                                       // Zero for liquidity pool
 			UniswapRewardPercentage := float32(0.003)                                  // Placeholder
@@ -403,7 +407,7 @@ func (database *Database) AddRecordfromAPI() {
 			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
 			ROI := calculateROI(currentInterestrate, UniswapRewardPercentage, float32(currentVolume), volatility)
 
-			database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentVolume), currentInterestrate, "Uniswap", volatility, ROI})
+			database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize), float32(currentVolume), currentInterestrate, "Uniswap", volatility, ROI})
 		} // if pool is within pre filtered list ends
 		// } // if pool has some tokens ends
 	} // Uniswap pair loop closes
@@ -458,18 +462,9 @@ func (database *Database) AddRecordfromAPI() {
 	// Checks - end
 
 	// AAVE
-	symbol, float, float2 := GetAaveData()
-	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{symbol, float, float2, "Aave", 0.01, -0.0125})
-	/*
-		if err := clientAave.Run(ctx, reqAave, &respAave); err != nil {
-			log.Fatal(err)
-		}
-
-		value, _ := strconv.ParseFloat(respAave.Reserve.TotalBorrows, 32)
-		float := float32(value)
-		float2 := float32(-0.0125)
-		database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{respAave.Reserve.Symbol, float, float2, "Aave", 0.01, -0.0125})
-	*/
+	symbol, size, volume, interest, volatility := GetAaveData()
+	ROI := calculateROI(interest, 0, volume, volatility)
+	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{symbol, size, volume, interest, "Aave", volatility, ROI})
 
 	if err := clientCompound.Run(ctx, reqCompound, &respCompound); err != nil {
 		log.Fatal(err)

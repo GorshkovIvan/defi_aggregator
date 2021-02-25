@@ -11,7 +11,8 @@ export default function ResultsTable2({currencyoutputtable}) {
                     <Label ribbon color={color}>{ index + 1 }</Label>
                 </Table.Cell>
                 <Table.Cell>{ result.backend_pair }</Table.Cell>
-                <Table.Cell>{ result.backend_amount }</Table.Cell>
+                <Table.Cell>{ result.backend_poolsize }</Table.Cell>
+                <Table.Cell>{ result.backend_volume }</Table.Cell>
                 <Table.Cell>{ result.backend_yield }</Table.Cell>
                 <Table.Cell>{ result.pool_source }</Table.Cell>
                 <Table.Cell>{ result.volatility }</Table.Cell>
@@ -28,11 +29,12 @@ export default function ResultsTable2({currencyoutputtable}) {
                         <Table.Row>
                             <Table.HeaderCell>Ranking</Table.HeaderCell>
                             <Table.HeaderCell>Currency Pair</Table.HeaderCell>
-                            <Table.HeaderCell>Amount</Table.HeaderCell>
-                            <Table.HeaderCell>Yield raw</Table.HeaderCell>
+                            <Table.HeaderCell>Pool Size</Table.HeaderCell>
+                            <Table.HeaderCell>Pool Trading Volume</Table.HeaderCell>
+                            <Table.HeaderCell>Interest Rate</Table.HeaderCell>
                             <Table.HeaderCell>Pool</Table.HeaderCell>
-                            <Table.HeaderCell>Volatility</Table.HeaderCell>
-                            <Table.HeaderCell>Yield normalized by vol</Table.HeaderCell>
+                            <Table.HeaderCell>Historical Volatility</Table.HeaderCell>
+                            <Table.HeaderCell>ROI Estimate</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
