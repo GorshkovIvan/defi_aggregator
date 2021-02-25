@@ -74,49 +74,49 @@ func (database *Database) AddRecordfromAPI() {
 	`)
 
 	reqUniswapHist := graphql.NewRequest(`
-	query ($tokenid:String!){      
-			tokenDayDatas(first: 30 orderBy: date, orderDirection: asc,
-			 where: {
-			   token:$tokenid
-			 }
-			) {
-			   date
-			   priceUSD
-			   token{
-				   id
-				   symbol
-			   }
-			}		
-	  }
-`)
+			query ($tokenid:String!){
+					tokenDayDatas(first: 30 orderBy: date, orderDirection: asc,
+					 where: {
+					   token:$tokenid
+					 }
+					) {
+					   date
+					   priceUSD
+					   token{
+						   id
+						   symbol
+					   }
+					}
+			  }
+		`)
 
 	reqUniswapIDFromTokenTicker := graphql.NewRequest(`
-			query ($ticker:String!){      
-				tokens(where:{symbol:$ticker}) 
-				{
-					id
-					symbol
-				}	
-			}
-`)
+					query ($ticker:String!){
+						tokens(where:{symbol:$ticker})
+						{
+							id
+							symbol
+						}
+					}
+		`)
 
 	reqUniswapByPoolID := graphql.NewRequest(`
-		query ($poolid:String!){      
-			pair(id:$poolid) {
-				id
-				untrackedVolumeUSD
-				volumeUSD
-				token0 {
-				id
-				symbol
+				query ($poolid:String!){
+					pair(id:$poolid) {
+						id
+						untrackedVolumeUSD
+						volumeUSD
+						token0 {
+						id
+						symbol
+						}
+						token1 {
+						id
+						symbol
+						}
+					}
 				}
-				token1 {
-				id
-				symbol
-				}
-			}
-		}
-		`)
+				`)
 
 	reqCompound := graphql.NewRequest(`
 			query {

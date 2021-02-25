@@ -1,51 +1,50 @@
 package db
 
 import (
-	"math"
 	"sort"
 )
 
 func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 	var vol float32
 	vol = 0.05
+	/*
+		var vol_period int32
+		vol_period = int32(math.Min(float64(len(H.Price)), float64(days))) // lower of days or available data
+		// NOTE: latest is first ? reverse indices if yet
+		// TO DO: calculate deviation
+		var total float32
+		total = 0.00
 
-	var vol_period int32
-	vol_period = int32(math.Min(float64(len(H.Price)), float64(days))) // lower of days or available data
-	// NOTE: latest is first ? reverse indices if yet
-	// TO DO: calculate deviation
-	var total float32
-	total = 0.00
+		for i := 0; i < int(vol_period); i++ {
+			total += H.Price[i] // calculate average price
+		}
 
-	for i := 0; i < int(vol_period); i++ {
-		total += H.Price[i] // calculate average price
-	}
+		mean := total / float32(vol_period) // actual days?
+		var differencesvsmean []float32
+		for i := 0; i < int(vol_period); i++ {
+			differencesvsmean = append(differencesvsmean, H.Price[i]-mean) // calculate difference between each value and mean
+		}
 
-	mean := total / float32(vol_period) // actual days?
-	var differencesvsmean []float32
-	for i := 0; i < int(vol_period); i++ {
-		differencesvsmean = append(differencesvsmean, H.Price[i]-mean) // calculate difference between each value and mean
-	}
+		var squaresofdifferencesvsmean []float32
+		for i := 0; i < int(vol_period); i++ {
+			// square these values
+			squaresofdifferencesvsmean = append(squaresofdifferencesvsmean, float32(math.Pow(float64(differencesvsmean[i]), 2.0)))
+		}
 
-	var squaresofdifferencesvsmean []float32
-	for i := 0; i < int(vol_period); i++ {
-		// square these values
-		squaresofdifferencesvsmean = append(squaresofdifferencesvsmean, float32(math.Pow(float64(differencesvsmean[i]), 2.0)))
-	}
+		var avg float32
+		avg = 0.0
+		for i := 0; i < int(vol_period); i++ {
+			avg += squaresofdifferencesvsmean[i]
+		}
 
-	var avg float32
-	avg = 0.0
-	for i := 0; i < int(vol_period); i++ {
-		avg += squaresofdifferencesvsmean[i]
-	}
+		avg = avg / float32(vol_period)                         // average them
+		vol = float32(math.Sqrt(float64(avg)) * math.Sqrt(252)) // is this the right adjustment for days?
 
-	avg = avg / float32(vol_period)                         // average them
-	vol = float32(math.Sqrt(float64(avg)) * math.Sqrt(252)) // is this the right adjustment for days?
-
-	// return -1 if no historical data available
-	if len(H.Date) == 0 {
-		vol = -1.00
-	}
-
+		// return -1 if no historical data available
+		if len(H.Date) == 0 {
+			vol = -1.00
+		}
+	*/
 	return float32(vol)
 }
 
