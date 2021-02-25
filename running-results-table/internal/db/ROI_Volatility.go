@@ -53,7 +53,6 @@ func calculateROI(interestrate float32, shareofvolume float32, poolvolume float3
 
 	var ROI float32
 	ROI = 0.069
-
 	// TO DO: update to proper formula
 	ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume)) / float32(volatility)
 
