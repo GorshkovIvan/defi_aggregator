@@ -129,7 +129,25 @@ query ($poolid:String!){
 			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
 			ROI := calculateROI(currentInterestrate, UniswapRewardPercentage, float32(currentVolume), volatility)
 
-			database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize), float32(currentVolume), currentInterestrate, "Uniswap", volatility, ROI})
+			var recordalreadyexists bool
+			recordalreadyexists = false
+
+			for k := 0; k < len(database.currencyinputdata); k++ {
+				// Means record already exists - UPDATE IT, DO NOT APPEND
+				if database.currencyinputdata[k].Pair == token0symbol+"/"+token1symbol && database.currencyinputdata[k].Pool == "Balancer" {
+					recordalreadyexists = true
+					database.currencyinputdata[k].PoolSize = currentSize
+					database.currencyinputdata[k].PoolVolume = float32(currentVolume)
+					database.currencyinputdata[k].ROIestimate = ROI
+					database.currencyinputdata[k].Volatility = volatility
+					database.currencyinputdata[k].Yield = currentInterestrate
+				}
+			}
+
+			// APPEND IF NEW
+			if !recordalreadyexists {
+				database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize), float32(currentVolume), currentInterestrate, "Uniswap", volatility, ROI})
+			}
 		} // if pool is within pre filtered list ends
 		// } // if pool has some tokens ends
 	} // Uniswap pair loop closes
