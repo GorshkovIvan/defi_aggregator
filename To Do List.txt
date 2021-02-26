@@ -1,6 +1,19 @@
-isHistDataAlreadyDownloaded - Check for dates
-calculatehistoricalvolatility - Need to check if works correctly - done quickly
-calculateROI - need to implement properly
-NewHistoricalCurrencyDataFromRaw - fill in 
-retrieveDataForTokensFromDatabase - fill in
+Steps left to MVP:
+isHistDataAlreadyDownloaded 		- Check for dates
+calculatehistoricalvolatility 		- Need to fix divide by zero somewhere
+calculateROI 						- Need to implement properly
+NewHistoricalCurrencyDataFromRaw 	- fill in 
+retrieveDataForTokensFromDatabase 	- fill in
 WETH Data not downloading correctly - just 1 historical day
+OptimisePortfolio 					- need to implement algo. Step 1 - create token pair permutations
+Get Reward Mechanism				- need to figure out what it is for pools other than Uniswap
+Historical Trading volume data		- need for accurate ROI
+Create risk var in database
+Populate risk var from slider
+Aave data pulling implementation
+Curve data pulling implementation 
+JS Tests
+UI 									- bring to match our report 1
+
+Get gas fees
+Version of OptimisePortfolio with swaps
