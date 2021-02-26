@@ -22,7 +22,8 @@ func notifier(database *db.Database, notifyChannel <-chan bool) {
 	// we have to put everything in this one for loop
 	for {
 		<-notifyChannel
-		data := map[string][]db.OwnPortfolioRecord{"results": database.GetRecords()}
+		data := map[string][]db.OptimisedPortfolioRecord{"results": database.GetOptimisedPortfolio()}
+		// 		data := map[string][]db.OwnPortfolioRecord{"results": database.GetRecords()}
 		//		data := map[string][]db. Record{"results": database.GetRecords()}
 		client.Trigger("results", "results", data)
 		currencyoutputtable := map[string][]db.CurrencyInputData{"currencyoutputtable": database.GetCurrencyInputData()}
