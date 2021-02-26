@@ -1,9 +1,36 @@
 package db
 
+import "fmt"
+
 type OwnPortfolioRecord struct {
 	Token  string  `json:"token"`
 	Amount float32 `json:"amount"`
-	//	Pool_sz float32 `json:"pool_sz"`
+}
+
+// Output of OwnPortfolioRecord
+type OptimisedPortfolioRecord struct {
+	TokenOrPair           string  `json:"tokenorpair"`
+	Pool                  string  `json:"pool"`
+	Amount                float32 `json:"amount"`
+	PercentageOfPortfolio float32 `json:"percentageofportfolio"`
+	ROIestimate           float32 `json:"roi_estimate"`
+}
+
+func NewOptimisedPortfolio(rawportfolio []OwnPortfolioRecord) []OptimisedPortfolioRecord {
+
+	var optimisedportfolio []OptimisedPortfolioRecord
+	for i := 0; i < len(rawportfolio); i++ {
+		// same token
+		// placeholder values for now
+		optimisedportfolio = append(optimisedportfolio, OptimisedPortfolioRecord{rawportfolio[i].Token, "Uniswap", rawportfolio[i].Amount, 0.420, 0.069})
+	}
+
+	// For some reason crashes with ZERO elements
+	if len(rawportfolio) == 0 {
+		optimisedportfolio = append(optimisedportfolio, OptimisedPortfolioRecord{"USD", "Uniswap", 100, 1, 0.0125})
+	}
+	fmt.Println("Returning optimised portfolio...")
+	return optimisedportfolio
 }
 
 // For adding own portfolio records
@@ -72,16 +99,23 @@ func NewCurrencyInputDataAct(pair string, poolSz float32, poolVolume float32, yi
 }
 
 type Database struct {
-	ownstartingportfolio   []OwnPortfolioRecord     // for portfolio optimisation table
+	// Data structure for Optimisation
+	ownstartingportfolio []OwnPortfolioRecord       // for portfolio optimisation table
+	optimisedportfolio   []OptimisedPortfolioRecord // for storing output of ownstartingportfolio
+
+	// Data structure for Ranking
 	currencyinputdata      []CurrencyInputData      // LATEST currency pair info
 	historicalcurrencydata []HistoricalCurrencyData // historical time series
 }
 
 func New() Database {
 	ownstartingportfolio := make([]OwnPortfolioRecord, 0)
+	optimisedportfolio := make([]OptimisedPortfolioRecord, 0)
+
 	currencyinputdata := make([]CurrencyInputData, 0)
 	historicalcurrencydata := make([]HistoricalCurrencyData, 0)
-	return Database{ownstartingportfolio, currencyinputdata, historicalcurrencydata}
+
+	return Database{ownstartingportfolio, optimisedportfolio, currencyinputdata, historicalcurrencydata}
 }
 
 // Add OWN PORTFOLIO data
@@ -89,14 +123,22 @@ func (database *Database) AddRecord(r OwnPortfolioRecord) {
 	database.ownstartingportfolio = append(database.ownstartingportfolio, r)
 }
 
+/*
 func (database *Database) GetRecords() []OwnPortfolioRecord {
 	return database.ownstartingportfolio
 }
+*/
 
-// Add CURRENT pair data
+func (database *Database) GetOptimisedPortfolio() []OptimisedPortfolioRecord {
+	// return database.optimisedportfolio
+	return OptimisePortfolio(database)
+}
+
+/*
 func (database *Database) AddRecordfromAPI2(pair string, poolSz float32, poolVolume float32, yield float32, pool string, volatility float32, ROIestimate float32) {
 	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{pair, poolSz, poolVolume, yield, pool, volatility, ROIestimate})
 }
+*/
 
 func (database *Database) GetCurrencyInputData() []CurrencyInputData {
 	return database.currencyinputdata

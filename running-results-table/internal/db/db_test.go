@@ -76,7 +76,8 @@ func TestGetRecords(t *testing.T) {
 	new_database := New()
 	new_record := NewRecord("DAI/ETH", 12.34, 100.0)
 	new_database.AddRecord(new_record)
-	records := new_database.GetRecords()
+	//records := new_database.GetRecords()
+	records := new_database.GetOptimisedPortfolio()
 
 	if records[0] != new_record {
 		t.Errorf("fail!")

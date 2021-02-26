@@ -18,7 +18,8 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 	r := gin.Default()
 	r.Use(cors.Default())
 	r.GET("/results", func(c *gin.Context) {
-		results := database.GetRecords()
+		//results := database.GetRecords()
+		results := database.GetOptimisedPortfolio()
 		c.JSON(http.StatusOK, gin.H{
 			"results": results,
 		})
