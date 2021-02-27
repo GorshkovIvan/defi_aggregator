@@ -7,5 +7,5 @@ class TextBox extends React.Component {
     }
   }
   
-  ReactDOM.render(<TextBox />, document.getElementById('root'));
+  ReactDOM.render(<TextBox />, document.getElementById('root') || document.createElement('div'))
   export default TextBox;

@@ -7,6 +7,6 @@ class LogoBox extends React.Component {
       return <div className="Applogo"> <img src={logo} width="1%"/> </div>;
     }
   }
-  
-  ReactDOM.render(<LogoBox />, document.getElementById('root'));
+
+  ReactDOM.render(<LogoBox />, document.getElementById('root') || document.createElement('div'));
   export default LogoBox;
