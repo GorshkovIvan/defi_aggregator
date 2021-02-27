@@ -8,6 +8,7 @@ import (
 	"github.com/machinebox/graphql"
 )
 
+// Holds a list of Aave tickers
 type AaveSymbols struct {
 	Symbols []AaveSymbol `json:"reserves"`
 }
@@ -16,10 +17,12 @@ type AaveSymbol struct {
 	Symbol string `json:"symbol"`
 }
 
+// Holds Curent Aave data
 type AaveQuery struct {
 	Reserve AaveData `json:"reserve"`
 }
 
+// Current Aave data 
 type AaveData struct {
 	ID                 string `json:"id"`
 	Symbol             string `json:"symbol"`
@@ -29,6 +32,7 @@ type AaveData struct {
 	TotalBorrows       string `json:"totalBorrows"`
 }
 
+// Returns Currrent Data from Aave protocol
 func getAaveCurrentData() (string, float32, float32, float32, float32) {
 
 	clientAave := graphql.NewClient("https://api.thegraph.com/subgraphs/name/aave/protocol")
@@ -67,6 +71,7 @@ func getAaveCurrentData() (string, float32, float32, float32, float32) {
 	return respAave.Reserve.Symbol, size, volume, interest, volatility
 }
 
+// Returns all tickers from Aave
 func GetAaveTickers ()([]string){
 
 	clientAave := graphql.NewClient("https://api.thegraph.com/subgraphs/name/aave/protocol")
@@ -95,6 +100,7 @@ func GetAaveTickers ()([]string){
 
 }
 
+// Converts all tickers to strings 
 func tickersToString(tickers AaveSymbols) ([]string){
 
 	var stringTokenList []string
@@ -108,19 +114,8 @@ func tickersToString(tickers AaveSymbols) ([]string){
 	return stringTokenList
 
 }
-/*
-func isTickerInAave(ticker string, available_tickers AaveSymbols) (bool){
 
-	for i := 0; i < len(available_tickers.Symbols); i++ {
-		if (available_tickers.Symbols[i].Symbol == ticker){
-			return true
-		}
-	}
-
-	return false
-
-}
-*/
+// Updates database with Uniswap historical data and current Aave data
 func getAaveData(database *Database, uniswapreqdata UniswapInputStruct){
 
 	AavePoolList := GetAaveTickers()
@@ -129,7 +124,9 @@ func getAaveData(database *Database, uniswapreqdata UniswapInputStruct){
 	var AaveFilteredTokenList []string 
 	ctx := context.Background()
 
-		// Process received list of pools (PAIRS)
+	//Updating historical data
+
+		// Process received list token
 		for i := 0; i < len(AavePoolList); i++ {
 			
 			if len(AavePoolList) > 1 {
@@ -178,11 +175,15 @@ func getAaveData(database *Database, uniswapreqdata UniswapInputStruct){
 			}
 		}
 
+	// Updating current data
+
 	symbol, size, volume, interest, volatility := getAaveCurrentData()
 	ROI := calculateROI(interest, 0, volume, volatility)
 	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{symbol, size, volume, interest, "Aave", volatility, ROI})
 		
 }
+
+// Testing
 
 /*
 func main(){
