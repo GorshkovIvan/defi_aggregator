@@ -29,7 +29,7 @@ type AaveData struct {
 	TotalBorrows       string `json:"totalBorrows"`
 }
 
-func GetAaveData() (string, float32, float32, float32, float32) {
+func getAaveCurrentData() (string, float32, float32, float32, float32) {
 
 	clientAave := graphql.NewClient("https://api.thegraph.com/subgraphs/name/aave/protocol")
 	ctx := context.Background()
@@ -57,19 +57,22 @@ func GetAaveData() (string, float32, float32, float32, float32) {
 		log.Fatal(err)
 	}
 
-	value, _ := strconv.ParseFloat(respAave.Reserve.TotalBorrows, 32)
-	float := float32(value)
-	float2 := float32(-0.0125)
+	totalBorrows, _ := strconv.ParseFloat(respAave.Reserve.TotalBorrows, 32)
+	volume:= float32(totalBorrows)
+	stableBorrowRate, _ := strconv.ParseFloat(respAave.Reserve.StableBorrowRate, 32)
+	interest := float32(stableBorrowRate)
+	size := float32(69)
+	volatility := float32(420)
 
-	return respAave.Reserve.Symbol, float, float2, float32(0.01), float32(0.001)
+	return respAave.Reserve.Symbol, size, volume, interest, volatility
 }
 
-func GetAaveTickers ()(AaveSymbols){
+func GetAaveTickers ()([]string){
 
 	clientAave := graphql.NewClient("https://api.thegraph.com/subgraphs/name/aave/protocol")
 	ctx := context.Background()
 
-	reqAave := graphql.NewRequest(`
+	reqAaveListOfPools := graphql.NewRequest(`
 		query
 		{
 			reserves{
@@ -80,33 +83,32 @@ func GetAaveTickers ()(AaveSymbols){
 		}
         `)
 
-	reqAave.Header.Set("Cache-Control", "no-cache")
+	reqAaveListOfPools.Header.Set("Cache-Control", "no-cache")
 
-	var respAave AaveSymbols
+	var respAavePoolList AaveSymbols
 	
-	if err := clientAave.Run(ctx, reqAave, &respAave); err != nil {
+	if err := clientAave.Run(ctx, reqAaveListOfPools, &respAavePoolList); err != nil {
 		log.Fatal(err)
 				}
 	
-	return respAave
+	return tickersToString(respAavePoolList)
 
 }
 
-func getPriceDataFromUniswap(required_tickers []string, available_tickers AaveSymbols){
+func tickersToString(tickers AaveSymbols) ([]string){
 
-	var AaveFilteredTokenList []string
-	for i := 0; i < len(required_tickers); i++{
-		if(isTickerInAave(required_tickers[i], available_tickers)){
-			AaveFilteredTokenList = append(AaveFilteredTokenList, required_tickers[i])
+	var stringTokenList []string
 
-		}
+	for i := 0; i < len(tickers.Symbols); i++{
+		
+		stringTokenList = append(stringTokenList, tickers.Symbols[i].Symbol)
 
 	}
 
-	fmt.Println(AaveFilteredTokenList)
+	return stringTokenList
 
 }
-
+/*
 func isTickerInAave(ticker string, available_tickers AaveSymbols) (bool){
 
 	for i := 0; i < len(available_tickers.Symbols); i++ {
@@ -118,6 +120,70 @@ func isTickerInAave(ticker string, available_tickers AaveSymbols) (bool){
 	return false
 
 }
+*/
+func getAaveData(database *Database, uniswapreqdata UniswapInputStruct){
+
+	AavePoolList := GetAaveTickers()
+	var respUniswapTicker UniswapTickerQuery
+	var respUniswapHist UniswapHistQuery
+	var AaveFilteredTokenList []string 
+	ctx := context.Background()
+
+		// Process received list of pools (PAIRS)
+		for i := 0; i < len(AavePoolList); i++ {
+			
+			if len(AavePoolList) > 1 {
+				token0symbol := AavePoolList[i]
+				token1symbol := token0symbol
+	
+				if isPoolPartOfFilter(token0symbol, token1symbol) {
+					// Filter pools to allowed components (WETH, DAI, USDC, USDT)
+					var tokenqueue []string
+					AaveFilteredTokenList = append(AaveFilteredTokenList, token0symbol)
+					tokenqueue = append(tokenqueue, token1symbol)
+					
+	
+					for j := 0; j < len(tokenqueue); j++ {
+						// Check if database already has historical data
+						if !isHistDataAlreadyDownloaded(tokenqueue[j], database) {
+							// Get Uniswap Ids of these tokens
+							uniswapreqdata.reqUniswapIDFromTokenTicker.Var("ticker", tokenqueue[j])
+							if err := uniswapreqdata.clientUniswap.Run(ctx, uniswapreqdata.reqUniswapIDFromTokenTicker, &respUniswapTicker); err != nil {
+								log.Fatal(err)
+							}
+							// Download historical data for each token for which data is missing
+							if len(respUniswapTicker.IDsforticker) >= 1 {
+								// request data from uniswap using this queried ticker
+								uniswapreqdata.reqUniswapHist.Var("tokenid", setUniswapQueryIDForToken(tokenqueue[j], respUniswapTicker.IDsforticker[0].ID))
+	
+								fmt.Print("Querying historical data for: ")
+								fmt.Print(tokenqueue[j])
+								if err := uniswapreqdata.clientUniswap.Run(ctx, uniswapreqdata.reqUniswapHist, &respUniswapHist); err != nil {
+									log.Fatal(err)
+								}
+	
+								fmt.Print("| returned days: ")
+								fmt.Println(len(respUniswapHist.DailyTimeSeries))
+	
+								// if returned data - append it to database
+								if len(respUniswapHist.DailyTimeSeries) > 0 {
+									// Append to database
+									database.historicalcurrencydata = append(database.historicalcurrencydata, NewHistoricalCurrencyDataFromRaw(tokenqueue[j], respUniswapHist.DailyTimeSeries))
+								}
+							} // if managed to find some IDs for this TOKEN
+						} // if historical data needs updating
+					} // tokenqueue loop ends
+				
+				}
+			}
+		}
+
+	symbol, size, volume, interest, volatility := getAaveCurrentData()
+	ROI := calculateROI(interest, 0, volume, volatility)
+	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{symbol, size, volume, interest, "Aave", volatility, ROI})
+		
+}
+
 /*
 func main(){
 
@@ -125,7 +191,9 @@ func main(){
 	var required_tickers []string
 	required_tickers = append(required_tickers, "USDT")
 	required_tickers = append(required_tickers, "USDC")
-	getPriceDataFromUniswap(required_tickers, symbols)
+	existingTickers := getExistingTickers(required_tickers, symbols)
+
+
 
 }
 */
