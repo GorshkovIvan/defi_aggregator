@@ -161,7 +161,8 @@ func (database *Database) AddRecordfromAPI() {
 	U := UniswapInputStruct{clientUniswap, reqUniswapIDFromTokenTicker, reqUniswapHist}
 	getBalancerData(database, U) // 1
 	getUniswapData(database, U)  // 2
-	getAaveData(database, U)	 //	3
+	getAaveData(database, U)     //	3
+
 	/*
 		3) Aave
 		4) Curve

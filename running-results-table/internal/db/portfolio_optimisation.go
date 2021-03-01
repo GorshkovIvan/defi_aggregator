@@ -1,11 +1,16 @@
 package db
 
+import "fmt"
+
 func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 	// rawportfolio []OwnPortfolioRecord, risktolerance float32,
 	var listOfAvailablePairsWithoutConversion []string // clean starting portfolio for duplicates
 	// var listOfAvailablePairswithConversion []string
 
 	// Pack risk tolerance somewhere here
+	if database.risksetting == 0 {
+		fmt.Println("Risk setting set to zero!")
+	}
 
 	// Remove non unique items
 	for i := 0; i < len(database.ownstartingportfolio); i++ {

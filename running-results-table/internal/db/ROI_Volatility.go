@@ -1,50 +1,99 @@
 package db
 
 import (
+	"fmt"
+	"math"
 	"sort"
 )
 
 func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
+	fmt.Println("Entered calculation of HISTORICAL VOLATILITY: ")
+
 	var vol float32
 	vol = 0.05
-	/*
-		var vol_period int32
-		vol_period = int32(math.Min(float64(len(H.Price)), float64(days))) // lower of days or available data
-		// NOTE: latest is first ? reverse indices if yet
-		// TO DO: calculate deviation
-		var total float32
-		total = 0.00
 
-		for i := 0; i < int(vol_period); i++ {
-			total += H.Price[i] // calculate average price
+	if len(H.Price) == 0 {
+		fmt.Print("Error: no historical data found for ticker: ")
+		fmt.Print(H.Ticker)
+		fmt.Print(" ..returning -1 for volatility..")
+		return -1
+	}
+
+	var vol_period int32
+	vol_period = int32(math.Min(float64(len(H.Price)), float64(days))) // lower of days or available data
+
+	// check how many days non NaN
+
+	// NOTE: oldest = 0
+	var total float32
+	total = 0.00
+
+	//fmt.Print("Vol period: ")
+	//fmt.Println(vol_period)
+
+	var actual_vol_period int32
+	actual_vol_period = 0
+
+	for i := 0; i < int(vol_period); i++ {
+		if !math.IsNaN(float64(H.Price[i])) {
+			total = total + H.Price[i] // calculate average price
+			actual_vol_period++
+			//	fmt.Print(i)
+			//	fmt.Print(" : ")
+			//	fmt.Print(H.Date[i])
+			//	fmt.Print(" : ")
+			//	fmt.Println(H.Price[i])
 		}
+	}
 
-		mean := total / float32(vol_period) // actual days?
-		var differencesvsmean []float32
-		for i := 0; i < int(vol_period); i++ {
+	//fmt.Println("total: ")
+	//fmt.Print(total)
+
+	mean := total / float32(actual_vol_period) // actual days?
+
+	fmt.Println("mean: ")
+	fmt.Print(mean)
+
+	var differencesvsmean []float32 // size = actual vol period
+	for i := 0; i < int(vol_period); i++ {
+		if !math.IsNaN(float64(H.Price[i])) {
 			differencesvsmean = append(differencesvsmean, H.Price[i]-mean) // calculate difference between each value and mean
 		}
+	}
 
-		var squaresofdifferencesvsmean []float32
-		for i := 0; i < int(vol_period); i++ {
-			// square these values
-			squaresofdifferencesvsmean = append(squaresofdifferencesvsmean, float32(math.Pow(float64(differencesvsmean[i]), 2.0)))
-		}
+	fmt.Println("Checkpoint 2 in volatility func")
 
-		var avg float32
-		avg = 0.0
-		for i := 0; i < int(vol_period); i++ {
-			avg += squaresofdifferencesvsmean[i]
-		}
+	var squaresofdifferencesvsmean []float32
+	for i := 0; i < len(differencesvsmean); i++ {
+		// square these values
+		squaresofdifferencesvsmean = append(squaresofdifferencesvsmean, float32(math.Pow(float64(differencesvsmean[i]), 2.0)))
+	}
 
-		avg = avg / float32(vol_period)                         // average them
-		vol = float32(math.Sqrt(float64(avg)) * math.Sqrt(252)) // is this the right adjustment for days?
+	var avg float32
+	avg = 0.0
+	for i := 0; i < len(squaresofdifferencesvsmean); i++ {
+		// H.Price[i] != math.NaN
+		avg += squaresofdifferencesvsmean[i]
+	}
 
-		// return -1 if no historical data available
-		if len(H.Date) == 0 {
-			vol = -1.00
-		}
-	*/
+	avg = avg / float32(vol_period)                         // average them
+	vol = float32(math.Sqrt(float64(avg)) * math.Sqrt(252)) // is this the right adjustment for days?
+
+	// return -1 if no historical data available
+	if len(H.Date) == 0 {
+		vol = -1.00
+	}
+
+	fmt.Println("RETURNING VOLATILITY: ")
+	fmt.Print(vol)
+
+	if math.IsInf(float64(vol), 0) {
+		return -0.99
+	}
+	if math.IsNaN(float64(vol)) {
+		return -0.98
+	}
+
 	return float32(vol)
 }
 
@@ -53,7 +102,19 @@ func calculateROI(interestrate float32, shareofvolume float32, poolvolume float3
 	var ROI float32
 	ROI = 0.069
 	// TO DO: update to proper formula
-	ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume)) / float32(volatility)
+	if volatility > 0 {
+		ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume)) / float32(volatility)
+	}
+	if volatility == 0 {
+		ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume))
+	}
+
+	if math.IsInf(float64(ROI), 0) {
+		return -999
+	}
+	if math.IsNaN(float64(ROI)) {
+		return -998
+	}
 
 	return float32(ROI)
 }
@@ -62,7 +123,7 @@ func isHistDataAlreadyDownloaded(token string, database *Database) bool {
 
 	for i := 0; i < len(database.historicalcurrencydata); i++ {
 		if database.historicalcurrencydata[i].Ticker == token {
-			// TO DO: also add date check: if latest date is within 24 hours of NOW database.historicalcurrencydata[i].
+			// also add date check LATER : if latest date is within 24 hours of NOW database.historicalcurrencydata[i].
 			/*
 				fmt.Print("Checking if data already downloaded for: ")
 				fmt.Print(token)
@@ -75,11 +136,86 @@ func isHistDataAlreadyDownloaded(token string, database *Database) bool {
 }
 
 func retrieveDataForTokensFromDatabase(token0 string, token1 string, database *Database) HistoricalCurrencyData {
-	// TO DO
-	// Check if token0token1 is in database
-	// check if token1token0 is in database
 	// respUniswapHist
-	return NewHistoricalCurrencyData()
+	fmt.Print("Entered retrievedatafor Tokens for PAIR: ")
+	fmt.Println(token0 + "/" + token1 + " : ")
+
+	var i int64
+
+	token0dataishere := false // bool
+	token1dataishere := false
+
+	token0idx := 0
+	token1idx := 1
+
+	fmt.Println("CURRENT SHAPE OF THE DATABASE: ")
+	for i := 0; i < len(database.historicalcurrencydata); i++ {
+		fmt.Print(database.historicalcurrencydata[i].Ticker)
+		fmt.Print(" : ")
+		fmt.Print(len(database.historicalcurrencydata[i].Date))
+		fmt.Print(" : ")
+		fmt.Println(len(database.historicalcurrencydata[i].Price))
+	}
+
+	fmt.Println(" ")
+	fmt.Println("_____________________________________")
+
+	for i := 0; i < len(database.historicalcurrencydata); i++ {
+		if database.historicalcurrencydata[i].Ticker == token0 {
+			token0dataishere = true
+			token0idx = i
+			fmt.Println(" | token: ")
+			fmt.Print(token0)
+			fmt.Print(" | found @ idx = ")
+			fmt.Println(token0idx)
+			break
+		}
+	}
+
+	for i := 0; i < len(database.historicalcurrencydata); i++ {
+		if database.historicalcurrencydata[i].Ticker == token0 {
+			token1dataishere = true
+			token1idx = i
+			fmt.Print(" | token: ")
+			fmt.Print(token1)
+			fmt.Print(" | Found token data 0 at idx = ")
+			fmt.Println(token1idx)
+			break
+		}
+	}
+
+	if !token0dataishere || !token1dataishere {
+		fmt.Println("Error: ticker combo not found in database..returning blank object")
+		return NewHistoricalCurrencyData()
+	}
+
+	var histcombo HistoricalCurrencyData
+
+	histcombo.Ticker = token0 + "/" + token1
+
+	//fmt.Println(" | ")
+	//fmt.Print("Created ticker pair for hist combo")
+	//fmt.Println(histcombo.Ticker)
+
+	lengthoflookbackhist := int64(math.Min(float64(len(database.historicalcurrencydata[token0idx].Date)), float64(len(database.historicalcurrencydata[token0idx].Date))))
+
+	fmt.Print("length of lookback = ")
+	fmt.Print(lengthoflookbackhist)
+
+	for i = lengthoflookbackhist - 1; i >= 0; i-- {
+		// which index 	// 0 = oldest
+		// add check if dates consistent across 2 datasets
+		histcombo.Date = append(histcombo.Date, database.historicalcurrencydata[token0idx].Date[i]/(60*60*24))
+		price := database.historicalcurrencydata[token0idx].Price[i] / database.historicalcurrencydata[token1idx].Price[i]
+		histcombo.Price = append(histcombo.Price, price)
+	}
+
+	fmt.Print("In histcombo: size of returned combo for ticker: ")
+	fmt.Print(histcombo.Ticker)
+	fmt.Print(": ")
+	fmt.Println(len(histcombo.Price))
+
+	return histcombo
 }
 
 // For looking up Uniswap IDs of tokens
@@ -90,6 +226,10 @@ func setUniswapQueryIDForToken(token string, ID string) string {
 	if token == "USDC" {
 		// TO CHECK
 		return "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" // "check the uniswap id for dai"
+	}
+	if token == "ETH" || token == "WETH" {
+		// TO CHECK
+		return "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
 	}
 	return ID
 }
