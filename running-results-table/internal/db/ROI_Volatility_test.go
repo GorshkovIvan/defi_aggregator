@@ -91,16 +91,16 @@ func TestIsPoolPartOfFilter(t *testing.T) {
 
 func TestStringInSlice(t *testing.T) {
 	string_list := []string{"a", "b", "c", "d"}
+	result1 := stringInSlice("a", string_list)
+	result2 := stringInSlice("e", string_list)
 
-	result := stringInSlice("a", string_list)
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
+	if(result1 != true) {
+		t.Errorf("stringInSlice error!")
 	}
-	return false
+
+	if(result2 != false) {
+		t.Errorf("stringInSlice error!")
+	}
 }
+
 
