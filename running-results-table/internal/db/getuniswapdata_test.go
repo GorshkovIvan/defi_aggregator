@@ -53,6 +53,7 @@ func TestUniswapDataDownload(t *testing.T) {
 	}
 
 	// Test 2
+<<<<<<< HEAD
 
 	// Test 3
 	var teststringarray []string
@@ -91,6 +92,9 @@ func TestUniswapDataDownload(t *testing.T) {
 	}
 	if !stringInSlice("WBTC", teststringarray) {
 		t.Errorf("WBTC data missing!")
+=======
+	if len(database.historicalcurrencydata[0].Ticker) == 0 {
+		t.Errorf("Ticker ")
+>>>>>>> bec840ddb9fd9909247b1ea618f89fa82e8062c1
 	}
-
 }
