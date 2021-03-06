@@ -51,8 +51,7 @@ func TestUniswapDataOutput(t *testing.T) {
 	}
 
 	// Test 2
-	if len(database.historicalcurrencydata[0].Ticker) == null {
+	if len(database.historicalcurrencydata[0].Ticker) == 0 {
 		t.Errorf("Ticker ")
 	}
-
 }
