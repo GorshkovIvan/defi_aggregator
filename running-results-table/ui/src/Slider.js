@@ -1,10 +1,50 @@
-
 import React from 'react';
+import { Form, Header, Segment, Button } from 'semantic-ui-react'
 import styled from 'styled-components';
 
+/*
 const sliderThumbStyles = (props) => (`
   width: 25px;
   height: 25px;
+  background: ${props.color};
+  cursor: pointer;
+  outline: 5px solid #333;
+  opacity: ${props.opacity};
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+`);
+
+const Styles = styled.div`
+  display: flex;
+  color: #888;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  .value {
+    flex: 1;
+    font-size: 2rem;
+  }
+  .slider {
+    flex: 6;
+    -webkit-appearance: none;
+    width: 50%;
+    height: 10px;
+    border-radius: 5px;
+    background: #efefef;  
+    outline: none;
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      ${props => sliderThumbStyles(props)}
+    }
+    &::-moz-range-thumb {
+      ${props => sliderThumbStyles(props)}
+    }
+  }
+`;*/
+
+const sliderThumbStyles = (props) => (`
+  width: 15px;
+  height: 15px;
   background: ${props.color};
   cursor: pointer;
   outline: 5px solid #333;
@@ -19,6 +59,7 @@ const Styles = styled.div`
   color: #888;
   margin-top: 2rem;
   margin-bottom: 2rem;
+  padding-bottom: 2rem;
   .value {
     flex: 1;
     font-size: 2rem;
@@ -26,11 +67,12 @@ const Styles = styled.div`
   .slider {
     flex: 6;
     -webkit-appearance: none;
-    width: 100%;
-    height: 15px;
-    border-radius: 5px;
+    width: 75%; 
+    margin-right: 15px;
+    height: 8px;
+    border-radius: 10px;
     background: #efefef;
-    outline: none;
+    outline: 1px ridge rgba(128,128,128);
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
@@ -42,19 +84,43 @@ const Styles = styled.div`
   }
 `;
 
-export default class Slider extends React.Component {
-  state = {
-    value: 50
-  }
+export default class Slider2 extends React.Component {
+    state = {
+        risk_setting: ''
+    };
+        
+  handleOnChange = (e) => this.setState({ risk_setting: e.target.value });
+ 
+    onSubmit = this._onSubmit.bind(this);
 
-  handleOnChange = (e) => this.setState({ value: e.target.value })
+    render() {
+        return (
+            <div className="ui container">
+              <Form onSubmit={this.onSubmit}>
+              <Header>Please enter your risk tolerance (1 to 10):</Header>
+                  <Styles opacity={this.state.risk_setting > 10 ? (this.state.risk_setting / 10) : .1} color={this.props.color}>
+                    <input type="range" min={0} max={10} value={this.state.risk_setting} className="slider" onChange={this.handleOnChange}/> 
+                    <Button type='submit'>Submit</Button>                 
+                  </Styles>                
 
-  render() {
-    return (
-      <Styles opacity={this.state.value > 10 ? (this.state.value / 255) : .1} color={this.props.color}>
-        <input type="range" min={0} max={255} value={this.state.value} className="slider" onChange={this.handleOnChange} />
-        <div className="value">{this.state.value}</div>
-      </Styles>
-    )
-  }
+              </Form>
+            </div>
+        );
+    }
+
+    _onSubmit() {
+        const payload = {
+            risk_setting: parseFloat(this.state.risk_setting)
+        };
+        fetch('http://localhost:8080/results2', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        this.setState({
+          risk_setting: ''
+        });
+    }
 }
