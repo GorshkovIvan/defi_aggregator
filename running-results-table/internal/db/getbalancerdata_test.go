@@ -6,7 +6,7 @@ import (
 	"github.com/machinebox/graphql"
 )
 
-func TestgetBalancerData(t *testing.T) {
+func TestGetBalancerData(t *testing.T) {
 	database := New()
 	clientUniswap := graphql.NewClient("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
 	reqUniswapHist := graphql.NewRequest(`
@@ -48,8 +48,4 @@ func TestgetBalancerData(t *testing.T) {
 	}
 }
 
-
-
-	// Test 1
-	
-	
+// Test 1

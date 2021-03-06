@@ -2,47 +2,12 @@ package db
 
 import (
 	"testing"
-
-	"github.com/machinebox/graphql"
 )
 
-func TestUniswapDataDownload(t *testing.T) {
+func TestGetAllData(t *testing.T) {
 	database := New()
-	clientUniswap := graphql.NewClient("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
 
-	reqUniswapHist := graphql.NewRequest(`
-				query ($tokenid:String!){
-						tokenDayDatas(first: 30 orderBy: date, orderDirection: asc,
-						 where: {
-						   token:$tokenid
-						 }
-						) {
-						   date
-						   priceUSD
-						   token{
-							   id
-							   symbol
-						   }
-						}
-				  }
-			`)
-
-	reqUniswapIDFromTokenTicker := graphql.NewRequest(`
-						query ($ticker:String!){
-							tokens(where:{symbol:$ticker})
-							{
-								id
-								symbol
-							}
-						}
-			`)
-
-	reqUniswapIDFromTokenTicker.Header.Set("Cache-Control", "no-cache")
-	reqUniswapHist.Header.Set("Cache-Control", "no-cache")
-
-	// Run whole thing
-	U := UniswapInputStruct{clientUniswap, reqUniswapIDFromTokenTicker, reqUniswapHist}
-	getUniswapData(&database, U)
+	database.AddRecordfromAPI()
 
 	// Test 1
 	if len(database.historicalcurrencydata) == 0 {
@@ -51,9 +16,15 @@ func TestUniswapDataDownload(t *testing.T) {
 
 	// Test 2
 	var teststringarray []string
+	var lengtharrayDates []int
+	var lengtharrayPrices []int
 
 	for i := 0; i < len(database.historicalcurrencydata); i++ {
+
 		teststringarray = append(teststringarray, database.historicalcurrencydata[i].Ticker)
+		lengtharrayDates = append(lengtharrayDates, len(database.historicalcurrencydata[i].Date))
+		lengtharrayPrices = append(lengtharrayPrices, len(database.historicalcurrencydata[i].Price))
+
 		if len(database.historicalcurrencydata[i].Ticker) == 0 {
 			t.Errorf("No data pulled")
 		}
@@ -90,6 +61,36 @@ func TestUniswapDataDownload(t *testing.T) {
 		if len(database.historicalcurrencydata[0].Ticker) == 0 {
 			t.Errorf("Ticker ")
 		}
+	}
+
+	var countBalancerdatapoints int
+	var countUniswapdatapoints int
+	var countAavedatapoints int
+
+	for i := 0; i < len(database.currencyinputdata); i++ {
+		if database.currencyinputdata[i].Pool == "Uniswap" {
+			countUniswapdatapoints++
+		}
+
+		if database.currencyinputdata[i].Pool == "Aave" {
+			countAavedatapoints++
+		}
+
+		if database.currencyinputdata[i].Pool == "Balancer" {
+			countBalancerdatapoints++
+		}
+	}
+
+	if countUniswapdatapoints == 0 {
+		t.Errorf("Error: no data appended from Uniswap")
+	}
+
+	if countAavedatapoints == 0 {
+		t.Errorf("Error: no data appended from Aave")
+	}
+
+	if countBalancerdatapoints == 0 {
+		t.Errorf("Error: no data appended from Balancer")
 	}
 
 }
