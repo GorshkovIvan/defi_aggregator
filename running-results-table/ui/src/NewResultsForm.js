@@ -35,7 +35,7 @@ export default class NewResultsForm extends React.Component {
                             </div>
                             <div class="rightDIV">
                                 <Form.Field>
-                                    <label> Enter </label>
+                                    <label> Add </label>
                                     <Button type='submit'>Submit</Button>
                                 </Form.Field>
                             </div> 
