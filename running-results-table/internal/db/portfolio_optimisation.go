@@ -3,12 +3,11 @@ package db
 import "fmt"
 
 func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
-	// rawportfolio []OwnPortfolioRecord, risktolerance float32,
 	var listOfAvailablePairsWithoutConversion []string // clean starting portfolio for duplicates
 	// var listOfAvailablePairswithConversion []string
 
 	// Pack risk tolerance somewhere here
-	if database.risksetting == 0 {
+	if database.Risksetting == 0 {
 		fmt.Println("Risk setting set to zero!")
 	}
 
@@ -26,5 +25,5 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 	// Pack recommended pools into a the optimisedportfolio
 
 	// For now just a placeholder for result
-	return NewOptimisedPortfolio(database.ownstartingportfolio)
+	return NewOptimisedPortfolio(database)
 }

@@ -1,6 +1,7 @@
 package webapp
 
 import (
+	"fmt"
 	"net/http"
 	"pusher/defi_aggregator/running-results-table/internal/db"
 	"pusher/defi_aggregator/running-results-table/internal/notifier"
@@ -17,6 +18,7 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 	r := gin.Default()
 	r.Use(cors.Default())
 
+	//Returns currency for table2
 	r.GET("/currencyoutputtable", func(c *gin.Context) {
 		currencyoutputtable := database.GetCurrencyInputData()
 		c.JSON(http.StatusOK, gin.H{
@@ -44,17 +46,32 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 		}
 	})
 
-	// Ranked by ROI table - download data and rank currencies
-	r.POST("/results", func(c *gin.Context) {
-		var json db.OwnPortfolioRecord //		var json db.Record
+	// Post data from slider into db
+	r.POST("/results2", func(c *gin.Context) {
+		var json db.RiskWrapper
 		if err := c.BindJSON(&json); err == nil {
-			database.AddRecord(json)
+			fmt.Println("ADDING RISK RECORD FROM BUTTON!!")
+			database.AddRiskRecord(json) // json
 			c.JSON(http.StatusCreated, json)
 			notifierClient.Notify()
+
+			fmt.Println(database.Risksetting)
+
 		} else {
+			fmt.Println("ERROR IN PARSING JSON RISK SETTING!!")
 			c.JSON(http.StatusBadRequest, gin.H{})
 		}
 	})
+
+	/*
+		// Optimised portfolio table
+		r.GET("/results2", func(c *gin.Context) {
+			Risksetting := database.AddRiskRecord(json) // json
+			c.JSON(http.StatusOK, gin.H{
+				"results2": Risksetting,
+			})
+		})
+	*/
 
 	// Run just once
 	time.AfterFunc(10*time.Second, func() {

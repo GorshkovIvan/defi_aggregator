@@ -17,20 +17,23 @@ type OptimisedPortfolioRecord struct {
 	Amount                float32 `json:"amount"`
 	PercentageOfPortfolio float32 `json:"percentageofportfolio"`
 	ROIestimate           float32 `json:"roi_estimate"`
+	Risksetting           float32 `json:"risk_setting"`
 }
 
-func NewOptimisedPortfolio(rawportfolio []OwnPortfolioRecord) []OptimisedPortfolioRecord {
+func NewOptimisedPortfolio(database *Database) []OptimisedPortfolioRecord {
+
+	// rawportfolio []OwnPortfolioRecord
 
 	var optimisedportfolio []OptimisedPortfolioRecord
-	for i := 0; i < len(rawportfolio); i++ {
+	for i := 0; i < len(database.ownstartingportfolio); i++ {
 		// same token
 		// placeholder values for now
-		optimisedportfolio = append(optimisedportfolio, OptimisedPortfolioRecord{rawportfolio[i].Token, "Uniswap", rawportfolio[i].Amount, 0.420, 0.069})
+		optimisedportfolio = append(optimisedportfolio, OptimisedPortfolioRecord{database.ownstartingportfolio[i].Token, "Uniswap", database.ownstartingportfolio[i].Amount, 0.420, 0.069, database.Risksetting})
 	}
 
 	// For some reason crashes with ZERO elements
-	if len(rawportfolio) == 0 {
-		optimisedportfolio = append(optimisedportfolio, OptimisedPortfolioRecord{"USD", "Uniswap", 100, 1, 0.0125})
+	if len(database.ownstartingportfolio) == 0 {
+		optimisedportfolio = append(optimisedportfolio, OptimisedPortfolioRecord{"USD", "Uniswap", 100, 1, 0.0125, database.Risksetting})
 	}
 	fmt.Println("Returning optimised portfolio...")
 	return optimisedportfolio
@@ -111,11 +114,15 @@ func NewCurrencyInputDataAct(pair string, poolSz float32, poolVolume float32, yi
 	return currencyinputdata
 }
 
+type RiskWrapper struct {
+	Risksettinginput float32 `json:"risk_setting"`
+}
+
 type Database struct {
 	// Data structure for Optimisation
 	ownstartingportfolio []OwnPortfolioRecord       // for portfolio optimisation table
 	optimisedportfolio   []OptimisedPortfolioRecord // for storing output of ownstartingportfolio
-	risksetting          float32
+	Risksetting          float32
 
 	// Data structure for Ranking
 	currencyinputdata      []CurrencyInputData      // LATEST currency pair info
@@ -125,12 +132,12 @@ type Database struct {
 func New() Database {
 	ownstartingportfolio := make([]OwnPortfolioRecord, 0)
 	optimisedportfolio := make([]OptimisedPortfolioRecord, 0)
-	risksetting := 0.00
+	Risksetting := 0.00
 
 	currencyinputdata := make([]CurrencyInputData, 0)
 	historicalcurrencydata := make([]HistoricalCurrencyData, 0)
 
-	return Database{ownstartingportfolio, optimisedportfolio, float32(risksetting), currencyinputdata, historicalcurrencydata}
+	return Database{ownstartingportfolio, optimisedportfolio, float32(Risksetting), currencyinputdata, historicalcurrencydata}
 }
 
 // Add OWN PORTFOLIO data
@@ -138,6 +145,11 @@ func (database *Database) AddRecord(r OwnPortfolioRecord) {
 	database.ownstartingportfolio = append(database.ownstartingportfolio, r)
 }
 
+func (database *Database) AddRiskRecord(risk RiskWrapper) {
+	database.Risksetting = risk.Risksettinginput
+}
+
+// Retrieve Data
 func (database *Database) GetOptimisedPortfolio() []OptimisedPortfolioRecord {
 	return OptimisePortfolio(database)
 }

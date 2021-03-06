@@ -20,6 +20,7 @@ export default function ResultsTable({results}) {
                 <Table.Cell>{ result.amount }</Table.Cell>
                 <Table.Cell>{ result.percentageofportfolio }</Table.Cell>
                 <Table.Cell>{ result.roi_estimate }</Table.Cell>
+                <Table.Cell>{ result.risk_setting }</Table.Cell>
             </Table.Row>
         );
     }));
@@ -36,6 +37,7 @@ export default function ResultsTable({results}) {
                             <Table.HeaderCell>Amount</Table.HeaderCell>
                             <Table.HeaderCell>% Portfolio</Table.HeaderCell>
                             <Table.HeaderCell>ROI Estimate</Table.HeaderCell>
+                            <Table.HeaderCell>Risk setting</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>

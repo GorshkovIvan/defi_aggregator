@@ -9,7 +9,7 @@ import './App.css';
 import LogoBox from './LogoBox.js'
 import TextBox from './TextBox.js'
 import Slider from './Slider.js'
-
+import Slider2 from './SliderNew.js'
 
 class App extends Component {
 
@@ -30,7 +30,7 @@ class App extends Component {
         <NewResultsForm />
         <div className ="MiddleDivider"> </div>
         <div className ="App3"> </div>
-        <Slider></Slider>
+        <Slider2></Slider2>
         <RankedCurrenciesTable />
       </div>
     );
