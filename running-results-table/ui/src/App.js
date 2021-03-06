@@ -9,7 +9,6 @@ import './App.css';
 import LogoBox from './LogoBox.js'
 import TextBox from './TextBox.js'
 import Slider from './Slider.js'
-import Slider2 from './SliderNew.js'
 
 class App extends Component {
 
@@ -31,7 +30,7 @@ class App extends Component {
         <div className ="ui container"><h3>Optimal portfolio is:</h3></div>
         <ConnectedResultsTable />
         <NewResultsForm />
-        <Slider2 />
+        <Slider />
       </div>
     );
   }
