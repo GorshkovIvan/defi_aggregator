@@ -2,9 +2,10 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strconv"
-	"fmt"
+
 	"github.com/machinebox/graphql"
 )
 
@@ -22,7 +23,7 @@ type AaveQuery struct {
 	Reserve AaveData `json:"reserve"`
 }
 
-// Current Aave data 
+// Current Aave data
 type AaveData struct {
 	ID                 string `json:"id"`
 	Symbol             string `json:"symbol"`
@@ -62,7 +63,7 @@ func getAaveCurrentData() (string, float32, float32, float32, float32) {
 	}
 
 	totalBorrows, _ := strconv.ParseFloat(respAave.Reserve.TotalBorrows, 32)
-	volume:= float32(totalBorrows)
+	volume := float32(totalBorrows)
 	stableBorrowRate, _ := strconv.ParseFloat(respAave.Reserve.StableBorrowRate, 32)
 	interest := float32(stableBorrowRate)
 	size := float32(69)
@@ -72,7 +73,7 @@ func getAaveCurrentData() (string, float32, float32, float32, float32) {
 }
 
 // Returns all tickers from Aave
-func GetAaveTickers ()([]string){
+func GetAaveTickers() []string {
 
 	clientAave := graphql.NewClient("https://api.thegraph.com/subgraphs/name/aave/protocol")
 	ctx := context.Background()
@@ -91,22 +92,22 @@ func GetAaveTickers ()([]string){
 	reqAaveListOfPools.Header.Set("Cache-Control", "no-cache")
 
 	var respAavePoolList AaveSymbols
-	
+
 	if err := clientAave.Run(ctx, reqAaveListOfPools, &respAavePoolList); err != nil {
 		log.Fatal(err)
-				}
-	
+	}
+
 	return tickersToString(respAavePoolList)
 
 }
 
-// Converts all tickers to strings 
-func tickersToString(tickers AaveSymbols) ([]string){
+// Converts all tickers to strings
+func tickersToString(tickers AaveSymbols) []string {
 
 	var stringTokenList []string
 
-	for i := 0; i < len(tickers.Symbols); i++{
-		
+	for i := 0; i < len(tickers.Symbols); i++ {
+
 		stringTokenList = append(stringTokenList, tickers.Symbols[i].Symbol)
 
 	}
@@ -116,85 +117,67 @@ func tickersToString(tickers AaveSymbols) ([]string){
 }
 
 // Updates database with Uniswap historical data and current Aave data
-func getAaveData(database *Database, uniswapreqdata UniswapInputStruct){
+func getAaveData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 	AavePoolList := GetAaveTickers()
 	var respUniswapTicker UniswapTickerQuery
 	var respUniswapHist UniswapHistQuery
-	var AaveFilteredTokenList []string 
+	var AaveFilteredTokenList []string
 	ctx := context.Background()
 
 	//Updating historical data
 
-		// Process received list token
-		for i := 0; i < len(AavePoolList); i++ {
-			
-			if len(AavePoolList) > 1 {
-				token0symbol := AavePoolList[i]
-				token1symbol := token0symbol
-	
-				if isPoolPartOfFilter(token0symbol, token1symbol) {
-					// Filter pools to allowed components (WETH, DAI, USDC, USDT)
-					var tokenqueue []string
-					AaveFilteredTokenList = append(AaveFilteredTokenList, token0symbol)
-					tokenqueue = append(tokenqueue, token1symbol)
-					
-	
-					for j := 0; j < len(tokenqueue); j++ {
-						// Check if database already has historical data
-						if !isHistDataAlreadyDownloaded(tokenqueue[j], database) {
-							// Get Uniswap Ids of these tokens
-							uniswapreqdata.reqUniswapIDFromTokenTicker.Var("ticker", tokenqueue[j])
-							if err := uniswapreqdata.clientUniswap.Run(ctx, uniswapreqdata.reqUniswapIDFromTokenTicker, &respUniswapTicker); err != nil {
-								log.Fatal(err)
-							}
-							// Download historical data for each token for which data is missing
-							if len(respUniswapTicker.IDsforticker) >= 1 {
-								// request data from uniswap using this queried ticker
-								uniswapreqdata.reqUniswapHist.Var("tokenid", setUniswapQueryIDForToken(tokenqueue[j], respUniswapTicker.IDsforticker[0].ID))
-	
-								fmt.Print("Querying historical data for: ")
-								fmt.Print(tokenqueue[j])
-								if err := uniswapreqdata.clientUniswap.Run(ctx, uniswapreqdata.reqUniswapHist, &respUniswapHist); err != nil {
-									log.Fatal(err)
-								}
-	
-								fmt.Print("| returned days: ")
-								fmt.Println(len(respUniswapHist.DailyTimeSeries))
-	
-								// if returned data - append it to database
-								if len(respUniswapHist.DailyTimeSeries) > 0 {
-									// Append to database
-									database.historicalcurrencydata = append(database.historicalcurrencydata, NewHistoricalCurrencyDataFromRaw(tokenqueue[j], respUniswapHist.DailyTimeSeries))
-								}
-							} // if managed to find some IDs for this TOKEN
-						} // if historical data needs updating
-					} // tokenqueue loop ends
-				
-				}
+	// Process received list token
+	for i := 0; i < len(AavePoolList); i++ {
+
+		if len(AavePoolList) > 1 {
+			token0symbol := AavePoolList[i]
+			token1symbol := token0symbol
+
+			if isPoolPartOfFilter(token0symbol, token1symbol) {
+				// Filter pools to allowed components (WETH, DAI, USDC, USDT)
+				//var tokenqueue []string
+				AaveFilteredTokenList = append(AaveFilteredTokenList, token0symbol)
+				//tokenqueue = append(tokenqueue, token1symbol)
+
+				//for j := 0; j < len(tokenqueue); j++ {
+				// Check if database already has historical data
+				if !isHistDataAlreadyDownloaded(token0symbol, database) { // tokenqueue[j]
+					// Get Uniswap Ids of these tokens
+					uniswapreqdata.reqUniswapIDFromTokenTicker.Var("ticker", token0symbol) // tokenqueue[j]
+					if err := uniswapreqdata.clientUniswap.Run(ctx, uniswapreqdata.reqUniswapIDFromTokenTicker, &respUniswapTicker); err != nil {
+						log.Fatal(err)
+					}
+					// Download historical data for each token for which data is missing
+					if len(respUniswapTicker.IDsforticker) >= 1 {
+						// request data from uniswap using this queried ticker
+						uniswapreqdata.reqUniswapHist.Var("tokenid", setUniswapQueryIDForToken(token0symbol, respUniswapTicker.IDsforticker[0].ID)) // tokenqueue[j]
+
+						fmt.Print("Querying historical data for: ")
+						fmt.Print(token0symbol) // tokenqueue[j]
+						if err := uniswapreqdata.clientUniswap.Run(ctx, uniswapreqdata.reqUniswapHist, &respUniswapHist); err != nil {
+							log.Fatal(err)
+						}
+
+						fmt.Print("| returned days: ")
+						fmt.Println(len(respUniswapHist.DailyTimeSeries))
+
+						// if returned data - append it to database
+						if len(respUniswapHist.DailyTimeSeries) > 0 {
+							// Append to database
+							database.historicalcurrencydata = append(database.historicalcurrencydata, NewHistoricalCurrencyDataFromRaw(token0symbol, respUniswapHist.DailyTimeSeries)) // tokenqueue[j]
+						}
+					} // if managed to find some IDs for this TOKEN
+				} // if historical data needs updating
+				// } // tokenqueue loop ends
+
 			}
 		}
+	}
 
 	// Updating current data
-
 	symbol, size, volume, interest, volatility := getAaveCurrentData()
 	ROI := calculateROI(interest, 0, volume, volatility)
 	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{symbol, size, volume, interest, "Aave", volatility, ROI})
-		
-}
-
-// Testing
-
-/*
-func main(){
-
-	symbols := GetAaveTickers()
-	var required_tickers []string
-	required_tickers = append(required_tickers, "USDT")
-	required_tickers = append(required_tickers, "USDC")
-	existingTickers := getExistingTickers(required_tickers, symbols)
-
-
 
 }
-*/

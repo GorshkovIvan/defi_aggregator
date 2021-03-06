@@ -21,7 +21,6 @@ func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 
 	var vol_period int32
 	vol_period = int32(math.Min(float64(len(H.Price)), float64(days))) // lower of days or available data
-
 	// check how many days non NaN
 
 	// NOTE: oldest = 0

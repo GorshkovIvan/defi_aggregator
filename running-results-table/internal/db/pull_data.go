@@ -1,9 +1,7 @@
 package db
 
 import (
-	"context"
 	"fmt"
-	"log"
 
 	"github.com/machinebox/graphql"
 )
@@ -18,11 +16,9 @@ func (database *Database) AddRecordfromAPI() {
 
 	// 1 - create clients
 	clientUniswap := graphql.NewClient("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
-	//clientAave := graphql.NewClient("https://api.thegraph.com/subgraphs/name/aave/protocol")
-
-	clientCompound := graphql.NewClient("https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2")
-	clientCurve := graphql.NewClient("https://api.thegraph.com/subgraphs/name/protofire/curve")
-	clientBancor := graphql.NewClient("https://api.thegraph.com/subgraphs/name/blocklytics/bancor")
+	//	clientCompound := graphql.NewClient("https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2")
+	//	clientCurve := graphql.NewClient("https://api.thegraph.com/subgraphs/name/protofire/curve")
+	//	clientBancor := graphql.NewClient("https://api.thegraph.com/subgraphs/name/blocklytics/bancor")
 
 	// 2 - declare queries
 
@@ -53,122 +49,22 @@ func (database *Database) AddRecordfromAPI() {
 						}
 			`)
 
-	reqCompound := graphql.NewRequest(`
-			query {
-				markets(first: 10) {
-					borrowRate
-					cash
-					collateralFactor
-					exchangeRate
-					interestRateModelAddress
-					name
-					reserves
-					supplyRate
-					symbol
-					id
-					totalBorrows
-					totalSupply
-					underlyingAddress
-					underlyingName
-					underlyingPrice
-					underlyingSymbol
-					reserveFactor
-					underlyingPriceUSD
-				}
-			}
-		`)
-
-	reqCurve := graphql.NewRequest(`
-			query {
-				pools(orderBy: addedAt, first: 10) {
-					address
-					coinCount
-					A
-					fee
-					adminFee
-					balances
-					coins {
-						address
-						name
-						symbol
-						decimals
-				  	}
-				}
-			}
-		`)
-
-	reqBancor := graphql.NewRequest(`
-			query {
-				swaps(first: 10, skip: 0, orderBy: timestamp, orderDirection: desc) {
-					id
-					amountPurchased
-					amountReturned
-					price
-					inversePrice
-					converterWeight
-					converterFromTokenBalanceBeforeSwap
-					converterFromTokenBalanceAfterSwap
-					converterToTokenBalanceBeforeSwap
-					converterToTokenBalanceAfterSwap
-					slippage
-					conversionFee
-					timestamp
-					logIndex
-				}
-			}
-		`)
-
-	reqAave := graphql.NewRequest(`
-			query($address: ID!)
-			{
-					reserve(id: $address){
-					id
-					symbol
-					liquidityRate
-					stableBorrowRate
-					variableBorrowRate
-					totalBorrows
-				}
-				}
-					`)
-
-	// 3 - set query variables
-
-	reqAave.Var("address", "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") // Ether address
-	reqCompound.Var("key", "value")
-	reqCurve.Var("key", "value")
-	reqBancor.Var("key", "value")
-
 	// 4 - set query headers
 	reqUniswapIDFromTokenTicker.Header.Set("Cache-Control", "no-cache")
 	reqUniswapHist.Header.Set("Cache-Control", "no-cache")
 
-	reqCompound.Header.Set("Cache-Control", "no-cache")
-	reqCurve.Header.Set("Cache-Control", "no-cache")
-	reqBancor.Header.Set("Cache-Control", "no-cache")
-	reqAave.Header.Set("Cache-Control", "no-cache")
-
 	// 5 - define a Context for the request
-	ctx := context.Background()
-
-	// 6 - declare query response objects
-	var respCompound CompoundQuery // need to change to same format as Balancer and Uniswap
-	var respCurve CurveQuery
-	var respBancor BancorQuery
-	// var respAave AaveQuery
+	// ctx := context.Background()
 
 	// 7 - run data queries on each pool
 	U := UniswapInputStruct{clientUniswap, reqUniswapIDFromTokenTicker, reqUniswapHist}
 	getBalancerData(database, U) // 1
 	getUniswapData(database, U)  // 2
 	getAaveData(database, U)     //	3
-
 	/*
-		3) Aave
 		4) Curve
 		5) Others
 	*/
-	// RE-RANK THEM HERE? somewhere else?
 
 	/*
 		// Checks - start
@@ -218,18 +114,6 @@ func (database *Database) AddRecordfromAPI() {
 		}
 	*/
 	// Checks - end
-
-	// OTHER POOLS - TO DO
-
-	if err := clientCompound.Run(ctx, reqCompound, &respCompound); err != nil {
-		log.Fatal(err)
-	}
-	if err := clientCurve.Run(ctx, reqCurve, &respCurve); err != nil {
-		log.Fatal(err)
-	}
-	if err := clientBancor.Run(ctx, reqBancor, &respBancor); err != nil {
-		log.Fatal(err)
-	}
 
 	fmt.Println("Ran all download functions and appended data")
 }

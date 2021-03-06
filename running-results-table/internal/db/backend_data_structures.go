@@ -44,7 +44,7 @@ func NewOwnPortfolioRecord(token string, amount float32) OwnPortfolioRecord { //
 func NewHistoricalCurrencyDataFromRaw(token string, rawhistoricaldata []UniswapDaily) HistoricalCurrencyData {
 	var historicaldata HistoricalCurrencyData
 
-	// TO DO: parsing
+	// To DO: Date checking
 	for i := 0; i < len(rawhistoricaldata); i++ {
 		historicaldata.Date = append(historicaldata.Date, int64(rawhistoricaldata[i].Date))
 
@@ -56,17 +56,6 @@ func NewHistoricalCurrencyDataFromRaw(token string, rawhistoricaldata []UniswapD
 	historicaldata.Ticker = token
 	return historicaldata
 
-	/*
-			var historicaldata HistoricalCurrencyData
-
-		// TO DO: parsing
-		for i := 0; i < len(rawhistoricaldata); i++ {
-
-		}
-
-		historicaldata.Ticker = token
-		return historicaldata
-	*/
 }
 
 func NewHistoricalCurrencyData() HistoricalCurrencyData {
@@ -150,7 +139,6 @@ func (database *Database) AddRecord(r OwnPortfolioRecord) {
 }
 
 func (database *Database) GetOptimisedPortfolio() []OptimisedPortfolioRecord {
-	// return database.optimisedportfolio
 	return OptimisePortfolio(database)
 }
 

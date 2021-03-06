@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	// for adding data after a certain number of seconds
-	// can be deleted
 	"time"
 )
 
@@ -17,13 +16,6 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 
 	r := gin.Default()
 	r.Use(cors.Default())
-	r.GET("/results", func(c *gin.Context) {
-		//results := database.GetRecords()
-		results := database.GetOptimisedPortfolio()
-		c.JSON(http.StatusOK, gin.H{
-			"results": results,
-		})
-	})
 
 	r.GET("/currencyoutputtable", func(c *gin.Context) {
 		currencyoutputtable := database.GetCurrencyInputData()
@@ -32,9 +24,17 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 		})
 	})
 
+	// Optimised portfolio table
+	r.GET("/results", func(c *gin.Context) {
+		results := database.GetOptimisedPortfolio() //results := database.GetRecords()
+		c.JSON(http.StatusOK, gin.H{
+			"results": results,
+		})
+	})
+
+	// Ranked by ROI table - download data and rank currencies
 	r.POST("/results", func(c *gin.Context) {
-		//		var json db.Record
-		var json db.OwnPortfolioRecord
+		var json db.OwnPortfolioRecord //		var json db.Record
 		if err := c.BindJSON(&json); err == nil {
 			database.AddRecord(json)
 			c.JSON(http.StatusCreated, json)
@@ -44,45 +44,32 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 		}
 	})
 
-	// post it to DB - table 2
-	database.AddRecordfromAPI()
-
-	// This is the backend algo
-	database.RankBestCurrencies()
-
-	time.AfterFunc(5*time.Second, func() {
-		database.AddRecordfromAPI()
-		//database.AddRecordfromAPI2("USDT/USDC", 420420, 6969)
-		// backend algo
-		database.RankBestCurrencies()
-		notifierClient.Notify()
+	// Ranked by ROI table - download data and rank currencies
+	r.POST("/results", func(c *gin.Context) {
+		var json db.OwnPortfolioRecord //		var json db.Record
+		if err := c.BindJSON(&json); err == nil {
+			database.AddRecord(json)
+			c.JSON(http.StatusCreated, json)
+			notifierClient.Notify()
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{})
+		}
 	})
+
+	// Run just once
 	time.AfterFunc(10*time.Second, func() {
 		database.AddRecordfromAPI()
-		//database.AddRecordfromAPI2("HighYield4meToken", 1337, 420.69)
-		// backend algo
 		database.RankBestCurrencies()
 		notifierClient.Notify()
 	})
 
-	// Next steps:
-	// Get API pull to work with Notifier update frequency
-	// Connect a real database
-	// Create an ugly front end like Curve
-	// Profit
-
+	//	database.AddRecordfromAPI() 	// post it to DB - table 2
+	//	database.RankBestCurrencies() 	// This is the backend algo
 	/*
-		r.POST("/currencyoutputtable", func(c *gin.Context) {
-			var json db.CurrencyInputData
-			// {"ETH/DAI",420,0.069} // download data from API - here?
-
-			if err := c.BindJSON(&json); err == nil {
-				database.AddRecordfromAPI(json)
-				c.JSON(http.StatusCreated, json)
-				notifierClient.Notify()
-			} else {
-				c.JSON(http.StatusBadRequest, gin.H{})
-			}
+		time.AfterFunc(5*time.Second, func() {
+			database.AddRecordfromAPI()
+			database.RankBestCurrencies() // backend algo
+			notifierClient.Notify()
 		})
 	*/
 

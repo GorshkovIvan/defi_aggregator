@@ -28,19 +28,3 @@ type BancorSwap struct {
 	Timestamp string `json:"timestamp"`
 	LogIndex  int    `json:"logIndex"`
 }
-
-// --AAVE--
-/*
-type AaveQuery struct {
-	Reserve AaveData `json:"reserve"`
-}
-
-type AaveData struct {
-	ID                 string `json:"id"`
-	Symbol             string `json:"symbol"`
-	LiquidityRate      string `json:"liquidityRate"`
-	StableBorrowRate   string `json:"stableBorrowRate"`
-	VariableBorrowRate string `json:"variableBorrowRate"`
-	TotalBorrows       string `json:"totalBorrows"`
-}
-*/
