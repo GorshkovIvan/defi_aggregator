@@ -43,8 +43,8 @@ const Styles = styled.div`
 `;*/
 
 const sliderThumbStyles = (props) => (`
-  width: 25px;
-  height: 25px;
+  width: 15px;
+  height: 15px;
   background: ${props.color};
   cursor: pointer;
   outline: 5px solid #333;
@@ -68,10 +68,11 @@ const Styles = styled.div`
     flex: 6;
     -webkit-appearance: none;
     width: 75%; 
-    height: 15px;
+    margin-right: 15px;
+    height: 8px;
     border-radius: 10px;
     background: #efefef;
-    outline: 2px rgba(0,0,0);
+    outline: 1px ridge rgba(128,128,128);
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;

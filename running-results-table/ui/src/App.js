@@ -28,7 +28,6 @@ class App extends Component {
     <RankedCurrenciesTable />
         <div className ="MiddleDivider"> </div>
         <div className ="App3"> </div>
-
         <div className ="ui container"><h3>Optimal portfolio is:</h3></div>
         <ConnectedResultsTable />
         <NewResultsForm />
