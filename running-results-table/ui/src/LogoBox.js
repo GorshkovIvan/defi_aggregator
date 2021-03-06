@@ -4,7 +4,7 @@ import logo from './eth.png';
 
 class LogoBox extends React.Component {
     render() {
-      return <div className="Applogo"> <img src={logo} width="1%"/> </div>;
+      return <div className="Applogo"> <img src={logo} width="2%"/> </div>;
     }
   }
 

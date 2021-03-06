@@ -23,7 +23,7 @@ export default function ResultsTable2({currencyoutputtable}) {
     return (
         <div className="ui container">
             <Segment>
-                <Header>Best-yielding cryptocurrency pairs are: </Header>
+
                 <Table>
                     <Table.Header>
                         <Table.Row>

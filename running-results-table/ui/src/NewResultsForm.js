@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, Header, Segment, Button } from 'semantic-ui-react'
 
+
 // does not do any validation
 export default class NewResultsForm extends React.Component {
     state = {
@@ -18,16 +19,27 @@ export default class NewResultsForm extends React.Component {
                 <Segment vertical>
                     <Header>Please Enter Your Cryptocurrency Portfolio and we will suggest how to maximize its yield:</Header>
                     <Form onSubmit={this.onSubmit}>
-                        <Form.Field>
-                            <label>Token</label>
-                            <input placeholder='ETH' value={this.state.token} onChange={this.onChangeName} />
-                        </Form.Field>
-                        <Form.Field>
-                            <label>Amount</label>
-                            <input placeholder='Amount' value={this.state.amount} onChange={this.onChangeTime} />
-                        </Form.Field>
 
-                        <Button type='submit'>Submit</Button>
+                        <div class="mainDIV">
+                            <div class="leftDIV">
+                                <Form.Field>
+                                    <label>Token</label>
+                                    <input placeholder='ETH' value={this.state.token} onChange={this.onChangeName} />
+                                </Form.Field>
+                            </div>
+                            <div class="middleDIV">
+                                <Form.Field>
+                                    <label>Amount</label>
+                                    <input placeholder='Amount' value={this.state.amount} onChange={this.onChangeTime} />
+                                </Form.Field>
+                            </div>
+                            <div class="rightDIV">
+                                <Form.Field>
+                                    <label> Add </label>
+                                    <Button type='submit'>Submit</Button>
+                                </Form.Field>
+                            </div> 
+                        </div>
                     </Form>
                 </Segment>
             </div>

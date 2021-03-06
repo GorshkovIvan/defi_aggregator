@@ -27,7 +27,7 @@ export default function ResultsTable({results}) {
     return (
         <div className="ui container">
             <Segment>
-                <Header>Optimal Portfolio</Header>
+
                 <Table striped>
                     <Table.Header>
                         <Table.Row>
@@ -48,3 +48,5 @@ export default function ResultsTable({results}) {
         </div>
     );
 }
+
+//                 <Header>Optimal Portfolio</Header>

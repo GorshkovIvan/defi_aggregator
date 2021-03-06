@@ -24,16 +24,19 @@ class App extends Component {
       <LogoBox></LogoBox>
       <h5 align="center"> The place to find optimal yield for your cryptocurrency portfolio </h5>
     </div>   
-    <div className ="Table1Header"><h3> Best cryptocurrencies to provide liquidity on are: </h3> </div>
-
-        <ConnectedResultsTable />
-        <NewResultsForm />
+    <div className ="ui container"><h3> Best cryptocurrencies to provide liquidity on are: </h3> </div>
+    <RankedCurrenciesTable />
         <div className ="MiddleDivider"> </div>
         <div className ="App3"> </div>
-        <Slider2></Slider2>
-        <RankedCurrenciesTable />
+        <div className ="ui container"><h3>Optimal portfolio is:</h3></div>
+        <ConnectedResultsTable />
+        <NewResultsForm />
+        <Slider2 />
       </div>
     );
   }
 }
 export default App;
+
+
+<div className ="Table1Header"><h3> Best cryptocurrencies to provide liquidity on are: </h3> </div>

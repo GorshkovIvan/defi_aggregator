@@ -1,6 +1,6 @@
 .App{
   font-family:'Consolas';
-  background-color: grey;
+  background-color: whitesmoke;
 }
 
 h1 {
@@ -17,32 +17,35 @@ h2{
 h3{
   font-family:'Consolas';
   text-align: center;
+  width: 100%; 
   font-size: 14px;
+  background-color: rgb(211,211,211);
 }
 
 h5{
   font-family:'Consolas';
   text-align: center;
   font-size: 10px;
-  margin-top: 5px
+  margin-top: 0px;
+  padding-bottom: 3px;
 }
 
 .TopTable{
-    background-color: grey;
+    background-color: silver;
     margin-bottom: 2px;
     padding-top: 5px;
     width: 100%;
 }
 
 .Table1Header{
-    background-color: darkgrey;
+    background-color: rgb(211,211,211);
     font-size: 10;
 }
 
 .MiddleDivider{
-  margin-top: 5px;
+  margin-top: 10px;
   border-top: 1px solid red;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 ;}
 
 .Applogo{
@@ -70,4 +73,58 @@ h5{
 .ResultsTableHeader {
   font-size: 10;
   font-weight: bold;
+}
+
+.ui.header {
+  font-family: 'Consolas';
+  margin-bottom: 0.2rem; 
+}
+
+.ui.header:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+font-size: 1em;
+}
+
+.ui.table {
+  font-family: 'Consolas';
+  font-size: 5;
+}
+
+.ui.segment {
+  font-family: 'Consolas';
+  margin-top: 00.25em;
+  padding-top: 0.25em;
+}
+
+.ui.table td {
+padding-top: 0.25em;
+padding-bottom: 0.25em;
+text-align: right;
+}
+
+
+.sc-gsTCUz.avxsE {
+  margin-top: 1rem;
+}
+
+.ui.form .field {
+width: 25%;
+}
+
+.mainDIV{
+  margin-top: 10px;
+  width:100%;
+  height:50px;
+  margin-bottom: 15px;
+}
+.leftDIV{
+  float:left;
+  width:33%;
+}
+.middleDIV{
+  float: left;
+  width:33%;
+}
+.rightDIV{
+  float: right;
+  width:33%;
 }
