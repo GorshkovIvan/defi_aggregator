@@ -1,7 +1,7 @@
 package db
 
 import "testing"
-/*
+
 func TestNewOptimisedPortfolio(t *testing.T) {
 	new_database := New()
 	newOptimisedPortfolio := NewOptimisedPortfolio(&new_database) // returns array of portfolios
@@ -25,7 +25,7 @@ func TestNewOptimisedPortfolio(t *testing.T) {
 	if newOptimisedPortfolio[0].ROIestimate != 0.0125 {
 		t.Errorf("ROI error!")
 	}
-}*/
+}
 
 func TestNewOptimisedPortfolioWithInputLengthZero(t *testing.T) {
 	new_database := New()
