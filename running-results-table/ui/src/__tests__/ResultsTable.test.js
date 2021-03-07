@@ -20,6 +20,8 @@ test( 'ResultsTable test, renders table 1 (User specified Table)', () => {
     const elem = document.getElementById('resultsTable');
 
     console.log('HTML ->', document.body.innerHTML);
+
+    var results = ResultsTable()    
     //const TableRowElem = elem.querySelector('Table.Row');
     //expect(TableRowElem).toHaveTextContent("hello?")
 

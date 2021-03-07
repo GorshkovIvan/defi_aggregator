@@ -102,10 +102,10 @@ func calculateROI(interestrate float32, shareofvolume float32, poolvolume float3
 	ROI = 0.069
 	// TO DO: update to proper formula
 	if volatility > 0 {
-		ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume)) / float32(volatility)
+		ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume)) / float32(volatility) / 365 / 1000
 	}
 	if volatility == 0 {
-		ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume))
+		ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume)) / 365 / 1000
 	}
 
 	if math.IsInf(float64(ROI), 0) {
