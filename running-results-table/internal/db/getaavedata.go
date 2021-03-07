@@ -118,12 +118,12 @@ func tickersToString(tickers AaveSymbols) []string {
 
 // Updates database with Uniswap historical data and current Aave data
 func getAaveData(database *Database, uniswapreqdata UniswapInputStruct) {
-
-	AavePoolList := GetAaveTickers()
+	ctx := context.Background()
 	var respUniswapTicker UniswapTickerQuery
 	var respUniswapHist UniswapHistQuery
+	AavePoolList := GetAaveTickers()
 	var AaveFilteredTokenList []string
-	ctx := context.Background()
+	
 
 	//Updating historical data
 
@@ -143,14 +143,16 @@ func getAaveData(database *Database, uniswapreqdata UniswapInputStruct) {
 				//for j := 0; j < len(tokenqueue); j++ {
 				// Check if database already has historical data
 				if !isHistDataAlreadyDownloaded(token0symbol, database) { // tokenqueue[j]
-					// Get Uniswap Ids of these tokens
+					
+					
 					uniswapreqdata.reqUniswapIDFromTokenTicker.Var("ticker", token0symbol) // tokenqueue[j]
+
 					if err := uniswapreqdata.clientUniswap.Run(ctx, uniswapreqdata.reqUniswapIDFromTokenTicker, &respUniswapTicker); err != nil {
 						log.Fatal(err)
 					}
 					// Download historical data for each token for which data is missing
 					if len(respUniswapTicker.IDsforticker) >= 1 {
-						// request data from uniswap using this queried ticker
+					// request data from uniswap using this queried ticker
 						uniswapreqdata.reqUniswapHist.Var("tokenid", setUniswapQueryIDForToken(token0symbol, respUniswapTicker.IDsforticker[0].ID)) // tokenqueue[j]
 
 						fmt.Print("Querying historical data for: ")
@@ -164,10 +166,11 @@ func getAaveData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 						// if returned data - append it to database
 						if len(respUniswapHist.DailyTimeSeries) > 0 {
-							// Append to database
+						// Append to database
 							database.historicalcurrencydata = append(database.historicalcurrencydata, NewHistoricalCurrencyDataFromRaw(token0symbol, respUniswapHist.DailyTimeSeries)) // tokenqueue[j]
 						}
-					} // if managed to find some IDs for this TOKEN
+					}
+					
 				} // if historical data needs updating
 				// } // tokenqueue loop ends
 
@@ -181,3 +184,5 @@ func getAaveData(database *Database, uniswapreqdata UniswapInputStruct) {
 	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{symbol, size, volume, interest, "Aave", volatility, ROI})
 
 }
+
+
