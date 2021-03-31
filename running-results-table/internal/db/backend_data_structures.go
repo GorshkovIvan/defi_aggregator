@@ -1,9 +1,82 @@
 package db
 
 import (
-	"fmt"
-	"strconv"
+"context"
+"fmt"
+"log"
+"time"
+
+"go.mongodb.org/mongo-driver/bson"
+"go.mongodb.org/mongo-driver/mongo"
+"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+
+func addOwnPortfolioRecord(token string, amount float32) {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	ownstartingportfolio := Database.Collection("Own Portfolio Record")
+
+
+	new_portfolio, err := ownstartingportfolio.InsertOne(ctx, bson.D{
+		{Key: "Token", Value: token},
+		{Key: "Amount", Value: amount},
+		})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(new_portfolio)
+}
+
+
+func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount float32, percentageofportfolio float32, roi_estimate float32, risk_setting float32) {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	optimisedportfolio := Database.Collection("Optimised Portfolio Record")
+
+
+	new_portfolio, err := optimisedportfolio.InsertOne(ctx, bson.D{
+		{Key: "TokenOrPair", Value: tokenorpair},
+		{Key: "Pool", Value: pool},
+		{Key: "Amount", Value: amount},
+		{Key: "PercentageOfPortfolio", Value: percentageofportfolio},
+		{Key: "ROIestimate", Value: roi_estimate},
+		{Key: "Risksetting", Value: risk_setting},
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(new_portfolio)
+}
+
+
+/*
 
 type OwnPortfolioRecord struct {
 	Token  string  `json:"token"`
@@ -40,9 +113,9 @@ func NewOptimisedPortfolio(database *Database) []OptimisedPortfolioRecord {
 }
 
 // For adding own portfolio records
-func NewOwnPortfolioRecord(token string, amount float32) OwnPortfolioRecord { // , pool_sz float32
-	return OwnPortfolioRecord{token, amount} // , pool_sz
-}
+//func NewOwnPortfolioRecord(token string, amount float32) OwnPortfolioRecord { // , pool_sz float32
+//	return OwnPortfolioRecord{token, amount} // , pool_sz
+//}
 
 func NewHistoricalCurrencyDataFromRaw(token string, rawhistoricaldata []UniswapDaily) HistoricalCurrencyData {
 	var historicaldata HistoricalCurrencyData
@@ -157,3 +230,5 @@ func (database *Database) GetOptimisedPortfolio() []OptimisedPortfolioRecord {
 func (database *Database) GetCurrencyInputData() []CurrencyInputData {
 	return database.currencyinputdata
 }
+
+ */

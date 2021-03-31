@@ -1,7 +1,117 @@
 package db
 
-import "testing"
+import (
+	"context"
+	"fmt"
+	"log"
+	"testing"
+	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+func TestAddOwnPortfolioRecord(t *testing.T) {
+	addOwnPortfolioRecord("ETH", 100)
+
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	optimisedportfolio := Database.Collection("Optimised Portfolio Record")
+
+	cursor, err := optimisedportfolio.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var entries []bson.M
+	if err = cursor.All(ctx, &entries); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(entries)
+
+	for _, entry := range entries {
+		if entry["token"] != "ETH" {
+			t.Errorf("Token error!")
+		}
+
+		if entry["amount"] != "100" {
+			t.Errorf("Wrong amount!")
+		}
+	}
+}
+
+
+func TestAddOptimisedPortfolioRecord(t *testing.T) {
+	addOptimisedPortfolioRecord("DAI", "Uniswap", 2000, 1, 1, 1)
+
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	optimisedportfolio := Database.Collection("Optimised Portfolio Record")
+
+	cursor, err := optimisedportfolio.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var entries []bson.M
+	if err = cursor.All(ctx, &entries); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(entries)
+
+	for _, entry := range entries {
+		if entry["TokenOrPair"] != "DAI" {
+			t.Errorf("Token error!")
+		}
+
+		if entry["Pool"] != "Uniswap" {
+			t.Errorf("Wrong pool!")
+		}
+
+		if entry["Amount"] != "2000" {
+			t.Errorf("Wrong amount!")
+		}
+
+		if entry["PercentageOfPortfolio"] != "1" {
+			t.Errorf("Wrong percentage!")
+		}
+
+		if entry["ROIestimate"] != "1" {
+			t.Errorf("Wrong ROI!")
+		}
+
+		if entry["Risksetting"] != "1" {
+			t.Errorf("Wrong risk setting!")
+		}
+
+	}
+}
+
+
+/*
 func TestNewOptimisedPortfolio(t *testing.T) {
 	new_database := New()
 	newOptimisedPortfolio := NewOptimisedPortfolio(&new_database) // returns array of portfolios
@@ -215,6 +325,8 @@ func TestGetOptimisedPortfolio(t *testing.T) {
 		t.Errorf("fail!")
 	}
 }
+
+ */
 /*
 func TestGetCurrencyInputData(t *testing.T) {
 	new_database := New()

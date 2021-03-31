@@ -9,27 +9,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
-
-
-func InsertPost(title string, body string) {
-
-	post := Post{title, body}
-	collection := client.Database(“my_database”).Collection(“posts”)
-	insertResult, err := collection.InsertOne(context.TODO(), post)
-	
-	if err != nil {
-		log.Fatal(err)
-	}
-	
-	fmt.Println(“Inserted post with ID:”, insertResult.InsertedID)
-}
 
 
 func main() {
 
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://<username>:<password>@cluster0-zzart.mongodb.net/test?retryWrites=true&w=majority"))
+	addOwnPortfolioRecord("ETH", 100)
+
+}
+
+func addOwnPortfolioRecord(token string, amount float32) {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,15 +30,18 @@ func main() {
 	}
 	defer client.Disconnect(ctx)
 
-	err = client.Ping(ctx, readpref.Primary())
+	Database := client.Database("De-Fi_Aggregator")
+	ownstartingportfolio := Database.Collection("Own Portfolio Record")
+
+	new_portfolio, err := ownstartingportfolio.InsertOne(ctx, bson.D{
+		{Key: "Token", Value: token},
+		{Key: "Amount", Value: amount},
+	})
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	databases, err := client.ListDatabaseNames(ctx, bson.M{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(databases)
+	fmt.Println(new_portfolio)
 
 }
