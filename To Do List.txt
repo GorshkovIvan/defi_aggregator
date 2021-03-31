@@ -1,21 +1,38 @@
-Steps left to MVP:
-Historical Trading volume data		- need for accurate ROI
-calculateROI 				- Need to implement properly
+NEXT STEPS:
+
+Fix Uniswap downloader for historical volumes
+Finish future volume estimator function
+Implement calculateROI properly
+Add not investment advice disclaimer
+User input validation for front end
+Historical Trading volume data (ex Uniswap)		- need for accurate ROI
 Get Reward Mechanism			- need to figure out what it is for pools other than Uniswap
-UI + populate risk from UI		- bring to match our report 1
-Why runs 3x?
+Connect Database
 
 OptimisePortfolio 			- need to implement algo. Step 1 - create token pair permutations
 Curve data pulling implementation 
 Get gas fees
 Version of OptimisePortfolio with swaps
 
-Complete / less current
+COMPLETE
+UI + populate risk from UI		- bring to match our report 1
 JS + Golang Tests			- complete?
 isHistDataAlreadyDownloaded 		- done (Check for dates can add later)
 calculatehistoricalvolatility 		- Need to check if gives right output
 NewHistoricalCurrencyDataFromRaw 	- done
 retrieveDataForTokensFromDatabase 	- done
 Aave data pulling implementation	- check to confirm j loop in tokenqueue is 1 element
-Create risk var in database		- done 
+Create risk var in database				- done 
 WETH Data not downloading correctly 	- done
+Why runs 3x?							- done
+
+
+TO BUILD AND RUN
+move everything from ui into main folder
+npm run build
+set GOOS=linux 
+go build
+Upload both build folder and the go executable to cpanel
+run from terminal on cpanel: PORT=1234 ./running-results-table
+
+
