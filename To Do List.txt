@@ -1,5 +1,4 @@
 NEXT STEPS:
-
 Fix Uniswap downloader for historical volumes
 Finish future volume estimator function
 Implement calculateROI properly
@@ -8,11 +7,23 @@ User input validation for front end
 Historical Trading volume data (ex Uniswap)		- need for accurate ROI
 Get Reward Mechanism			- need to figure out what it is for pools other than Uniswap
 Connect Database
+Add refresh button on front end
 
 OptimisePortfolio 			- need to implement algo. Step 1 - create token pair permutations
 Curve data pulling implementation 
 Get gas fees
 Version of OptimisePortfolio with swaps
+
+
+HOW TO COMPILE
+move everything from ui into main folder - in Defi Aggregator
+run 'npm run build' from cmd
+compile running-results-table into an executable
+set GOOS=linux 
+go build
+upload everything to cpanel - 
+on namecheap console, run: PORT=1234 ./running-results-table
+
 
 COMPLETE
 UI + populate risk from UI		- bring to match our report 1
@@ -28,11 +39,9 @@ Why runs 3x?							- done
 
 
 TO BUILD AND RUN
-move everything from ui into main folder
-npm run build
-set GOOS=linux 
-go build
-Upload both build folder and the go executable to cpanel
+move everything from ui into main folder (cut + paste all contents of UI into main running-results-table directory)
+compile react app with 'npm run build' from cmd
+set GOOS=linux - to compile the golang for web server
+go build - to compile running-results-table into a linux executable
+Upload both the contents of build folder (it is created by npm build) and the go executable to cpanel
 run from terminal on cpanel: PORT=1234 ./running-results-table
-
-
