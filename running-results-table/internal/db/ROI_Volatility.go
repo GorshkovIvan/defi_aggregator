@@ -102,20 +102,21 @@ func calculateROI_hist(interestrate float32, pool_reward_pct float32, future_poo
 }
 
 func calculateROI_vol_adj(ROI_raw_est float32, volatility_est float32) float32 {
-	
+
+	return 0.0
+
 	if volatility_est <= 0.03 {
 		// if not volatile - do not adjust by volatility
 		return ROI_raw_est
 
 	} else {
-	//if volatility_est > 0.03 {
+		//if volatility_est > 0.03 {
 		// takes annualised volatility
 		// sharpe ratio
 		return ROI_raw_est / volatility_est
 	}
 
 }
-
 
 func calculateROI_raw_est(interestrate float32, pool_reward_pct float32, future_pool_sz_est float32, future_daily_volume_est float32) float32 {
 
@@ -125,7 +126,7 @@ func calculateROI_raw_est(interestrate float32, pool_reward_pct float32, future_
 	if future_pool_sz_est > 0.0 {
 		ROI = interestrate + (pool_reward_pct * future_daily_volume_est * 365 / future_pool_sz_est)
 	}
-	
+
 	if math.IsInf(float64(ROI), 0) {
 		return -999
 	}

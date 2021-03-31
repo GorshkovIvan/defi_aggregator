@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strings"
+	"math"
 	"strconv"
+	"strings"
+
 	"github.com/machinebox/graphql"
 )
 
-func estimate_future_uniswap_volume_and_pool_sz(histvolume UniswapHistVolumeQuery) (float32,float32) {
+func estimate_future_uniswap_volume_and_pool_sz(histvolume UniswapHistVolumeQuery) (float32, float32) {
 	future_volume_est := 0.0
 	future_sz_est := 0.0
 
@@ -17,7 +19,7 @@ func estimate_future_uniswap_volume_and_pool_sz(histvolume UniswapHistVolumeQuer
 	var count_sz float64
 	count = 0
 	count_sz = 0
-	
+
 	for i := 0; i < len(histvolume.DailyTimeSeries); i++ {
 
 		//v0, _ := strconv.ParseFloat(histvolume.DailyTimeSeries[i].DailyVolumeToken0, 64)
@@ -29,12 +31,12 @@ func estimate_future_uniswap_volume_and_pool_sz(histvolume UniswapHistVolumeQuer
 		future_volume_est += v
 		future_sz_est += sz
 
-		if v != 0.0 { 
-			count++ 
+		if v != 0.0 {
+			count++
 		}
 
-		if sz != 0.0 { 
-			count_sz++ 
+		if sz != 0.0 {
+			count_sz++
 		}
 
 	}
@@ -42,7 +44,14 @@ func estimate_future_uniswap_volume_and_pool_sz(histvolume UniswapHistVolumeQuer
 	future_volume_est = future_volume_est / count
 	future_sz_est = future_sz_est / count_sz
 
-	return float32(future_volume_est),float32(future_sz_est) // USD
+	if math.IsNaN(float64(future_volume_est)) {
+		future_volume_est = -995.0
+	}
+	if math.IsNaN(float64(future_sz_est)) {
+		future_sz_est = -996.0
+	}
+
+	return float32(future_volume_est), float32(future_sz_est) // USD
 }
 
 func getUniswapData(database *Database, uniswapreqdata UniswapInputStruct) {
@@ -291,25 +300,35 @@ query{
 
 			fmt.Println("retrieved number of HISTORICAL VOLUME items: ")
 			fmt.Println(len(respUniswapHistVolume.DailyTimeSeries))
-/*
-			fmt.Println("RETRIEVED PAIR ID - XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX: ")
-			fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].ID)
-			fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].Date)
-			fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].DailyVolumeToken0)
-			fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].DailyVolumeToken1)
+			/*
+				fmt.Println("RETRIEVED PAIR ID - XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX: ")
+				fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].ID)
+				fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].Date)
+				fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].DailyVolumeToken0)
+				fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].DailyVolumeToken1)
 
-			fmt.Println(respUniswapHistVolume.DailyTimeSeries[1].DailyVolumeToken0)
-			fmt.Println(respUniswapHistVolume.DailyTimeSeries[1].DailyVolumeToken1)
+				fmt.Println(respUniswapHistVolume.DailyTimeSeries[1].DailyVolumeToken0)
+				fmt.Println(respUniswapHistVolume.DailyTimeSeries[1].DailyVolumeToken1)
 
-			fmt.Println(respUniswapHistVolume.DailyTimeSeries[2].DailyVolumeToken0)
-			fmt.Println(respUniswapHistVolume.DailyTimeSeries[2].DailyVolumeToken1)
-*/
+				fmt.Println(respUniswapHistVolume.DailyTimeSeries[2].DailyVolumeToken0)
+				fmt.Println(respUniswapHistVolume.DailyTimeSeries[2].DailyVolumeToken1)
+			*/
 			future_daily_volume_est, future_pool_sz_est := estimate_future_uniswap_volume_and_pool_sz(respUniswapHistVolume)
 			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
 
+			ROI_raw_est := calculateROI_raw_est(currentInterestrate, UniswapRewardPercentage, float32(future_pool_sz_est), float32(future_daily_volume_est))
 			ROI_vol_adj_est := calculateROI_vol_adj(ROI_raw_est, volatility)
-			ROI_raw_est:= calculateROI_raw_est(currentInterestrate, UniswapRewardPercentage, float32(future_pool_sz_est),float32(future_daily_volume_est))
-			ROI_hist := calculateROI_hist(currentInterestrate, UniswapRewardPercentage, float32(future_pool_sz_est),float32(future_daily_volume_est))
+			ROI_hist := calculateROI_hist(currentInterestrate, UniswapRewardPercentage, float32(future_pool_sz_est), float32(future_daily_volume_est))
+
+			if math.IsNaN(float64(ROI_raw_est)) {
+				fmt.Println("NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN1")
+			}
+			if math.IsNaN(float64(ROI_vol_adj_est)) {
+				fmt.Println("NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN1")
+			}
+			if math.IsNaN(float64(ROI_hist)) {
+				fmt.Println("NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN1")
+			}
 
 			var recordalreadyexists bool
 			recordalreadyexists = false
@@ -323,7 +342,7 @@ query{
 
 					database.currencyinputdata[k].ROI_raw_est = ROI_raw_est
 					database.currencyinputdata[k].ROI_vol_adj_est = ROI_vol_adj_est
-					database.currencyinputdata[k].ROI_hist = ROI_hist					
+					database.currencyinputdata[k].ROI_hist = ROI_hist
 
 					database.currencyinputdata[k].Volatility = volatility
 					database.currencyinputdata[k].Yield = currentInterestrate
@@ -332,8 +351,8 @@ query{
 
 			// APPEND IF NEW
 			if !recordalreadyexists {
-				database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(future_pool_sz_est), 
-													float32(future_daily_volume_est), currentInterestrate, "Uniswap", volatility, ROI_raw_est,ROI_vol_adj_est, ROI_hist})
+				database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(future_pool_sz_est),
+					float32(future_daily_volume_est), currentInterestrate, "Uniswap", volatility, ROI_raw_est, ROI_vol_adj_est, ROI_hist})
 				//				database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize), float32(currentVolume), currentInterestrate, "Uniswap", volatility, ROI})
 			}
 		} // if pool is within pre filtered list ends
