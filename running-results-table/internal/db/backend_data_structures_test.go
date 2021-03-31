@@ -13,7 +13,7 @@ import (
 )
 
 func TestAddOwnPortfolioRecord(t *testing.T) {
-	addOwnPortfolioRecord("ETH", 100)
+	addOwnPortfolioRecord("ETH", "100")
 
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
@@ -54,7 +54,7 @@ func TestAddOwnPortfolioRecord(t *testing.T) {
 
 
 func TestAddOptimisedPortfolioRecord(t *testing.T) {
-	addOptimisedPortfolioRecord("DAI", "Uniswap", 2000, 1, 1, 1)
+	addOptimisedPortfolioRecord("DAI", "Uniswap", "2000", "0.42", "0.05", "0.2")
 
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
@@ -95,15 +95,15 @@ func TestAddOptimisedPortfolioRecord(t *testing.T) {
 			t.Errorf("Wrong amount!")
 		}
 
-		if entry["PercentageOfPortfolio"] != "1" {
+		if entry["PercentageOfPortfolio"] != "0.42" {
 			t.Errorf("Wrong percentage!")
 		}
 
-		if entry["ROIestimate"] != "1" {
+		if entry["ROIestimate"] != "0.05" {
 			t.Errorf("Wrong ROI!")
 		}
 
-		if entry["Risksetting"] != "1" {
+		if entry["Risksetting"] != "0.2" {
 			t.Errorf("Wrong risk setting!")
 		}
 

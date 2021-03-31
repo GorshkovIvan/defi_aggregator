@@ -13,7 +13,7 @@ import (
 )
 
 
-func addOwnPortfolioRecord(token string, amount float32) {
+func addOwnPortfolioRecord(token string, amount string) {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
@@ -43,7 +43,7 @@ func addOwnPortfolioRecord(token string, amount float32) {
 }
 
 
-func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount float32, percentageofportfolio float32, roi_estimate float32, risk_setting float32) {
+func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount string, percentageofportfolio string, roi_estimate string, risk_setting string) {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
