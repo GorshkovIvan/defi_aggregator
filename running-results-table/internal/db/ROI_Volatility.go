@@ -96,16 +96,35 @@ func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 	return float32(vol)
 }
 
-func calculateROI(interestrate float32, shareofvolume float32, poolvolume float32, volatility float32) float32 {
+func calculateROI_hist(interestrate float32, pool_reward_pct float32, future_pool_sz_est float32, future_daily_volume_est float32) float32 {
+
+	return 0.069
+}
+
+func calculateROI_vol_adj(ROI_raw_est float32, volatility_est float32) float32 {
+
+	return 0.0
+
+	if volatility_est <= 0.03 {
+		// if not volatile - do not adjust by volatility
+		return ROI_raw_est
+
+	} else {
+		//if volatility_est > 0.03 {
+		// takes annualised volatility
+		// sharpe ratio
+		return ROI_raw_est / volatility_est
+	}
+
+}
+
+func calculateROI_raw_est(interestrate float32, pool_reward_pct float32, future_pool_sz_est float32, future_daily_volume_est float32) float32 {
 
 	var ROI float32
 	ROI = 0.069
-	// TO DO: update to proper formula
-	if volatility > 0 {
-		ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume)) / float32(volatility) / 365 / 1000
-	}
-	if volatility == 0 {
-		ROI = (float32(interestrate) + float32(poolvolume)*float32(shareofvolume)) / 365 / 1000
+
+	if future_pool_sz_est > 0.0 {
+		ROI = interestrate + (pool_reward_pct * future_daily_volume_est * 365 / future_pool_sz_est)
 	}
 
 	if math.IsInf(float64(ROI), 0) {
@@ -281,6 +300,6 @@ func isPoolPartOfFilter(token0 string, token1 string) bool {
 func (database *Database) RankBestCurrencies() {
 
 	sort.Slice(database.currencyinputdata, func(i, j int) bool {
-		return database.currencyinputdata[i].ROIestimate > database.currencyinputdata[j].ROIestimate
+		return database.currencyinputdata[i].ROI_raw_est > database.currencyinputdata[j].ROI_raw_est
 	})
 }

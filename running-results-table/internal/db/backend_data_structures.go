@@ -89,7 +89,7 @@ type OptimisedPortfolioRecord struct {
 	Pool                  string  `json:"pool"`
 	Amount                float32 `json:"amount"`
 	PercentageOfPortfolio float32 `json:"percentageofportfolio"`
-	ROIestimate           float32 `json:"roi_estimate"`
+	ROI_raw_est           float32 `json:"roi_estimate"`
 	Risksetting           float32 `json:"risk_setting"`
 }
 
@@ -152,13 +152,15 @@ type HistoricalCurrencyData struct {
 
 // Current
 type CurrencyInputData struct {
-	Pair        string  `default0:"ETH/DAI" json:"backend_pair"`
-	PoolSize    float32 `default0:"420000.69" json:"backend_poolsize"`
-	PoolVolume  float32 `default0:"4200.69" json:"backend_volume"`
-	Yield       float32 `default0:"0.05" json:"backend_yield"`
-	Pool        string  `default0:"Uniswap" json:"pool_source"`
-	Volatility  float32 `default0:"-9.00" json:"volatility"`
-	ROIestimate float32 `default0:"42.69%" json:"ROIestimate"`
+	Pair            string  `default0:"ETH/DAI" json:"backend_pair"`
+	PoolSize        float32 `default0:"420000.69" json:"backend_poolsize"`
+	PoolVolume      float32 `default0:"4200.69" json:"backend_volume"`
+	Yield           float32 `default0:"0.05" json:"backend_yield"`
+	Pool            string  `default0:"Uniswap" json:"pool_source"`
+	Volatility      float32 `default0:"-9.00" json:"volatility"`
+	ROI_raw_est     float32 `default0:"42.69%" json:"ROIestimate"`
+	ROI_vol_adj_est float32 `default0:"42.69%" json:"ROIvoladjest"`
+	ROI_hist        float32 `default0:"42.69%" json:"ROIhist"`
 }
 
 func NewCurrencyInputData() CurrencyInputData {
@@ -169,7 +171,8 @@ func NewCurrencyInputData() CurrencyInputData {
 	currencyinputdata.Yield = 0.08
 	currencyinputdata.Pool = "Uniswap"
 	currencyinputdata.Volatility = -0.09
-	currencyinputdata.ROIestimate = 0.4269
+	currencyinputdata.ROI_raw_est = 0.4269
+	currencyinputdata.ROI_hist = 0.4269
 	return currencyinputdata
 }
 
@@ -183,7 +186,10 @@ func NewCurrencyInputDataAct(pair string, poolSz float32, poolVolume float32, yi
 	currencyinputdata.Yield = yield
 	currencyinputdata.Pool = pool
 	currencyinputdata.Volatility = volatility
-	currencyinputdata.ROIestimate = roi
+	currencyinputdata.ROI_raw_est = roi
+	currencyinputdata.ROI_hist = 0.0
+	currencyinputdata.ROI_vol_adj_est = 0.0
+
 	return currencyinputdata
 }
 

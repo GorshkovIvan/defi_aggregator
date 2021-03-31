@@ -61,7 +61,7 @@ func (database *Database) AddRecordfromAPI() {
 	getAaveData(database, U)     // 1
 	getBalancerData(database, U) // 2
 	getUniswapData(database, U)  // 3
-	     
+
 	/*
 		4) Curve
 		5) Others
