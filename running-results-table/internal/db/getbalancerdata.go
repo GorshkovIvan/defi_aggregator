@@ -135,7 +135,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				BalancerRewardPercentage := float32(0.003)                                   // TO DO
 
 				volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
-				ROI := calculateROI(currentInterestrate, BalancerRewardPercentage, float32(currentVolume), volatility)
+				ROI_raw_est := calculateROI_raw_est(currentInterestrate, BalancerRewardPercentage, float32(currentVolume), volatility)
 
 				var recordalreadyexists bool
 				recordalreadyexists = false
@@ -147,7 +147,11 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 						recordalreadyexists = true
 						database.currencyinputdata[k].PoolSize = currentSize
 						database.currencyinputdata[k].PoolVolume = float32(currentVolume)
-						database.currencyinputdata[k].ROIestimate = ROI
+
+						database.currencyinputdata[k].ROI_raw_est = ROI_raw_est
+						database.currencyinputdata[k].ROI_vol_adj_est = 0
+						database.currencyinputdata[k].ROI_hist = 0					
+						
 						database.currencyinputdata[k].Volatility = volatility
 						database.currencyinputdata[k].Yield = currentInterestrate
 					}
@@ -155,7 +159,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 				// APPEND IF NEW
 				if !recordalreadyexists {
-					database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize), float32(currentVolume), currentInterestrate, "Balancer", volatility, ROI})
+					database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize), 
+														float32(currentVolume), currentInterestrate, "Balancer", volatility, ROI_raw_est, 0.0, 0.0})
 				}
 				// fmt.Println("APPENDED BALANCER DATA")
 			} // if pool is within pre filtered list ends

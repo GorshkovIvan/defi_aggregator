@@ -180,8 +180,8 @@ func getAaveData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 	// Updating current data
 	symbol, size, volume, interest, volatility := getAaveCurrentData()
-	ROI := calculateROI(interest, 0, volume, volatility)
-	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{symbol, size, volume, interest, "Aave", volatility, ROI})
+	ROI_raw_est := calculateROI_raw_est(interest, 0, volume, volatility)
+	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{symbol, size, volume, interest, "Aave", volatility, ROI_raw_est,0.0,0.0})
 
 }
 

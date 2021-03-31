@@ -22,7 +22,7 @@ func TestNewOptimisedPortfolio(t *testing.T) {
 		t.Errorf("Percentage of Portfolio error!")
 	}
 
-	if newOptimisedPortfolio[0].ROIestimate != 0.0125 {
+	if newOptimisedPortfolio[0].ROI_raw_est != 0.0125 {
 		t.Errorf("ROI error!")
 	}
 }
@@ -47,7 +47,7 @@ func TestNewOptimisedPortfolioWithInputLengthZero(t *testing.T) {
 		t.Errorf("Percentage of Portfolio error!")
 	}
 
-	if newOptimisedPortfolio[0].ROIestimate != 0.0125 {
+	if newOptimisedPortfolio[0].ROI_raw_est != 0.0125 {
 		t.Errorf("ROI error!")
 	}
 
@@ -111,7 +111,7 @@ func TestNewCurrencyInputData(t *testing.T) {
 		t.Errorf("fail!")
 	}
 
-	if new_currencyinputdata.ROIestimate!= 0.4269 {
+	if new_currencyinputdata.ROI_raw_est!= 0.4269 {
 		t.Errorf("fail!")
 	}
 
@@ -141,7 +141,7 @@ func TestNewCurrencyInputDataAct(t *testing.T) {
 		t.Errorf("fail!")
 	}
 
-	if new_currencyinputdataact.ROIestimate != 0.08 {
+	if new_currencyinputdataact.ROI_raw_est != 0.08 {
 		t.Errorf("fail!")
 	}
 
@@ -208,7 +208,7 @@ func TestGetOptimisedPortfolio(t *testing.T) {
 	if optimised_portfolio[0].PercentageOfPortfolio != 1 {
 		t.Errorf("fail!")
 	}
-	if optimised_portfolio[0].ROIestimate != 0.0125{
+	if optimised_portfolio[0].ROI_raw_est != 0.0125{
 		t.Errorf("fail!")
 	}
 	if optimised_portfolio[0].Risksetting != 0.00 {
@@ -242,7 +242,7 @@ func TestGetCurrencyInputData(t *testing.T) {
 		t.Errorf("fail!")
 	}
 
-	if currency_input_data[0].ROIestimate != 42.69 {
+	if currency_input_data[0].ROI_raw_est != 42.69 {
 		t.Errorf("fail!")
 	}
 
