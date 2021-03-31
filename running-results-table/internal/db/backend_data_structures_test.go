@@ -110,8 +110,6 @@ func TestAddOptimisedPortfolioRecord(t *testing.T) {
 	}
 }
 
-
-/*
 func TestNewOptimisedPortfolio(t *testing.T) {
 	new_database := New()
 	newOptimisedPortfolio := NewOptimisedPortfolio(&new_database) // returns array of portfolios
@@ -325,8 +323,6 @@ func TestGetOptimisedPortfolio(t *testing.T) {
 		t.Errorf("fail!")
 	}
 }
-
- */
 /*
 func TestGetCurrencyInputData(t *testing.T) {
 	new_database := New()

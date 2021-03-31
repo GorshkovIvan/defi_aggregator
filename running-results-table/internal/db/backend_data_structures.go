@@ -4,7 +4,8 @@ import (
 "context"
 "fmt"
 "log"
-"time"
+	"strconv"
+	"time"
 
 "go.mongodb.org/mongo-driver/bson"
 "go.mongodb.org/mongo-driver/mongo"
@@ -76,8 +77,6 @@ func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount float32
 }
 
 
-/*
-
 type OwnPortfolioRecord struct {
 	Token  string  `json:"token"`
 	Amount float32 `json:"amount"`
@@ -113,9 +112,9 @@ func NewOptimisedPortfolio(database *Database) []OptimisedPortfolioRecord {
 }
 
 // For adding own portfolio records
-//func NewOwnPortfolioRecord(token string, amount float32) OwnPortfolioRecord { // , pool_sz float32
-//	return OwnPortfolioRecord{token, amount} // , pool_sz
-//}
+func NewOwnPortfolioRecord(token string, amount float32) OwnPortfolioRecord { // , pool_sz float32
+	return OwnPortfolioRecord{token, amount} // , pool_sz
+}
 
 func NewHistoricalCurrencyDataFromRaw(token string, rawhistoricaldata []UniswapDaily) HistoricalCurrencyData {
 	var historicaldata HistoricalCurrencyData
@@ -237,4 +236,3 @@ func (database *Database) GetCurrencyInputData() []CurrencyInputData {
 	return database.currencyinputdata
 }
 
- */
