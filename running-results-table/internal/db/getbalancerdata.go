@@ -129,13 +129,13 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 					log.Fatal(err)
 				}
 
-				currentSize := float32(10000.0)                                              // TO DO: Size
+				currentSize := float32(9999.0)                                               // TO DO: Size
 				currentVolume, _ := strconv.ParseFloat(respBalancerById.TotalSwapVolume, 32) // No historical for now
 				currentInterestrate := float32(0.00)                                         // Zero for liquidity pool
 				BalancerRewardPercentage := float32(0.003)                                   // TO DO
 
 				volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
-				ROI_raw_est := calculateROI_raw_est(currentInterestrate, BalancerRewardPercentage, float32(currentVolume), volatility)
+				ROI_raw_est := calculateROI_raw_est(currentInterestrate, BalancerRewardPercentage, float32(currentVolume), volatility, 0.0)
 
 				var recordalreadyexists bool
 				recordalreadyexists = false
@@ -150,8 +150,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 						database.currencyinputdata[k].ROI_raw_est = ROI_raw_est
 						database.currencyinputdata[k].ROI_vol_adj_est = 0
-						database.currencyinputdata[k].ROI_hist = 0					
-						
+						database.currencyinputdata[k].ROI_hist = 0
+
 						database.currencyinputdata[k].Volatility = volatility
 						database.currencyinputdata[k].Yield = currentInterestrate
 					}
@@ -159,8 +159,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 				// APPEND IF NEW
 				if !recordalreadyexists {
-					database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize), 
-														float32(currentVolume), currentInterestrate, "Balancer", volatility, ROI_raw_est, 0.0, 0.0})
+					database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize),
+						float32(currentVolume), currentInterestrate, "Balancer", volatility, ROI_raw_est, 0.0, 0.0})
 				}
 				// fmt.Println("APPENDED BALANCER DATA")
 			} // if pool is within pre filtered list ends

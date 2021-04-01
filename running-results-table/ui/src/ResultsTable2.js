@@ -17,6 +17,7 @@ export default function ResultsTable2({currencyoutputtable}) {
                 <Table.Cell>{ result.pool_source }</Table.Cell>
                 <Table.Cell>{ result.volatility }</Table.Cell>
                 <Table.Cell>{ result.ROIestimate }</Table.Cell>
+                <Table.Cell>{ result.ROIvoladjest}</Table.Cell>
                 <Table.Cell>{ result.ROIhist }</Table.Cell>
             </Table.Row>
         );
@@ -36,6 +37,7 @@ export default function ResultsTable2({currencyoutputtable}) {
                             <Table.HeaderCell>Pool</Table.HeaderCell>
                             <Table.HeaderCell>Historical Volatility</Table.HeaderCell>
                             <Table.HeaderCell>ROI Est Raw</Table.HeaderCell>
+                            <Table.HeaderCell>ROI Est Vol-Adj (Sharpe Ratio)</Table.HeaderCell>
                             <Table.HeaderCell>ROI Hist</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
