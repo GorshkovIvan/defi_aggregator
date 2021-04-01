@@ -1,20 +1,20 @@
 package db
 
 import (
-"context"
-"fmt"
-"log"
-	"strconv"
+	"context"
+	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
+	"reflect"
 	"time"
 
-"go.mongodb.org/mongo-driver/bson"
-"go.mongodb.org/mongo-driver/mongo"
-"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-
-func addOwnPortfolioRecord(token string, amount string) {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+func addOwnPortfolioRecord(token string, amount float32) string {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,26 +25,28 @@ func addOwnPortfolioRecord(token string, amount string) {
 	}
 	defer client.Disconnect(ctx)
 
-
 	Database := client.Database("De-Fi_Aggregator")
 	ownstartingportfolio := Database.Collection("Own Portfolio Record")
-
 
 	new_portfolio, err := ownstartingportfolio.InsertOne(ctx, bson.D{
 		{Key: "Token", Value: token},
 		{Key: "Amount", Value: amount},
-		})
+	})
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(new_portfolio)
+	newID := new_portfolio.InsertedID
+	hexID := newID.(primitive.ObjectID).Hex()
+
+	return hexID
+
 }
 
 
-func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount string, percentageofportfolio string, roi_estimate string, risk_setting string) {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount float32, percentageofportfolio float32, roi_estimate float32, risk_setting float32) string {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,9 +75,172 @@ func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount string,
 		log.Fatal(err)
 	}
 
-	fmt.Println(new_portfolio)
+	newID := new_portfolio.InsertedID
+	hexID := newID.(primitive.ObjectID).Hex()
+
+	return hexID
 }
 
+func addHistoricalCurrencyData(date int, price float32, ticker string) string {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	ownstartingportfolio := Database.Collection("Historical Currency Data")
+
+
+	new_data, err := ownstartingportfolio.InsertOne(ctx, bson.D{
+		{Key: "Date", Value: date},
+		{Key: "Price", Value: price},
+		{Key: "Ticker", Value: ticker},
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	newID := new_data.InsertedID
+	hexID := newID.(primitive.ObjectID).Hex()
+
+	return hexID
+}
+
+func addCurrencyInputData(pair string, poolsize float32, poolvolume float32, yield float32, pool string,
+	volatility float32, roi_raw_est float32, roi_vol_adj_est float32, roi_hist float32) string {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	ownstartingportfolio := Database.Collection("Currency Input Data")
+
+
+	new_data, err := ownstartingportfolio.InsertOne(ctx, bson.D{
+		{Key: "Pair", Value: pair},
+		{Key: "Pool Size", Value: poolsize},
+		{Key: "Pool Volume", Value: poolvolume},
+		{Key: "Yield", Value: yield},
+		{Key: "Pool", Value: pool},
+		{Key: "Volatility", Value: volatility},
+		{Key: "ROI Raw Estimation", Value: roi_raw_est},
+		{Key: "ROI Vol Adjusted Estimation", Value: roi_vol_adj_est},
+		{Key: "ROI History", Value: roi_hist},
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	newID := new_data.InsertedID
+	hexID := newID.(primitive.ObjectID).Hex()
+
+	return hexID
+}
+
+func removeRecordById(collectionName string, id string) {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	a_collection := Database.Collection(collectionName)
+
+	objID, _ := primitive.ObjectIDFromHex(id)
+
+	result, err := a_collection.DeleteOne(ctx, bson.M{"_id": objID})
+
+	fmt.Printf("DeleteOne removed %v document(s)\n", result.DeletedCount)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func dropEntireCollection(collectionName string) {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	collection := Database.Collection(collectionName)
+
+
+	if err = collection.Drop(ctx); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func returnAttributeInCollection(collectionName string, attribute string) []string {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	collection := Database.Collection(collectionName)
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var records []bson.M
+	if err = cursor.All(ctx, &records); err != nil {
+		log.Fatal(err)
+	}
+
+	var attributes []string
+	for _, record := range records {
+		attribute_value := record[attribute]
+		fmt.Println(attribute_value)
+		fmt.Println(reflect.TypeOf(attribute_value))
+		attributes = append(attributes, fmt.Sprint(attribute_value))
+	}
+
+	return attributes
+}
+
+/*
 
 type OwnPortfolioRecord struct {
 	Token  string  `json:"token"`
@@ -235,4 +400,4 @@ func (database *Database) GetOptimisedPortfolio() []OptimisedPortfolioRecord {
 func (database *Database) GetCurrencyInputData() []CurrencyInputData {
 	return database.currencyinputdata
 }
-
+*/

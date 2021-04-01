@@ -2,20 +2,20 @@ package db
 
 import (
 	"context"
-	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"testing"
 	"time"
-
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func TestAddOwnPortfolioRecord(t *testing.T) {
-	addOwnPortfolioRecord("ETH", "100")
 
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+func TestAddOwnPortfolioRecord(t *testing.T) {
+	var id = addOwnPortfolioRecord("ETH", 100)
+
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,7 +28,7 @@ func TestAddOwnPortfolioRecord(t *testing.T) {
 
 
 	Database := client.Database("De-Fi_Aggregator")
-	optimisedportfolio := Database.Collection("Optimised Portfolio Record")
+	optimisedportfolio := Database.Collection("Own Portfolio Record")
 
 	cursor, err := optimisedportfolio.Find(ctx, bson.M{})
 	if err != nil {
@@ -39,24 +39,25 @@ func TestAddOwnPortfolioRecord(t *testing.T) {
 	if err = cursor.All(ctx, &entries); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(entries)
+
+	flag := true
 
 	for _, entry := range entries {
-		if entry["token"] != "ETH" {
-			t.Errorf("Token error!")
-		}
-
-		if entry["amount"] != "100" {
-			t.Errorf("Wrong amount!")
+		if entry["_id"].(primitive.ObjectID).Hex() == id {
+			flag = false
 		}
 	}
-}
 
+	if flag {
+		t.Errorf("Entry was not added!")
+	}
+
+}
 
 func TestAddOptimisedPortfolioRecord(t *testing.T) {
-	addOptimisedPortfolioRecord("DAI", "Uniswap", "2000", "0.42", "0.05", "0.2")
+	var id = addOptimisedPortfolioRecord("DAI", "Uniswap", 2000, 0.42, 0.05, 0.2)
 
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.seblt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,36 +81,209 @@ func TestAddOptimisedPortfolioRecord(t *testing.T) {
 	if err = cursor.All(ctx, &entries); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(entries)
+
+	flag := true
 
 	for _, entry := range entries {
-		if entry["TokenOrPair"] != "DAI" {
-			t.Errorf("Token error!")
+		if entry["_id"].(primitive.ObjectID).Hex() == id {
+			flag = false
 		}
+	}
 
-		if entry["Pool"] != "Uniswap" {
-			t.Errorf("Wrong pool!")
+	if flag {
+		t.Errorf("Entry was not added!")
+	}
+
+}
+
+
+func TestAddHistoricalCurrencyData(t *testing.T) {
+	var id = addHistoricalCurrencyData(420, 100, "DAI")
+
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	optimisedportfolio := Database.Collection("Historical Currency Data")
+
+	cursor, err := optimisedportfolio.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var entries []bson.M
+	if err = cursor.All(ctx, &entries); err != nil {
+		log.Fatal(err)
+	}
+
+	flag := true
+
+	for _, entry := range entries {
+		if entry["_id"].(primitive.ObjectID).Hex() == id {
+			flag = false
 		}
+	}
 
-		if entry["Amount"] != "2000" {
-			t.Errorf("Wrong amount!")
+	if flag {
+		t.Errorf("Entry was not added!")
+	}
+
+}
+
+
+func TestAddCurrencyInputData(t *testing.T) {
+	var id = addCurrencyInputData("DAI/ETH", 42069, 2000, 0.42, "Uniswap", 0.3,
+	0.2, 0.3, 0.2)
+
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	optimisedportfolio := Database.Collection("Currency Input Data")
+
+	cursor, err := optimisedportfolio.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var entries []bson.M
+	if err = cursor.All(ctx, &entries); err != nil {
+		log.Fatal(err)
+	}
+
+	flag := true
+
+	for _, entry := range entries {
+		if entry["_id"].(primitive.ObjectID).Hex() == id {
+			flag = false
 		}
+	}
 
-		if entry["PercentageOfPortfolio"] != "0.42" {
-			t.Errorf("Wrong percentage!")
+	if flag {
+		t.Errorf("Entry was not added!")
+	}
+
+}
+
+
+
+func TestRemoveRecordById(t *testing.T) {
+	var id = addOwnPortfolioRecord("ETH", 100)
+	removeRecordById("Own Portfolio Record", id)
+
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("De-Fi_Aggregator")
+	optimisedportfolio := Database.Collection("Own Portfolio Record")
+
+	cursor, err := optimisedportfolio.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var entries []bson.M
+	if err = cursor.All(ctx, &entries); err != nil {
+		log.Fatal(err)
+	}
+
+	flag := true
+
+	for _, entry := range entries {
+		if entry["_id"].(primitive.ObjectID).Hex() == id {
+			flag = false
 		}
+	}
 
-		if entry["ROIestimate"] != "0.05" {
-			t.Errorf("Wrong ROI!")
-		}
-
-		if entry["Risksetting"] != "0.2" {
-			t.Errorf("Wrong risk setting!")
-		}
-
+	if flag == false {
+		t.Errorf("Entry was not removed!")
 	}
 }
 
+
+
+func TestDropEntireCollection(t *testing.T) {
+	var id = addOwnPortfolioRecord("ETH", 100)
+	dropEntireCollection("Own Portfolio Record")
+
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("De-Fi_Aggregator")
+	optimisedportfolio := Database.Collection("Own Portfolio Record")
+
+	cursor, err := optimisedportfolio.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var entries []bson.M
+	if err = cursor.All(ctx, &entries); err != nil {
+		log.Fatal(err)
+	}
+
+	flag := true
+
+	for _, entry := range entries {
+		if entry["_id"].(primitive.ObjectID).Hex() == id {
+			flag = false
+		}
+	}
+
+	if flag == false {
+		t.Errorf("Collection was not removed!")
+	}
+}
+
+func TestReturnAttributeInCollection(t *testing.T) {
+	dropEntireCollection("Own Portfolio Record")
+	addOwnPortfolioRecord("ETH", 100)
+	addOwnPortfolioRecord("ETH", 100)
+	addOwnPortfolioRecord("ETH", 100)
+
+	var array = returnAttributeInCollection("Own Portfolio Record", "Token")
+
+	for _, value := range array {
+		if value != "ETH" {
+			t.Errorf("Incorrect array was returned!")
+		}
+	}
+}
+/*
 func TestNewOptimisedPortfolio(t *testing.T) {
 	new_database := New()
 	newOptimisedPortfolio := NewOptimisedPortfolio(&new_database) // returns array of portfolios
@@ -354,4 +528,6 @@ func TestGetCurrencyInputData(t *testing.T) {
 		t.Errorf("fail!")
 	}
 
-}*/
+}
+*/
+
