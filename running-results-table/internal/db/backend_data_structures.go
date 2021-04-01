@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
-	"reflect"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
 
 func addOwnPortfolioRecord(token string, amount float32) string {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
@@ -232,12 +232,42 @@ func returnAttributeInCollection(collectionName string, attribute string) []stri
 	var attributes []string
 	for _, record := range records {
 		attribute_value := record[attribute]
-		fmt.Println(attribute_value)
-		fmt.Println(reflect.TypeOf(attribute_value))
+		//fmt.Println(attribute_value)
+		//fmt.Println(reflect.TypeOf(attribute_value))
 		attributes = append(attributes, fmt.Sprint(attribute_value))
 	}
 
 	return attributes
+}
+
+func returnEntryById(collectionName string, id string) {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	collection := Database.Collection(collectionName)
+
+	objID, _ := primitive.ObjectIDFromHex(id)
+
+
+	filterCursor, err := collection.Find(ctx, bson.M{"_id": objID})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var collectionFiltered []bson.M
+	if err = filterCursor.All(ctx, &collectionFiltered); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(collectionFiltered)
 }
 
 /*

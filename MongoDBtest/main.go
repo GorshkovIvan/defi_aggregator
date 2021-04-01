@@ -15,8 +15,9 @@ import (
 
 
 func main() {
-	addOwnPortfolioRecord("DAI", 69)
-	fmt.Println(returnAttributeInCollection("Own Portfolio Record", "Token"))
+	//var id = addOwnPortfolioRecord("DAI", 69)
+	//returnEntryById("Own Portfolio Record", id)
+	fmt.Println(returnAttributeInCollection("Historical Currency Data", "Price"))
 	//addOwnPortfolioRecord("DAI", 69)
 	//removeRecordById("Own Portfolio Record", "6065b79b738be8435f30b458")
 	//dropEntireCollection("Own Portfolio Record")
@@ -159,4 +160,36 @@ func returnAttributeInCollection(collectionName string, attribute string) []stri
 	}
 
 	return attributes
+}
+
+
+func returnEntryById(collectionName string, id string) {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("De-Fi_Aggregator")
+	collection := Database.Collection(collectionName)
+
+	objID, _ := primitive.ObjectIDFromHex(id)
+
+
+	filterCursor, err := collection.Find(ctx, bson.M{"_id": objID})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var collectionFiltered []bson.M
+	if err = filterCursor.All(ctx, &collectionFiltered); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(collectionFiltered)
 }
