@@ -1,13 +1,21 @@
 NEXT STEPS:
-Fix Uniswap downloader for historical volumes
-Finish future volume estimator function
-Implement calculateROI properly
-Add not investment advice disclaimer
-User input validation for front end
+
+Fix USDC/WETH volatility calc - currently outputs zero
+Why is VolumeUSD so different from actual daily pair volume?
+Why so many zeroes in historical volume
 Historical Trading volume data (ex Uniswap)		- need for accurate ROI
+
+Move database to Mongo from memory
+
+Impermanent loss estimator function
+Hist price return estimator func
+
 Get Reward Mechanism			- need to figure out what it is for pools other than Uniswap
-Connect Database
-Add refresh button on front end
+
+Add logo to front end
+Add dark lite mode to front end
+Format numbers on front end
+Add not investment advice disclaimer
 
 OptimisePortfolio 			- need to implement algo. Step 1 - create token pair permutations
 Curve data pulling implementation 
@@ -26,6 +34,11 @@ on namecheap console, run: PORT=1234 ./running-results-table
 
 
 COMPLETE
+Make sure no Inf/NaN in calcs
+Connect Database
+Finish future volume estimator function - fix errors
+Implement calculateROI properly
+Fix Uniswap downloader for historical volumes
 UI + populate risk from UI		- bring to match our report 1
 JS + Golang Tests			- complete?
 isHistDataAlreadyDownloaded 		- done (Check for dates can add later)

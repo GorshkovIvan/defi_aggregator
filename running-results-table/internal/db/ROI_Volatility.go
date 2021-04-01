@@ -6,6 +6,16 @@ import (
 	"sort"
 )
 
+func estimate_impermanent_loss_hist(volatility float32, poolid string, token0 string, token1 string) float32 {
+
+	return 0.0
+}
+
+func calculate_price_return_x_days(hist_date_px_series HistoricalCurrencyData, days int) float32 {
+
+	return 0.0
+}
+
 func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 	fmt.Println("Entered calculation of HISTORICAL VOLATILITY: ")
 
@@ -96,35 +106,54 @@ func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 	return float32(vol)
 }
 
-func calculateROI_hist(interestrate float32, pool_reward_pct float32, future_pool_sz_est float32, future_daily_volume_est float32) float32 {
+func calculateROI_hist(interestrate float32, pool_reward_pct float32, pool_sz_hist float32, daily_volume_hist float32, imp_loss_hist_est float32, px_return_hist float32) float32 {
+	var ROI float32
+	ROI = 0.069
 
-	return 0.069
+	if pool_sz_hist == 0.0 {
+		return -992.0
+	} else {
+		ROI = interestrate + (pool_reward_pct * daily_volume_hist * 365 / pool_sz_hist) + px_return_hist + imp_loss_hist_est
+	}
+
+	if math.IsInf(float64(ROI), 0) {
+		return -999
+	}
+
+	if math.IsNaN(float64(ROI)) {
+		return -998
+	}
+
+	return float32(ROI)
 }
 
+// Sharpe ratio
 func calculateROI_vol_adj(ROI_raw_est float32, volatility_est float32) float32 {
 
-	return 0.0
+	if math.IsInf(float64(ROI_raw_est), 0) {
+		return 888.0
+	}
 
-	if volatility_est <= 0.03 {
-		// if not volatile - do not adjust by volatility
+	if volatility_est <= 0.03 { // if not volatile - do not adjust by volatility
 		return ROI_raw_est
-
 	} else {
-		//if volatility_est > 0.03 {
-		// takes annualised volatility
-		// sharpe ratio
-		return ROI_raw_est / volatility_est
+		if !math.IsInf(float64(ROI_raw_est/volatility_est), 0) {
+			return ROI_raw_est / volatility_est // sharpe ratio - risk free rate assumed to be zero
+		} else {
+			return 888.8
+		}
+
 	}
 
 }
 
-func calculateROI_raw_est(interestrate float32, pool_reward_pct float32, future_pool_sz_est float32, future_daily_volume_est float32) float32 {
+func calculateROI_raw_est(interestrate float32, pool_reward_pct float32, future_pool_sz_est float32, future_daily_volume_est float32, imp_loss_hist_est float32) float32 {
 
 	var ROI float32
 	ROI = 0.069
 
 	if future_pool_sz_est > 0.0 {
-		ROI = interestrate + (pool_reward_pct * future_daily_volume_est * 365 / future_pool_sz_est)
+		ROI = interestrate + (pool_reward_pct * future_daily_volume_est * 365 / future_pool_sz_est) + imp_loss_hist_est
 	}
 
 	if math.IsInf(float64(ROI), 0) {
