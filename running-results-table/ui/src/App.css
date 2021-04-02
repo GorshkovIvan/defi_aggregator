@@ -1,130 +1,165 @@
 .App{
-  font-family:'Consolas';
-  background-color: whitesmoke;
+  background: rgb(5, 5, 15);
+}
+
+@font-face {
+	font-family: ProximaNova-Regular;
+	src: url(Fonts/ProximaNova-Regular.ttf);
+}
+
+@font-face {
+  font-family: LemonMilkBoldItalic;
+  src: url(Fonts/LemonMilkBoldItalic.otf)
+}
+
+@font-face {
+  font-family: LemonMilkBold;
+  src: url(Fonts/LemonMilkBold.otf)
+}
+
+@font-face {
+  font-family: LemonMilkRegularItalic;
+  src: url(Fonts/LemonMilkRegularItalic.otf)
+}
+
+@font-face {
+  font-family: LemonMilkRegular;
+  src: url(Fonts/LemonMilkRegular.otf)
+}
+
+* {
+  color: white;
 }
 
 h1 {
-    color: navy;
-    margin-left: 20px;
-    margin-top: 10px;
-    text-align: center;
-  }
-
-h2{
-  font-family:'Consolas';
-}
-
-h3{
-  font-family:'Consolas';
+  color: white;
   text-align: center;
-  width: 100%; 
-  font-size: 14px;
-  background-color: rgb(211,211,211);
+  padding-top: 50px;
+  font-family: LemonMilkBoldItalic;
 }
 
-h5{
-  font-family:'Consolas';
+h5 {
+  color: rgb(116, 140, 174);
   text-align: center;
-  font-size: 10px;
-  margin-top: 0px;
-  padding-bottom: 3px;
+  padding-bottom: 50px;
 }
 
-.TopTable{
-    background-color: silver;
-    margin-bottom: 2px;
-    padding-top: 5px;
-    width: 100%;
+h4 {
+  color: white;
+  text-align: center;
+  padding: 10px;
+  font-family: LemonMilkBold;
 }
 
-.Table1Header{
-    background-color: rgb(211,211,211);
-    font-size: 10;
+h6 {
+  color: rgb(116, 140, 174);
+  text-align: center;
+  padding-bottom: 25px;
 }
 
-.MiddleDivider{
-  margin-top: 10px;
-  border-top: 1px solid red;
-  margin-bottom: 10px;
-;}
-
-.Applogo{
-  align-items: center;
-  padding-left: 25px;
-  margin-left: 10px;
-;}
-
-.HeaderBox{
-  float: left;
-  text-align: right;
-  width: 65%;
-  font-family: 'Consolas';
-  font-size: 18px;
-  font-weight: bold;
-  padding-right: 50px;
-;}
-
-.ResultsTable{
-  font-family: 'Consolas';
-  font-size: 10px;
-;}
-
-
-.ResultsTableHeader {
-  font-size: 10;
-  font-weight: bold;
-}
-
-.ui.header {
-  font-family: 'Consolas';
-  margin-bottom: 0.2rem; 
-}
-
-.ui.header:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
-font-size: 1em;
-}
-
-.ui.table {
-  font-family: 'Consolas';
-  font-size: 5;
-}
-
-.ui.segment {
-  font-family: 'Consolas';
-  margin-top: 00.25em;
-  padding-top: 0.25em;
+.MiddleDivider {
+  margin-top: 25px;
+  margin-bottom: 25px;
 }
 
 .ui.table td {
-padding-top: 0.25em;
-padding-bottom: 0.25em;
-text-align: right;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
 }
 
-
-.sc-gsTCUz.avxsE {
-  margin-top: 1rem;
+.ui.segment {
+  background: rgb(24, 29, 38);
+  border-color: rgb(36, 52, 75);
+  border-width: 2px;
+  border-radius: 10px;
 }
 
-.ui.form .field {
-width: 25%;
+.ui.button {  
+  background-color: rgb(27, 41, 64);
+  color: rgb(81, 146, 253);
 }
 
-.mainDIV{
-  margin-top: 10px;
-  width:100%;
-  height:50px;
-  margin-bottom: 15px;
+.ui.button:hover {
+  color: rgb(81, 146, 253);
+  background-color: rgb(45, 72, 116);
 }
-.leftDIV{
-  float:left;
-  width:33%;
+
+.visible {
+  color: rgb(81, 146, 253);
 }
-.middleDIV{
+
+.refresh {
+  color: rgb(81, 146, 253);
+}
+
+.tableButton {
+  text-align: right;
+}
+
+.headerTitle {
+  color: rgb(116, 140, 174);
+}
+
+.label {
+  width: 75%;
+  text-align: center;
+}
+
+.floatContainer {
+  display: flex;
+  margin: 0 auto;
+}
+
+.recommendedPortfolio {
+  width: 25%;
   float: left;
-  width:33%;
+  padding-right: 10px;
+  flex: 4;
 }
-.rightDIV{
-  float: right;
-  width:33%;
+
+.resultsForm {
+  width: 25%;
+  padding-left: 10px;
+  flex: 1;
+}
+
+.inputLabel {
+  padding-top: 10px;
+  color: rgb(116, 140, 174);
+}
+
+.portfolioSubmit {
+  padding-top: 10px;
+  text-align: right;
+}
+
+select {
+  color: white !important;
+  background-color: rgb(27, 41, 64) !important;
+}
+
+input {
+  color: white !important;
+  background-color: rgb(27, 41, 64) !important;
+}
+
+::placeholder {
+  color: white !important;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+button:focus {
+  background-color: rgb(27, 41, 64) !important;
+  color: rgb(81, 146, 253) !important;
 }

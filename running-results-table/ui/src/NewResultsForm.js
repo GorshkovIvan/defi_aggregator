@@ -1,6 +1,5 @@
 import React from 'react';
-import { Form, Header, Segment, Button } from 'semantic-ui-react'
-
+import { Form, Segment, Button } from 'semantic-ui-react'
 
 // does not do any validation
 export default class NewResultsForm extends React.Component {
@@ -16,30 +15,25 @@ export default class NewResultsForm extends React.Component {
     render() {
         return (
             <div className="ui container">
-                <Segment vertical>
-                    <Header>Please Enter Your Cryptocurrency Portfolio and we will suggest how to maximize its yield:</Header>
+                <Segment>
+                    <h3>Enter Your Portfolio:</h3>
                     <Form onSubmit={this.onSubmit}>
-
-                        <div class="mainDIV">
-                            <div class="leftDIV">
-                                <Form.Field>
-                                    <label>Token</label>
-                                    <input placeholder='ETH' value={this.state.token} onChange={this.onChangeName} />
-                                </Form.Field>
-                            </div>
-                            <div class="middleDIV">
-                                <Form.Field>
-                                    <label>Amount</label>
-                                    <input placeholder='Amount' value={this.state.amount} onChange={this.onChangeTime} />
-                                </Form.Field>
-                            </div>
-                            <div class="rightDIV">
-                                <Form.Field>
-                                    <label> Add </label>
-                                    <Button type='submit'>Submit</Button>
-                                </Form.Field>
-                            </div> 
-                        </div>
+                        <Form.Field>
+                            <label><div className="inputLabel">Token</div></label>
+                            <select value={this.state.token} onChange={this.onChangeName}>
+                                <option value="" selected disabled hidden>Select Token</option>
+                                <option value="ETH">ETH</option>
+                                <option value="DAI">DAI</option>
+                                <option value="UNI">UNI</option>
+                            </select>
+                        </Form.Field>
+                        <Form.Field>
+                            <label><div className="inputLabel">Amount</div></label>
+                            <input type="number" step="any" placeholder='Enter Amount' value={this.state.amount} onChange={this.onChangeTime} />
+                        </Form.Field>
+                        <Form.Field className="portfolioSubmit">
+                            <Button type='submit'>Submit</Button>
+                        </Form.Field>
                     </Form>
                 </Segment>
             </div>
