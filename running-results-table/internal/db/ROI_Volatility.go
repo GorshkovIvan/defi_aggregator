@@ -6,9 +6,17 @@ import (
 	"sort"
 )
 
-func estimate_impermanent_loss_hist(volatility float32, poolid string, token0 string, token1 string) float32 {
+// Current Exchange Rate Comes from the protocol 
+// Standard deviation comes from the volatility estimate, can be a 30 days estimate
+// returned estimate is -x% loss in liquidity
+func estimate_impermanent_loss_hist(standard_deviation float32, current_exchange_rate float32) float32 {
 
-	return 0.0
+	forecasted_exchage_rate := current_exchange_rate + standard_deviation
+	price_ratio := forecasted_exchage_rate / current_exchange_rate
+	impermanent_loss := 2 * math.Sqrt(float64(price_ratio)) / (1+float64(price_ratio)) - 1
+
+	return float32(impermanent_loss)
+
 }
 
 func calculate_price_return_x_days(hist_date_px_series HistoricalCurrencyData, days int) float32 {
