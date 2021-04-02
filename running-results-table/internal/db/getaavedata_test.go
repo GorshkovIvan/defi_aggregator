@@ -1,22 +1,17 @@
 package db
 
-
 import (
 	"testing"
-	
+
 	"github.com/machinebox/graphql"
-	
-	
 )
-
-
 
 func TestGetAaveTickers(t *testing.T) {
 	tickers := GetAaveTickers()
 
 	if len(tickers) < 1 {
-        t.Fatalf(`TestGetAaveTickers() = %q, error, there should be some tickers`, tickers)
-    }
+		t.Fatalf(`TestGetAaveTickers() = %q, error, there should be some tickers`, tickers)
+	}
 }
 
 func TesttickersToString(t *testing.T) {
@@ -32,21 +27,21 @@ func TesttickersToString(t *testing.T) {
 	//want := regexp.MustCompile([TUSD YFI BAT MANA REP UNI WBTC REN BUSD LINK sUSD DAI AAVE LEND MKR USDC SNX USDT KNC ZRX ETH ENJ])
 
 	if tickers_to_string[0] != "DAI" || tickers_to_string[1] != "WETH" {
-        t.Fatalf(`tickersToString(...) = %q, error, should return DAI and WETH strings in an array`, tickers_to_string)
-    }
+		t.Fatalf(`tickersToString(...) = %q, error, should return DAI and WETH strings in an array`, tickers_to_string)
+	}
 }
 
-func TestgetAaveCurrentData(t *testing.T){
+func TestgetAaveCurrentData(t *testing.T) {
 
 	symbol, size, volume, interest, volatility := getAaveCurrentData()
 
-	if symbol == "" || size < 0 || volume < 0|| interest < 0 || volatility < 0{
+	if symbol == "" || size < 0 || volume < 0 || interest < 0 || volatility < 0 {
 		t.Fatalf(`One of the values is missing`)
-    }
-	
+	}
+
 }
 
-func TestgetAaveData(t *testing.T){
+func TestgetAaveData(t *testing.T) {
 	database := New()
 
 	// Test 2
@@ -95,16 +90,14 @@ func TestgetAaveData(t *testing.T){
 
 	// Test 4
 
-	
-	
 }
 
-func TestaddAaveData(t *testing.T){
+func TestaddAaveData(t *testing.T) {
 	database := New()
 	clientUniswap := graphql.NewClient("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
 	reqUniswapHist := graphql.NewRequest(`
 				query ($tokenid:String!){
-						tokenDayDatas(first: 30 orderBy: date, orderDirection: asc,
+						tokenDayDatas(first: 30 orderBy: date, orderDirection: desc,
 						 where: {
 						   token:$tokenid
 						 }

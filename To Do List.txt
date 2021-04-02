@@ -7,6 +7,7 @@ database.historicalcurrencydata = append(database.historicalcurrencydata, Histre
 len(database.historicalcurrencydata)
 
 Need to have the following:
+i.e. we need to get the database pointer out - and have the ability to retrieve and append structs from/to actual database
 func isHistDataAlreadyDownloaded(token string) bool - which will query the historical database and tell if data is present for the token - MODIFICATION OF EXISTING
 func retrieveDataForTokensFromDatabase(token0 string, token1 string) HistoricalCurrencyData - gets the pair price in form of a HistoricalCurrencyData struct - MODIFICATION OF EXISTING
 func appendDataForTokensFromDatabase(HistoricalCurrencyData) - appends a record (raw form is HistoricalCurrencyData) to the actual database - NEW
@@ -15,25 +16,23 @@ func getLenDates(string token) - gets number of non-empty date records in databa
 func getLen() - gets number of tokens with historical records in database - NEW
 
 
-
 NEXT STEPS:
-
-Fix USDC/WETH volatility calc - currently outputs zero
+Historical Trading volume data (ex Uniswap)		- need for accurate ROI
+Add check in data combination to ensure dates consistent across 2 datasets
 Why is VolumeUSD so different from actual daily pair volume?
 Why so many zeroes in historical volume
-Historical Trading volume data (ex Uniswap)		- need for accurate ROI
-Add pair-uniswap id mapping to database - instead of 1000 records
-Move database to Mongo from memory
 
-Impermanent loss estimator function
+
+Implement MongoDB historical interface functions
+Add pair-uniswap id mapping to database - instead of 1000 records
 Hist price return estimator func
 
 Get Reward Mechanism			- need to figure out what it is for pools other than Uniswap
 
-Add logo to front end
+Add logo to front end - NFT!!
 Add dark lite mode to front end
 Format numbers on front end
-Add not investment advice disclaimer
+Add popup boxes explaining what each window does
 
 OptimisePortfolio 			- need to implement algo. Step 1 - create token pair permutations
 Curve data pulling implementation 
@@ -52,6 +51,14 @@ on namecheap console, run: PORT=1234 ./running-results-table
 
 
 COMPLETE
+Impermanent loss estimator function
+1 year old data - fixed with desc
+Add not investment advice disclaimer
+ETH volatility is 420
+WBTC/WETH volatility
+WETH/USDT volatility
+WBTC/DAI volatility
+Fix USDC/WETH volatility calc - currently outputs zero
 Make sure no Inf/NaN in calcs
 Connect Database
 Finish future volume estimator function - fix errors

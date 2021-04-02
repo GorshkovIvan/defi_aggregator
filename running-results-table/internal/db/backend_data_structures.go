@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
+	"strconv"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
 
 func addOwnPortfolioRecord(token string, amount float32) string {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
@@ -44,7 +44,6 @@ func addOwnPortfolioRecord(token string, amount float32) string {
 
 }
 
-
 func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount float32, percentageofportfolio float32, roi_estimate float32, risk_setting float32) string {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
@@ -57,10 +56,8 @@ func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount float32
 	}
 	defer client.Disconnect(ctx)
 
-
 	Database := client.Database("De-Fi_Aggregator")
 	optimisedportfolio := Database.Collection("Optimised Portfolio Record")
-
 
 	new_portfolio, err := optimisedportfolio.InsertOne(ctx, bson.D{
 		{Key: "TokenOrPair", Value: tokenorpair},
@@ -93,10 +90,8 @@ func addHistoricalCurrencyData(date int, price float32, ticker string) string {
 	}
 	defer client.Disconnect(ctx)
 
-
 	Database := client.Database("De-Fi_Aggregator")
 	ownstartingportfolio := Database.Collection("Historical Currency Data")
-
 
 	new_data, err := ownstartingportfolio.InsertOne(ctx, bson.D{
 		{Key: "Date", Value: date},
@@ -127,10 +122,8 @@ func addCurrencyInputData(pair string, poolsize float32, poolvolume float32, yie
 	}
 	defer client.Disconnect(ctx)
 
-
 	Database := client.Database("De-Fi_Aggregator")
 	ownstartingportfolio := Database.Collection("Currency Input Data")
-
 
 	new_data, err := ownstartingportfolio.InsertOne(ctx, bson.D{
 		{Key: "Pair", Value: pair},
@@ -166,7 +159,6 @@ func removeRecordById(collectionName string, id string) {
 	}
 	defer client.Disconnect(ctx)
 
-
 	Database := client.Database("De-Fi_Aggregator")
 	a_collection := Database.Collection(collectionName)
 
@@ -193,10 +185,8 @@ func dropEntireCollection(collectionName string) {
 	}
 	defer client.Disconnect(ctx)
 
-
 	Database := client.Database("De-Fi_Aggregator")
 	collection := Database.Collection(collectionName)
-
 
 	if err = collection.Drop(ctx); err != nil {
 		log.Fatal(err)
@@ -214,7 +204,6 @@ func returnAttributeInCollection(collectionName string, attribute string) []stri
 		log.Fatal(err)
 	}
 	defer client.Disconnect(ctx)
-
 
 	Database := client.Database("De-Fi_Aggregator")
 	collection := Database.Collection(collectionName)
@@ -252,12 +241,10 @@ func returnEntryById(collectionName string, id string) {
 	}
 	defer client.Disconnect(ctx)
 
-
 	Database := client.Database("De-Fi_Aggregator")
 	collection := Database.Collection(collectionName)
 
 	objID, _ := primitive.ObjectIDFromHex(id)
-
 
 	filterCursor, err := collection.Find(ctx, bson.M{"_id": objID})
 	if err != nil {
@@ -269,8 +256,6 @@ func returnEntryById(collectionName string, id string) {
 	}
 	fmt.Println(collectionFiltered)
 }
-
-/*
 
 type OwnPortfolioRecord struct {
 	Token  string  `json:"token"`
@@ -430,4 +415,3 @@ func (database *Database) GetOptimisedPortfolio() []OptimisedPortfolioRecord {
 func (database *Database) GetCurrencyInputData() []CurrencyInputData {
 	return database.currencyinputdata
 }
-*/

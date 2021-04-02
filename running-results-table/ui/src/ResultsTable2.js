@@ -46,8 +46,7 @@ export default function ResultsTable2({currencyoutputtable}) {
                             <Table.HeaderCell><h3 className="headerTitle">Interest Rate</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Pool</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Historical Volatility</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">ROI Estimate</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">ROI Est Raw</h3></Table.HeaderCell>
+                             <Table.HeaderCell><h3 className="headerTitle">ROI Est Raw</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">ROI Est Vol-Adj (Sharpe Ratio)</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">ROI Hist</h3></Table.HeaderCell>
                         </Table.Row>
