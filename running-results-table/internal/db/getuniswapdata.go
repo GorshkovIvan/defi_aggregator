@@ -53,14 +53,25 @@ func estimate_future_uniswap_volume_and_pool_sz(histvolume UniswapHistVolumeQuer
 	// APPLY ADJUSTOR?
 	// MEDIAN?
 	// TAKE OUT EXTREME VALUES TO NORMALISE?
-	future_volume_est = future_volume_est / count
-	future_sz_est = future_sz_est / count_sz
+	if count > 0 {
+		future_volume_est = future_volume_est / count
+	} else {
+		future_volume_est = 0.0
+	}
+
+	if count_sz > 0 {
+		future_sz_est = future_sz_est / count_sz
+	} else {
+		future_sz_est = 0.0
+	}
 
 	if math.IsNaN(float64(future_volume_est)) {
+		// should never happen
 		fmt.Println("ERROR IN FUTURE VOLUME - 999999999999999999555555555555555555")
 		future_volume_est = -995.0
 	}
 	if math.IsNaN(float64(future_sz_est)) {
+		// should never happen
 		fmt.Println("ERROR IN FUTURE SZ - 999999999999999999666666666666666666")
 		future_sz_est = -996.0
 	}
@@ -324,7 +335,7 @@ query{
 			fmt.Print("NOW PRINTING HISTORICAL VOLUME: ")
 			fmt.Print(respUniswapHistVolume.DailyTimeSeries[0].Token0.Symbol)
 			fmt.Print(" | ")
-			fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].Token0.Symbol)
+			fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].Token1.Symbol)
 
 			future_daily_volume_est, future_pool_sz_est := estimate_future_uniswap_volume_and_pool_sz(respUniswapHistVolume)
 			historical_pool_sz_avg, historical_pool_daily_volume_avg := future_pool_sz_est, future_daily_volume_est
