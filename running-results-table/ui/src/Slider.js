@@ -95,16 +95,17 @@ export default class Slider2 extends React.Component {
 
     render() {
         return (
+          <Segment>
             <div className="ui container">
               <Form onSubmit={this.onSubmit}>
-              <Header>Please enter your risk tolerance (1 to 10):</Header>
-                  <Styles opacity={this.state.risk_setting > 10 ? (this.state.risk_setting / 10) : .1} color={this.props.color}>
-                    <input type="range" min={0} max={10} value={this.state.risk_setting} className="slider" onChange={this.handleOnChange}/> 
-                    <Button type='submit'>Submit</Button>                 
-                  </Styles>                
-
+                <h3>Enter Your Risk Tolerance:</h3>
+                <Styles opacity={this.state.risk_setting > 10 ? (this.state.risk_setting / 10) : .1} color={this.props.color}>
+                  <input type="range" min={0} max={10} value={this.state.risk_setting} className="slider" onChange={this.handleOnChange}/> 
+                  <Button type='submit'>Submit</Button>                 
+                </Styles>
               </Form>
             </div>
+          </Segment>
         );
     }
 

@@ -1,10 +1,28 @@
+DATABASE FUNCS
+Right now we have these:
+func isHistDataAlreadyDownloaded(token string, database *Database) bool {
+func retrieveDataForTokensFromDatabase(token0 string, token1 string, database *Database) HistoricalCurrencyData {
+func (database *Database) RankBestCurrencies() {
+database.historicalcurrencydata = append(database.historicalcurrencydata, Histrecord)
+len(database.historicalcurrencydata)
+
+Need to have the following:
+func isHistDataAlreadyDownloaded(token string) bool - which will query the historical database and tell if data is present for the token - MODIFICATION OF EXISTING
+func retrieveDataForTokensFromDatabase(token0 string, token1 string) HistoricalCurrencyData - gets the pair price in form of a HistoricalCurrencyData struct - MODIFICATION OF EXISTING
+func appendDataForTokensFromDatabase(HistoricalCurrencyData) - appends a record (raw form is HistoricalCurrencyData) to the actual database - NEW
+func getLenPrices(string token) - gets number of non-empty price records in database for given token - NEW 
+func getLenDates(string token) - gets number of non-empty date records in database for given token - NEW
+func getLen() - gets number of tokens with historical records in database - NEW
+
+
+
 NEXT STEPS:
 
 Fix USDC/WETH volatility calc - currently outputs zero
 Why is VolumeUSD so different from actual daily pair volume?
 Why so many zeroes in historical volume
 Historical Trading volume data (ex Uniswap)		- need for accurate ROI
-
+Add pair-uniswap id mapping to database - instead of 1000 records
 Move database to Mongo from memory
 
 Impermanent loss estimator function

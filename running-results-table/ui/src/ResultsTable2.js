@@ -1,67 +1,68 @@
 import React from 'react';
-import { Table, Header, Segment, Label } from 'semantic-ui-react'
+import { Form, Table, Segment, Label } from 'semantic-ui-react'
 
 export default function ResultsTable2({currencyoutputtable}) {
     const rows = currencyoutputtable.map(((result, index) => {
-        let color = 'blue';
-
+        let color;
+        if (index === 0 || index === 1 || index === 2) {
+            color='blue';
+        } else {
+            color='grey';
+        }
         return (
             <Table.Row key={ index }>
-                <Table.Cell>
-                    <Label ribbon color={color}>{ index + 1 }</Label>
-                </Table.Cell>
-                <Table.Cell>{ result.backend_pair }</Table.Cell>
-                <Table.Cell>{ result.backend_poolsize }</Table.Cell>
-                <Table.Cell>{ result.backend_volume }</Table.Cell>
-                <Table.Cell>{ result.backend_yield }</Table.Cell>
-                <Table.Cell>{ result.pool_source }</Table.Cell>
-                <Table.Cell>{ result.volatility }</Table.Cell>
-                <Table.Cell>{ result.ROIestimate }</Table.Cell>
-                <Table.Cell>{ result.ROIvoladjest}</Table.Cell>
-                <Table.Cell>{ result.ROIhist }</Table.Cell>
+                <td><Label class="ui horizontal label" color={color}>{ index + 1 }</Label></td>
+                <td>{ result.backend_pair }</td>
+                <td class="right aligned">{ result.backend_poolsize }</td>
+                <td class="right aligned">{ result.backend_volume }</td>
+                <td class="right aligned">{ result.backend_yield }</td>
+                <td>{ result.pool_source }</td>
+                <td class="right aligned">{ result.volatility }</td>
+                <td class="right aligned">{ result.ROIestimate }</td>
+                <td class="right aligned">{ result.ROIvoladjest}</td>
+                <td class="right aligned">{ result.ROIhist }</td>
             </Table.Row>
         );
     }));
     return (
         <div className="ui container">
             <Segment>
-
-                <Table>
+                <h4>Recommended Liquidity Pools</h4>
+                <Form className="tableButton">
+                    <div class="ui animated fade button">
+                        <div class="visible content">Refresh</div>
+                        <div class="hidden content">
+                            <i class="refresh icon"></i>
+                        </div>
+                    </div>
+                </Form>
+                <div class="ui basic table">
                     <Table.Header>
                         <Table.Row>
-                            <Table.HeaderCell>Ranking</Table.HeaderCell>
-                            <Table.HeaderCell>Currency Pair</Table.HeaderCell>
-                            <Table.HeaderCell>Pool Size</Table.HeaderCell>
-                            <Table.HeaderCell>Pool Trading Volume</Table.HeaderCell>
-                            <Table.HeaderCell>Interest Rate</Table.HeaderCell>
-                            <Table.HeaderCell>Pool</Table.HeaderCell>
-                            <Table.HeaderCell>Historical Volatility</Table.HeaderCell>
-                            <Table.HeaderCell>ROI Est Raw</Table.HeaderCell>
-                            <Table.HeaderCell>ROI Est Vol-Adj (Sharpe Ratio)</Table.HeaderCell>
-                            <Table.HeaderCell>ROI Hist</Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Ranking</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Currency Pair</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Pool Size</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Pool Trading Volume</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Interest Rate</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Pool</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Historical Volatility</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">ROI Estimate</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">ROI Est Raw</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">ROI Est Vol-Adj (Sharpe Ratio)</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">ROI Hist</h3></Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
                         { rows }
                     </Table.Body>
-                </Table>
+                </div>
             </Segment>
         </div>
     );
 }
 
-
-       /*
-        if (index === 0) {
-            color='blue';
-        } else if (index === 1) {
-            color='blue';
-        } else if (index === 2) {
-            color='blue';
-        }
-
-             <Table.Cell>{ result.max_amount }</Table.Cell>
-                <Table.Cell>{ result.raw_yield }</Table.Cell>
-                <Table.Cell>{ result.normalized_yield }</Table.Cell>
-
-        */
+/*
+    <Table.Cell>{ result.max_amount }</Table.Cell>
+    <Table.Cell>{ result.raw_yield }</Table.Cell>
+    <Table.Cell>{ result.normalized_yield }</Table.Cell>
+*/
