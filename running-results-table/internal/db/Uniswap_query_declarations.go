@@ -35,6 +35,8 @@ type UniswapPair struct {
 	VolumeUSD          string               `json:"volumeUSD"`
 	Token0             UniswapTokenDayData2 `json:"token0"`
 	Token1             UniswapTokenDayData2 `json:"token1"`
+	Token0Price        string               `json:"token0Price"` // or string?
+	Token1Price        string               `json:"token1Price"` // or string?
 }
 
 // Uniswap historical volume
@@ -43,16 +45,16 @@ type UniswapHistVolumeQuery struct {
 }
 
 type UniswapDailyVolume struct {
-	ID                	string               `json:"id"`
-	Date              	int                  `json:"date"`
-	Token0            	UniswapTokenDayData2 `json:"token0"`
-	Token1            	UniswapTokenDayData2 `json:"token1"`
-	DailyVolumeToken0 	string               `json:"dailyVolumeToken0"`
-	DailyVolumeToken1 	string               `json:"dailyVolumeToken1"`
-	DailyVolumeUSD 		string               `json:"dailyVolumeUSD"`
-	
-	TotalSupply 		string               `json:"totalSupply"`
-	ReserveUSD 			string               `json:"reserveUSD"`
+	ID                string               `json:"id"`
+	Date              int                  `json:"date"`
+	Token0            UniswapTokenDayData2 `json:"token0"`
+	Token1            UniswapTokenDayData2 `json:"token1"`
+	DailyVolumeToken0 string               `json:"dailyVolumeToken0"`
+	DailyVolumeToken1 string               `json:"dailyVolumeToken1"`
+	DailyVolumeUSD    string               `json:"dailyVolumeUSD"`
+
+	TotalSupply string `json:"totalSupply"`
+	ReserveUSD  string `json:"reserveUSD"`
 }
 
 // Uniswap all pairs

@@ -17,8 +17,7 @@ func getLen() - gets number of tokens with historical records in database - NEW
 
 
 NEXT STEPS:
-
-Fix USDC/WETH volatility calc - currently outputs zero
+Why is data 1 year old
 Why is VolumeUSD so different from actual daily pair volume?
 Why so many zeroes in historical volume
 Historical Trading volume data (ex Uniswap)		- need for accurate ROI
@@ -30,10 +29,10 @@ Hist price return estimator func
 
 Get Reward Mechanism			- need to figure out what it is for pools other than Uniswap
 
-Add logo to front end
+Add logo to front end - NFT!!
 Add dark lite mode to front end
 Format numbers on front end
-Add not investment advice disclaimer
+Add popup boxes explaining what each window does
 
 OptimisePortfolio 			- need to implement algo. Step 1 - create token pair permutations
 Curve data pulling implementation 
@@ -52,6 +51,12 @@ on namecheap console, run: PORT=1234 ./running-results-table
 
 
 COMPLETE
+Add not investment advice disclaimer
+ETH volatility is 420
+WBTC/WETH volatility
+WETH/USDT volatility
+WBTC/DAI volatility
+Fix USDC/WETH volatility calc - currently outputs zero
 Make sure no Inf/NaN in calcs
 Connect Database
 Finish future volume estimator function - fix errors

@@ -120,6 +120,8 @@ func getUniswapData(database *Database, uniswapreqdata UniswapInputStruct) {
 					id
 					untrackedVolumeUSD
 					volumeUSD
+					token0Price
+					token1Price			
 					token0 {
 						id
 						symbol
@@ -251,10 +253,12 @@ query{
 					// No need to get uniswap ids of these tokens
 					// Download historical data for each token for which data is missing
 					// request data from uniswap using this queried ticker
+					fmt.Print("setting token ids (shld be long hex value):: ")
+					fmt.Println(tokenqueueIDs[j])
 					uniswapreqdata.reqUniswapHist.Var("tokenid", tokenqueueIDs[j])
 					fmt.Print("Querying historical data for: ")
 					fmt.Print(tokenqueueIDs[j])
-					fmt.Print(" : ")
+					fmt.Print(" :: ")
 					fmt.Print(tokenqueue[j])
 					if err := uniswapreqdata.clientUniswap.Run(ctx, uniswapreqdata.reqUniswapHist, &respUniswapHist); err != nil {
 						log.Fatal(err)
@@ -277,6 +281,15 @@ query{
 			}
 
 			// currentVolume, _ := strconv.ParseFloat(respUniswapById.Pair.VolumeUSD, 32) //
+			currentPrice0, _ := strconv.ParseFloat(respUniswapById.Pair.Token0Price, 32) //
+			currentPrice1, _ := strconv.ParseFloat(respUniswapById.Pair.Token1Price, 32) //
+			currentPricePair := currentPrice0 / currentPrice1                            // which order is correct?
+			if math.IsInf(currentPricePair, 0) {
+				currentPricePair = -99.0
+			}
+			if math.IsNaN(currentPricePair) {
+				currentPricePair = -99.9
+			}
 			currentInterestrate := float32(0.00)      // Zero for liquidity pool
 			UniswapRewardPercentage := float32(0.003) // Placeholder
 
@@ -349,7 +362,7 @@ query{
 			fmt.Print(" : ")
 			fmt.Println(volatility)
 
-			imp_loss_hist := estimate_impermanent_loss_hist(volatility, "poolid", "token0", "token1")
+			imp_loss_hist := estimate_impermanent_loss_hist(volatility, 1, "Uniswap")
 			px_return_hist := calculate_price_return_x_days(Histrecord, 30)
 
 			ROI_raw_est := calculateROI_raw_est(currentInterestrate, UniswapRewardPercentage, float32(future_pool_sz_est), float32(future_daily_volume_est), imp_loss_hist)      // + imp

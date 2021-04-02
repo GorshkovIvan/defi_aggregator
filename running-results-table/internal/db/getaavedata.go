@@ -34,7 +34,7 @@ type AaveData struct {
 }
 
 // Returns Currrent Data from Aave protocol
-func getAaveCurrentData() (string, float32, float32, float32, float32) {
+func getAaveCurrentData(database *Database) (string, float32, float32, float32, float32) {
 
 	clientAave := graphql.NewClient("https://api.thegraph.com/subgraphs/name/aave/protocol")
 	ctx := context.Background()
@@ -67,7 +67,10 @@ func getAaveCurrentData() (string, float32, float32, float32, float32) {
 	stableBorrowRate, _ := strconv.ParseFloat(respAave.Reserve.StableBorrowRate, 32)
 	interest := float32(stableBorrowRate)
 	size := float32(69)
-	volatility := float32(420)
+	//volatility := float32(420)
+	fmt.Print("AAVE symbol: ")
+	fmt.Println(respAave.Reserve.Symbol)
+	volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(convBalancerToken(respAave.Reserve.Symbol), "DAI", database), 30)
 
 	return respAave.Reserve.Symbol, size, volume, interest, volatility
 }
@@ -177,7 +180,7 @@ func getAaveData(database *Database, uniswapreqdata UniswapInputStruct) {
 	}
 
 	// Updating current data
-	symbol, size, volume, interest, volatility := getAaveCurrentData()
+	symbol, size, volume, interest, volatility := getAaveCurrentData(database)
 	ROI_raw_est := calculateROI_raw_est(interest, 0, volume, volatility, 0.0)
 	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{symbol, size, volume, interest, "Aave", volatility, ROI_raw_est, 0.0, 0.0})
 

@@ -16,11 +16,17 @@ func IsNumeric(s string) bool {
 // Current Exchange Rate Comes from the protocol
 // Standard deviation comes from the volatility estimate, can be a 30 days estimate
 // returned estimate is -x% loss in liquidity
-func estimate_impermanent_loss_hist(standard_deviation float32, current_exchange_rate float32) float32 {
+func estimate_impermanent_loss_hist(standard_deviation float32, current_exchange_rate float32, protocol string) float32 {
 
-	forecasted_exchage_rate := current_exchange_rate + standard_deviation
-	price_ratio := forecasted_exchage_rate / current_exchange_rate
-	impermanent_loss := 2*math.Sqrt(float64(price_ratio))/(1+float64(price_ratio)) - 1
+	impermanent_loss := float64(0)
+
+	if protocol == "Uniswap" {
+
+		forecasted_exchage_rate := current_exchange_rate + standard_deviation
+		price_ratio := forecasted_exchage_rate / current_exchange_rate
+		impermanent_loss = 2*math.Sqrt(float64(price_ratio))/(1+float64(price_ratio)) - 1
+
+	}
 
 	return float32(impermanent_loss)
 
@@ -46,23 +52,11 @@ func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 	}
 
 	var vol_period int32
-	var days_with_data int32
-
-	for i := 0; i < len(H.Date); i++ {
-		if !math.IsNaN(float64(H.Date[i])) {
-			if H.Date[i] > 0 {
-				days_with_data++
-			}
-		}
-	}
 
 	// return -1 if no historical data available
 	if len(H.Date) == 0 {
 		vol = -1.00
 	}
-
-	fmt.Print("days with data: ")
-	fmt.Println(days_with_data)
 
 	vol_period = int32(math.Min(float64(len(H.Price)), float64(days))) // lower of days or available data
 
@@ -70,60 +64,64 @@ func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 	var total float32
 	total = 0.00
 
-	//fmt.Print("Vol period: ")
-	//fmt.Println(vol_period)
+	fmt.Print("Vol period: ")
+	fmt.Println(vol_period)
 
-	var actual_vol_period int32
+	var changes_in_price []float32
+	var differencesvsmean []float32 // size = actual vol period
+	var squaresofdifferencesvsmean []float32
+
+	var actual_vol_period int32 // days with data
 	actual_vol_period = 0
 
-	for i := 0; i < int(vol_period); i++ {
-		if !math.IsNaN(float64(H.Price[i])) {
+	if vol_period < 2 {
+		return 0.0
+	}
+
+	for i := 1; i < int(vol_period); i++ {
+		if !math.IsNaN(float64(H.Price[i])) && float64(H.Price[i]) > 0 && float64(H.Price[i-1]) > 0 {
+			changes_in_price = append(changes_in_price, H.Price[i]/H.Price[i-1]-1)
+			total = total + (H.Price[i]/H.Price[i-1] - 1) // calculate average price change
+			actual_vol_period++
+		}
+	}
+
+	fmt.Print("total: ")
+	fmt.Println(total)
+
+	mean := total / float32(actual_vol_period) // actual days?
+
+	fmt.Print("mean: ")
+	fmt.Println(mean)
+
+	for i := 1; i < int(vol_period); i++ {
+		if !math.IsNaN(float64(H.Price[i])) && float64(H.Price[i]) > 0 && float64(H.Price[i-1]) > 0 {
+			differencesvsmean = append(differencesvsmean, H.Price[i]/H.Price[i-1]-1-mean) // calculate difference between each value and mean
 			fmt.Print("Date: ")
 			fmt.Print(H.Date[i])
 			fmt.Print(" | ")
 			fmt.Print("Price: ")
-			fmt.Println(H.Price[i])
-			total = total + H.Price[i] // calculate average price
-			actual_vol_period++
-			//	fmt.Print(i)
-			//	fmt.Print(" : ")
-			//	fmt.Print(H.Date[i])
-			//	fmt.Print(" : ")
-			//	fmt.Println(H.Price[i])
+			fmt.Print(H.Price[i])
+			fmt.Print(" | ")
+			fmt.Print("Price - mean: ")
+			fmt.Print(H.Price[i] - mean)
+			squaresofdifferencesvsmean = append(squaresofdifferencesvsmean, float32(math.Pow(float64(H.Price[i]/H.Price[i-1]-1-mean), 2.0)))
+			fmt.Print(" | Sqr: ")
+			fmt.Println(float32(math.Pow(float64(H.Price[i]/H.Price[i-1]-1-mean), 2.0)))
 		}
-	}
-
-	//fmt.Println("total: ")
-	//fmt.Print(total)
-
-	mean := total / float32(actual_vol_period) // actual days?
-
-	fmt.Println("mean: ")
-	fmt.Print(mean)
-
-	var differencesvsmean []float32 // size = actual vol period
-	for i := 0; i < int(vol_period); i++ {
-		if !math.IsNaN(float64(H.Price[i])) {
-			differencesvsmean = append(differencesvsmean, H.Price[i]-mean) // calculate difference between each value and mean
-		}
-	}
-
-	fmt.Println("Checkpoint 2 in volatility func")
-
-	var squaresofdifferencesvsmean []float32
-	for i := 0; i < len(differencesvsmean); i++ {
-		// square these values
-		squaresofdifferencesvsmean = append(squaresofdifferencesvsmean, float32(math.Pow(float64(differencesvsmean[i]), 2.0)))
 	}
 
 	var avg float32
 	avg = 0.0
+
 	for i := 0; i < len(squaresofdifferencesvsmean); i++ {
-		// H.Price[i] != math.NaN
 		avg += squaresofdifferencesvsmean[i]
 	}
 
-	avg = avg / float32(vol_period)                         // average them
+	fmt.Print("Total squares: ")
+	fmt.Println(avg)
+
+	avg = avg / float32(len(squaresofdifferencesvsmean))    // average them
 	vol = float32(math.Sqrt(float64(avg)) * math.Sqrt(252)) // is this the right adjustment for days?
 
 	fmt.Print("CALCULATED VOLATILITY = ")
@@ -282,7 +280,7 @@ func retrieveDataForTokensFromDatabase(token0 string, token1 string, database *D
 	lengthoflookbackhist = int64(math.Min(float64(lengthoflookbackhist), float64(lengthoflookbackhist2)))
 
 	fmt.Print("length of lookback = ")
-	fmt.Print(lengthoflookbackhist)
+	fmt.Println(lengthoflookbackhist)
 
 	for i = lengthoflookbackhist - 1; i >= 0; i-- {
 		// which index 	// 0 = oldest
@@ -298,11 +296,22 @@ func retrieveDataForTokensFromDatabase(token0 string, token1 string, database *D
 		fmt.Println(database.historicalcurrencydata[token1idx].Price[i])
 
 		histcombo.Date = append(histcombo.Date, database.historicalcurrencydata[token0idx].Date[i])
-		price := database.historicalcurrencydata[token0idx].Price[i] / database.historicalcurrencydata[token1idx].Price[i]
+
+		var price float32
+		if database.historicalcurrencydata[token1idx].Price[i] > 0 {
+			price = database.historicalcurrencydata[token0idx].Price[i] / database.historicalcurrencydata[token1idx].Price[i]
+		} else {
+			price = 0.0
+		}
 		if math.IsInf(float64(price), 0) {
 			price = 0.0
 			fmt.Println("WARNING 987: Inf in calculating token combo price")
 		}
+		if math.IsNaN(float64(price)) {
+			price = 0.0
+			fmt.Println("WARNING 987: Inf in calculating token combo price")
+		}
+
 		histcombo.Price = append(histcombo.Price, price)
 	}
 
