@@ -24,7 +24,7 @@ func (database *Database) AddRecordfromAPI() {
 
 	reqUniswapHist := graphql.NewRequest(`
 				query ($tokenid:String!){
-						tokenDayDatas(first: 30 orderBy: date, orderDirection: asc,
+						tokenDayDatas(first: 30 orderBy: date, orderDirection: desc,
 						 where: {
 						   token:$tokenid
 						 }
@@ -49,23 +49,18 @@ func (database *Database) AddRecordfromAPI() {
 						}
 			`)
 
-	// 4 - set query headers
+	// 3 - set query headers
 	reqUniswapIDFromTokenTicker.Header.Set("Cache-Control", "no-cache")
 	reqUniswapHist.Header.Set("Cache-Control", "no-cache")
 
-	// 5 - define a Context for the request
-	// ctx := context.Background()
-
-	// 7 - run data queries on each pool
+	// 4 - run data queries on each pool
 	U := UniswapInputStruct{clientUniswap, reqUniswapIDFromTokenTicker, reqUniswapHist}
 	getUniswapData(database, U)  // 1
 	getAaveData(database, U)     // 2
 	getBalancerData(database, U) // 3
-
 	/*
 		4) Curve
 		5) Others
 	*/
-
 	fmt.Println("Ran all download functions and appended data")
 }

@@ -12,7 +12,7 @@ func TestUniswapDataDownload(t *testing.T) {
 
 	reqUniswapHist := graphql.NewRequest(`
 				query ($tokenid:String!){
-						tokenDayDatas(first: 30 orderBy: date, orderDirection: asc,
+						tokenDayDatas(first: 30 orderBy: date, orderDirection: desc,
 						 where: {
 						   token:$tokenid
 						 }

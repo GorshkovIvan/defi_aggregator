@@ -11,7 +11,7 @@ func TestGetBalancerData(t *testing.T) {
 	clientUniswap := graphql.NewClient("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
 	reqUniswapHist := graphql.NewRequest(`
 				query ($tokenid:String!){
-						tokenDayDatas(first: 30 orderBy: date, orderDirection: asc,
+						tokenDayDatas(first: 30 orderBy: date, orderDirection: desc,
 						 where: {
 						   token:$tokenid
 						 }
@@ -42,10 +42,10 @@ func TestGetBalancerData(t *testing.T) {
 	U := UniswapInputStruct{clientUniswap, reqUniswapIDFromTokenTicker, reqUniswapHist}
 
 	getBalancerData(&database, U)
-/*
-	if len(database.historicalcurrencydata) != 30 {
-		t.Errorf("fail!")
-	}*/
+	/*
+		if len(database.historicalcurrencydata) != 30 {
+			t.Errorf("fail!")
+		}*/
 }
 
 // Test 1

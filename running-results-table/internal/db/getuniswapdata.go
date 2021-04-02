@@ -154,7 +154,7 @@ query{
 
 	reqUniswapHistVolume := graphql.NewRequest(`
 		query($pairid:String!){				
-			pairDayDatas(first:30, orderBy: date, orderDirection: asc, 
+			pairDayDatas(first:30, orderBy: date, orderDirection: desc, 
 				where: {pairAddress:$pairid}				
 				) {
 			id 
