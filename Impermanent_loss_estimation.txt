@@ -1,0 +1,19 @@
+Impermanent Loss Estimation
+
+For every pool:
+
+impermanent_loss = 2 * sqrt(price_ratio) / (1+price_ratio) — 1
+
+Where 
+
+price_ratio = new_exchange_rate / exchange_rate_when_liquidity_was_added
+
+Estimation Algorithm:
+
+exchange_rate_when_liquidity_was_added = current exchage rate
+
+new_exchage_rate should be forecasted 
+
+The following formula can be used:
+
+new_exchange_rate =  exchange_rate_when_liquidity_was_added + standard_deviation_of_the_exchange_rate
