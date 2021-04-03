@@ -30,10 +30,9 @@ Hist price return estimator func
 Get Reward Mechanism			- need to figure out what it is for pools other than Uniswap
 
 Add logo to front end - NFT!!
-Add dark lite mode to front end
 Format numbers on front end
 Add popup boxes explaining what each window does
-
+Contact form
 OptimisePortfolio 			- need to implement algo. Step 1 - create token pair permutations
 Curve data pulling implementation 
 Get gas fees
@@ -51,6 +50,7 @@ on namecheap console, run: PORT=1234 ./running-results-table
 
 
 COMPLETE
+Add dark lite mode to front end
 Impermanent loss estimator function
 1 year old data - fixed with desc
 Add not investment advice disclaimer
