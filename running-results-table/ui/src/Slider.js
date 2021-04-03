@@ -118,8 +118,5 @@ export default class Slider2 extends React.Component {
             },
             body: JSON.stringify(payload)
         });
-        this.setState({
-          risk_setting: ''
-        });
     }
 }
