@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Table, Segment, Label } from 'semantic-ui-react'
+import { Form, Table, Segment, Label, Popup } from 'semantic-ui-react'
 
 export default function ResultsTable2({currencyoutputtable}) {
     const rows = currencyoutputtable.map(((result, index) => {
@@ -46,9 +46,9 @@ export default function ResultsTable2({currencyoutputtable}) {
                             <Table.HeaderCell><h3 className="headerTitle">Interest Rate</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Pool</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Historical Volatility</h3></Table.HeaderCell>
-                             <Table.HeaderCell><h3 className="headerTitle">ROI Est Raw</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">ROI Est Vol-Adj (Sharpe Ratio)</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">ROI Hist</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">ROI Est Raw</h3><Popup header="Title" content="Explanation goes here" position="top center" trigger={<i class="info circle icon"></i>} /></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">ROI Est Vol-Adj (Sharpe Ratio)</h3><Popup header="Title" content="Explanation goes here" position="top center" trigger={<i class="info circle icon"></i>} /></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">ROI Hist</h3><Popup header="Title" content="Explanation goes here" position="top center" trigger={<i class="info circle icon"></i>} /></Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
