@@ -1,0 +1,17 @@
+.theme-light {
+    --theme-color-segment: white;
+    --theme-color-segment-border: rgb(217, 229, 246);
+    --theme-color-button: rgb(219, 233, 254);
+    --theme-color-button-hover: rgb(180, 210, 254);
+    --theme-page-background: rgb(240, 244, 249);
+    --theme-page-text: black;
+}
+
+.theme-dark {
+    --theme-color-segment: rgb(24, 29, 38);
+    --theme-color-segment-border: rgb(36, 52, 75);
+    --theme-color-button: rgb(27, 41, 64);
+    --theme-color-button-hover: rgb(45, 72, 116);
+    --theme-page-background: rgb(5, 5, 15);
+    --theme-page-text: white;
+}

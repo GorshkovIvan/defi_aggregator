@@ -1,5 +1,5 @@
 .App{
-  background: rgb(5, 5, 15);
+  background: var(--theme-page-background);
 }
 
 @font-face {
@@ -28,11 +28,11 @@
 }
 
 * {
-  color: white;
+  color: var(--theme-page-text);
 }
 
 h1 {
-  color: white;
+  color: var(--theme-page-text);
   text-align: center;
   padding-top: 50px;
   font-family: LemonMilkBoldItalic;
@@ -45,7 +45,7 @@ h5 {
 }
 
 h4 {
-  color: white;
+  color: var(--theme-page-text);
   text-align: center;
   padding: 10px;
   font-family: LemonMilkBold;
@@ -68,20 +68,20 @@ h6 {
 }
 
 .ui.segment {
-  background: rgb(24, 29, 38);
-  border-color: rgb(36, 52, 75);
+  background: var(--theme-color-segment);
+  border-color: var(--theme-color-segment-border);
   border-width: 2px;
   border-radius: 10px;
 }
 
 .ui.button {  
-  background-color: rgb(27, 41, 64);
+  background-color: var(--theme-color-button);
   color: rgb(81, 146, 253);
 }
 
 .ui.button:hover {
   color: rgb(81, 146, 253);
-  background-color: rgb(45, 72, 116);
+  background-color: var(--theme-color-button-hover);
 }
 
 .visible {
@@ -134,17 +134,17 @@ h6 {
 }
 
 select {
-  color: white !important;
-  background-color: rgb(27, 41, 64) !important;
+  color: var(--theme-page-text) !important;
+  background-color: var(--theme-color-button) !important;
 }
 
 input {
-  color: white !important;
-  background-color: rgb(27, 41, 64) !important;
+  color: var(--theme-page-text) !important;
+  background-color: var(--theme-color-button) !important;
 }
 
 ::placeholder {
-  color: white !important;
+  color: var(--theme-page-text) !important;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -160,6 +160,11 @@ input[type=number] {
 }
 
 button:focus {
-  background-color: rgb(27, 41, 64) !important;
+  background-color: var(--theme-color-button) !important;
   color: rgb(81, 146, 253) !important;
+}
+
+.container--toggle {
+  text-align: right;
+  padding-bottom: 25px;
 }

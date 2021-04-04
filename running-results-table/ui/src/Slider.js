@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Header, Segment, Button } from 'semantic-ui-react'
+import { Form, Segment, Button } from 'semantic-ui-react'
 import styled from 'styled-components';
 
 /*
@@ -43,12 +43,11 @@ const Styles = styled.div`
 `;*/
 
 const sliderThumbStyles = (props) => (`
-  width: 15px;
-  height: 15px;
-  background: ${props.color};
+  width: 20px;
+  height: 20px;
+  background: rgb(81, 146, 253);
+  border-radius: 50px;
   cursor: pointer;
-  outline: 5px solid #333;
-  opacity: ${props.opacity};
   -webkit-transition: .2s;
   transition: opacity .2s;
 `);
@@ -58,8 +57,6 @@ const Styles = styled.div`
   align-items: center;
   color: #888;
   margin-top: 2rem;
-  margin-bottom: 2rem;
-  padding-bottom: 2rem;
   .value {
     flex: 1;
     font-size: 2rem;
@@ -69,10 +66,10 @@ const Styles = styled.div`
     -webkit-appearance: none;
     width: 75%; 
     margin-right: 15px;
-    height: 8px;
+    height: 15px;
     border-radius: 10px;
     background: #efefef;
-    outline: 1px ridge rgba(128,128,128);
+    outline: none;
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
@@ -85,12 +82,13 @@ const Styles = styled.div`
 `;
 
 export default class Slider2 extends React.Component {
+
     state = {
         risk_setting: ''
     };
-        
-  handleOnChange = (e) => this.setState({ risk_setting: e.target.value });
- 
+
+    handleOnChange = (e) => this.setState({ risk_setting: e.target.value });
+
     onSubmit = this._onSubmit.bind(this);
 
     render() {
@@ -119,9 +117,6 @@ export default class Slider2 extends React.Component {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
-        });
-        this.setState({
-          risk_setting: ''
         });
     }
 }
