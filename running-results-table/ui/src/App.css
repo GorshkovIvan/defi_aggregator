@@ -168,3 +168,12 @@ button:focus {
   text-align: right;
   padding-bottom: 25px;
 }
+
+.info {
+  color: rgb(116, 140, 174);
+}
+
+.popup, .popup:before {
+  background-color: var(--theme-color-segment) !important;
+  border-color: var(--theme-color-segment-border) !important;
+}
