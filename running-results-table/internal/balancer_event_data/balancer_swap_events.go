@@ -47,11 +47,16 @@ func main(){
 }
 
 func decodeSingleSwap(log *types.Log) (*big.Int, *big.Int, *big.Int, *big.Int) {
-	fmt.Println(new(big.Int).SetBytes(log.Data))
+	//fmt.Println(log)
+	
 	amount0In := new(big.Int).SetBytes(log.Data[0:32])
+	fmt.Println("Ether in:")
+	fmt.Println(amount0In)
+	fmt.Println("Dai out:")
+	fmt.Println(new(big.Int).SetBytes(log.Data[32:64]))
 	amount1In := new(big.Int).SetBytes(log.Data[32:64])
-	amount0Out := new(big.Int).SetBytes(log.Data[64:96])
-	amount1Out := new(big.Int).SetBytes(log.Data[96:128])
+	amount0Out := new(big.Int).SetBytes(log.Data[0:32])
+	amount1Out := new(big.Int).SetBytes(log.Data[0:32])
 	return amount0In, amount1In, amount0Out, amount1Out
  }
  func decodeActualInAndActualOut(logs []*types.Log) (actualIn *big.Int, actualOut *big.Int) {
