@@ -286,7 +286,7 @@ func returnPricesInCollection(collectionName string) []float64{
 	for _, record := range records {
 		//fmt.Println(record)
 		//fmt.Println(reflect.TypeOf(record[attribute]))
-		price := record["prices"]
+		price := record["Prices"]
 		//fmt.Println(attribute_value)
 		//fmt.Println(reflect.TypeOf(attribute_value))
 		//attributes = append(attributes, fmt.Sprint(attribute_value))
