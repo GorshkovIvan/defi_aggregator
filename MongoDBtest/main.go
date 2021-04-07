@@ -4,23 +4,74 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/bson/primitive"
- 	"log"
-	"reflect"
+	"log"
 	"time"
-
 )
 
 
 func main() {
 	//var id = addOwnPortfolioRecord("DAI", 69)
 	//returnEntryById("Own Portfolio Record", id)
-	fmt.Println(returnAttributeInCollection("Historical Currency Data", "Price"))
-	//addOwnPortfolioRecord("DAI", 69)
+	//fmt.Println(returnAttributeInCollection("Historical Currency Data", "Price"))
+
 	//removeRecordById("Own Portfolio Record", "6065b79b738be8435f30b458")
 	//dropEntireCollection("Own Portfolio Record")
+	/*
+
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("De-Fi_Aggregator")
+	testDatabase := Database.Collection("Test")
+
+	test, err := testDatabase.Indexes().CreateOne(ctx,
+		mongo.IndexModel{
+			Keys:    bson.D{{Key: "createdAt", Value: 1}},
+			Options: options.Index().SetExpireAfterSeconds(10),
+		})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(test)
+	 */
+	/*
+
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("test2")
+
+	fmt.Println(Database.ListCollectionNames(ctx, bson.M{}))
+	*/
+
+	//fmt.Println(isHistDataAlreadyDownloadedDatabase("token1"))
+
+
+
+	//fmt.Println(returnAttributeInCollection("token1", "date"))
+	//addOwnPortfolioRecord("DAI", 288)
+
 
 }
 /*
@@ -58,9 +109,10 @@ func addOwnPortfolioRecord(token string, amount float32) string {
 	defer client.Disconnect(ctx)
 
 	Database := client.Database("De-Fi_Aggregator")
-	ownstartingportfolio := Database.Collection("Own Portfolio Record")
+	ownstartingportfolio := Database.Collection("Test")
 
 	new_portfolio, err := ownstartingportfolio.InsertOne(ctx, bson.D{
+		{Key: "createdAt", Value: time.Now()},
 		{Key: "Token", Value: token},
 		{Key: "Amount", Value: amount},
 	})
@@ -125,7 +177,7 @@ func dropEntireCollection(collectionName string) {
 	}
 }
 
-func returnAttributeInCollection(collectionName string, attribute string) []string {
+func returnDateInCollection(collectionName string, attribute string) [] primitive.DateTime {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
@@ -138,7 +190,7 @@ func returnAttributeInCollection(collectionName string, attribute string) []stri
 	defer client.Disconnect(ctx)
 
 
-	Database := client.Database("De-Fi_Aggregator")
+	Database := client.Database("test2")
 	collection := Database.Collection(collectionName)
 
 	cursor, err := collection.Find(ctx, bson.M{})
@@ -146,20 +198,25 @@ func returnAttributeInCollection(collectionName string, attribute string) []stri
 		log.Fatal(err)
 	}
 
+
 	var records []bson.M
+
 	if err = cursor.All(ctx, &records); err != nil {
 		log.Fatal(err)
 	}
 
-	var attributes []string
+	var dates [] primitive.DateTime
 	for _, record := range records {
-		attribute_value := record[attribute]
-		fmt.Println(attribute_value)
-		fmt.Println(reflect.TypeOf(attribute_value))
-		attributes = append(attributes, fmt.Sprint(attribute_value))
+		//fmt.Println(record)
+		//fmt.Println(reflect.TypeOf(record[attribute]))
+		date := record[attribute]
+		//fmt.Println(attribute_value)
+		//fmt.Println(reflect.TypeOf(attribute_value))
+		//attributes = append(attributes, fmt.Sprint(attribute_value))
+		dates = append(dates, date.(primitive.DateTime))
 	}
 
-	return attributes
+	return dates
 }
 
 
@@ -192,4 +249,37 @@ func returnEntryById(collectionName string, id string) {
 	}
 
 	fmt.Println(collectionFiltered)
+}
+
+func isHistDataAlreadyDownloadedDatabase(token string) bool {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("test2")
+
+	array, err:= Database.ListCollectionNames(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i := 0; i < len(array); i++ {
+		if array[i] == token {
+			// also add date check LATER : if latest date is within 24 hours of NOW database.historicalcurrencydata[i].
+			/*
+				fmt.Print("Checking if data already downloaded for: ")
+				fmt.Print(token)
+				fmt.Print("..Data found!!")
+			*/
+			return true
+		}
+	}
+	return false
 }
