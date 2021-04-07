@@ -5,11 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c036aa19-d8d1-4d49-8a04-c7c4702e411e" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDBtest/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDBtest/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go" beforeDir="false" afterPath="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go" beforeDir="false" afterPath="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go" afterDir="false" />
     </list>
     <list id="1fe45fa6-799e-42d0-b27f-251342343e34" name="Changes by Christopher_Stanford" comment="" />
-    <list id="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" name="Changes by LiudmilaAfonina" comment="" />
+    <list id="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" name="Changes by LiudmilaAfonina" comment="">
+      <change beforePath="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go" beforeDir="false" afterPath="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/running-results-table/internal/db/getalldata.go" beforeDir="false" afterPath="$PROJECT_DIR$/running-results-table/internal/db/getalldata.go" afterDir="false" />
+    </list>
     <list id="5a48f1ac-54cb-4cc3-b0d6-c65f612cd87b" name="Changes by Marcus" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,10 +45,10 @@
     </file>
     <file path="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go">
       <ranges>
-        <range start1="43" end1="43" start2="43" end2="154" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
-        <range start1="44" end1="170" start2="155" end2="155" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
-        <range start1="329" end1="329" start2="314" end2="350" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
-        <range start1="330" end1="366" start2="351" end2="351" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
+        <range start1="43" end1="43" start2="43" end2="155" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
+        <range start1="44" end1="155" start2="156" end2="156" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
+        <range start1="314" end1="314" start2="315" end2="351" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
+        <range start1="315" end1="351" start2="352" end2="352" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
       </ranges>
     </file>
   </component>

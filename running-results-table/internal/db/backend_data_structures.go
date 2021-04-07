@@ -107,7 +107,7 @@ func addHistoricalCurrencyData(date int64, price float32, CollectionOrTicker str
 	fmt.Print("Collection Filtered: ")
 	fmt.Println(collectionFiltered)
 
-	if collectionFiltered == nil {
+	if collectionFiltered != nil {
 		return "data already there"
 	}
 
@@ -242,10 +242,10 @@ func returnDatesInCollection(collectionName string) [] int64 {
 	var dates [] int64
 	for _, record := range records {
 		//fmt.Println(record)
-		//fmt.Println(reflect.TypeOf(record[attribute]))
-		date := record["date"]
-		//fmt.Println(attribute_value)
-		//fmt.Println(reflect.TypeOf(attribute_value))
+		//fmt.Println(reflect.TypeOf(record["Date"]))
+		date := record["Date"]
+		//fmt.Println(date)
+		//fmt.Println(reflect.TypeOf(date))
 		//attributes = append(attributes, fmt.Sprint(attribute_value))
 		dates = append(dates, date.(int64))
 	}

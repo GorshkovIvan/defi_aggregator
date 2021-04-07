@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"reflect"
 	"time"
 )
 
@@ -16,7 +17,7 @@ func main() {
 	//var id = addOwnPortfolioRecord("DAI", 69)
 	//returnEntryById("Own Portfolio Record", id)
 	//fmt.Println(returnAttributeInCollection("Historical Currency Data", "Price"))
-	returnEntryById("Historical Currency Data","6065bf8f6c976d7006428b8d")
+	returnDatesInCollection("WETH")
 	//removeRecordById("Own Portfolio Record", "6065b79b738be8435f30b458")
 	//dropEntireCollection("Own Portfolio Record")
 	/*
@@ -286,4 +287,46 @@ func isHistDataAlreadyDownloadedDatabase(token string) bool {
 		}
 	}
 	return false
+}
+
+func returnDatesInCollection(collectionName string) [] int64 {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("test2")
+	collection := Database.Collection(collectionName)
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+
+	var records []bson.M
+
+	if err = cursor.All(ctx, &records); err != nil {
+		log.Fatal(err)
+	}
+
+	var dates [] int64
+	for _, record := range records {
+		fmt.Println(record)
+		fmt.Println(reflect.TypeOf(record["Date"]))
+		date := record["Date"]
+		//fmt.Println(attribute_value)
+		//fmt.Println(reflect.TypeOf(attribute_value))
+		//attributes = append(attributes, fmt.Sprint(attribute_value))
+		dates = append(dates, date.(int64))
+	}
+
+	return dates
 }

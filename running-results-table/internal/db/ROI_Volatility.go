@@ -78,6 +78,7 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 
 	if token0dataishere{
 		token0datesarray = returnDatesInCollection(token0)
+
 		token0pricesarray = returnPricesInCollection(token0)
 	}
 
