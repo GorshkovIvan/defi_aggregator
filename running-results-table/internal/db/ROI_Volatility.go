@@ -72,7 +72,7 @@ func appendDataForTokensFromDatabase(Histrecord HistoricalCurrencyData) {
 
 // Database versions
 func retrieveDataForTokensFromDatabase2(token0 string, token1 string) HistoricalCurrencyData {
-	fmt.Print("RETRIEVING DATA FOR PAIR - Tokens: ")
+	fmt.Print("RETRIEVING DATA2 FOR PAIR - Tokens: ")
 	fmt.Println(token0 + "/" + token1 + " : ")
 
 	token0dataishere := isHistDataAlreadyDownloadedDatabase(token0)
@@ -89,6 +89,8 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 	var token1datesarray []int64
 	var token1pricesarray []float64
 
+	fmt.Println("Checkpoint 1")
+
 	if token0dataishere{
 		token0datesarray = returnDatesInCollection(token0)
 		token0pricesarray = returnPricesInCollection(token0)
@@ -98,6 +100,8 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 		token1datesarray = returnDatesInCollection(token0)
 		token1pricesarray = returnPricesInCollection(token0)
 	}
+
+	fmt.Println("Checkpoint 2")
 
 	// parse the string data
 	var histcombo HistoricalCurrencyData
@@ -109,6 +113,8 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 
 	fmt.Print("length of lookback = ")
 	fmt.Println(lengthoflookbackhist)
+
+	fmt.Println("Checkpoint 3")
 
 	for i := lengthoflookbackhist - 1; i >= 0; i-- {
 		fmt.Print("i: ")
