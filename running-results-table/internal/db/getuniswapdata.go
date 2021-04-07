@@ -269,6 +269,9 @@ query{
 					if len(respUniswapHist.DailyTimeSeries) > 0 {
 						Histrecord = NewHistoricalCurrencyDataFromRaw(tokenqueue[j], respUniswapHist.DailyTimeSeries)
 						database.historicalcurrencydata = append(database.historicalcurrencydata, Histrecord)
+						fmt.Println("-------ABOUT TO RUN NEW APPEND FUNCTION")
+						appendDataForTokensFromDatabase(Histrecord)
+						fmt.Println("-------RAN NEW APPEND FUNCTION")
 					}
 				} // if historical data needs updating
 			} // tokenqueue loop ends

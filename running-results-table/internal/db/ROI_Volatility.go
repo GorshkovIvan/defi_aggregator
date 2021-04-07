@@ -42,11 +42,30 @@ func calculate_price_return_x_days(hist_date_px_series HistoricalCurrencyData, d
 	return 0.0
 }
 
+// Database
+func appendDataForTokensFromDatabase(Histrecord HistoricalCurrencyData) {
+	/*
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
 
-func appendDataForTokensFromDatabase(HistoricalCurrencyData) {
+	Database := client.Database("test2")
+	//newHistrecord := Database.Collection(Histrecord.Ticker)
+	 */
 
-	// get token
-
+	// append non-overlapping dates
+	for i:=0; i < len(Histrecord.Date);i++ {
+		// if date not already in collection
+		id:= addHistoricalCurrencyData(Histrecord.Date[i], Histrecord.Price[i], Histrecord.Ticker)
+		fmt.Println(id)
+	}
 }
 
 
@@ -104,6 +123,7 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 		// Synchronise indices i and j in token1
 		if token0datesarray[i] == token1datesarray[i] {
 			// Move here
+			fmt.Println("dates match")
 		}
 		histcombo.Date = append(histcombo.Date, token0datesarray[i])
 

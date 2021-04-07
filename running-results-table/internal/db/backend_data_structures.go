@@ -78,7 +78,7 @@ func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount float32
 	return hexID
 }
 
-func addHistoricalCurrencyData(date int, price float32, ticker string) string {
+func addHistoricalCurrencyData(date int64, price float32, CollectionOrTicker string) string {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
@@ -90,13 +90,12 @@ func addHistoricalCurrencyData(date int, price float32, ticker string) string {
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("De-Fi_Aggregator")
-	ownstartingportfolio := Database.Collection("Historical Currency Data")
+	Database := client.Database("test2")
+	historicaldata := Database.Collection(CollectionOrTicker)
 
-	new_data, err := ownstartingportfolio.InsertOne(ctx, bson.D{
+	new_data, err := historicaldata.InsertOne(ctx, bson.D{
 		{Key: "Date", Value: date},
 		{Key: "Price", Value: price},
-		{Key: "Ticker", Value: ticker},
 	})
 
 	if err != nil {
