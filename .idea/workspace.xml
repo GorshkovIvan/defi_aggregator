@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c036aa19-d8d1-4d49-8a04-c7c4702e411e" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/MongoDBtest/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDBtest/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MongoDBtest/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDBtest/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go" beforeDir="false" afterPath="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go" beforeDir="false" afterPath="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go" afterDir="false" />
+    </list>
+    <list id="1fe45fa6-799e-42d0-b27f-251342343e34" name="Changes by Christopher_Stanford" comment="" />
+    <list id="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" name="Changes by LiudmilaAfonina" comment="">
+      <change beforePath="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go" beforeDir="false" afterPath="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go" beforeDir="false" afterPath="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go" afterDir="false" />
+    </list>
+    <list id="5a48f1ac-54cb-4cc3-b0d6-c65f612cd87b" name="Changes by Marcus" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$USER_HOME$/sdk/go1.16" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="false" />
+  </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/running-results-table/internal/db/getuniswapdata.go">
+      <ranges>
+        <range start1="271" end1="271" start2="271" end2="274" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
+        <range start1="354" end1="354" start2="357" end2="362" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
+        <range start1="355" end1="360" start2="363" end2="363" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go">
+      <ranges>
+        <range start1="89" end1="89" start2="89" end2="90" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
+        <range start1="94" end1="94" start2="95" end2="101" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go">
+      <ranges>
+        <range start1="43" end1="43" start2="43" end2="154" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
+        <range start1="44" end1="170" start2="155" end2="155" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
+        <range start1="329" end1="329" start2="314" end2="350" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
+        <range start1="330" end1="366" start2="351" end2="351" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
+      </ranges>
+    </file>
+  </component>
+  <component name="ProjectId" id="1qWCCTdGhK3vgblU8D7cOjmV7ke" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="codeWithMe.voiceChat.enabledByDefault" value="false" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.sdk.automatically.set" value="true" />
+    <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
+    <property name="go.vendoring.notification.had.been.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/running-results-table/internal/db" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Aaron Lam\Documents\defi_aggregator\running-results-table\internal\db" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Aaron Lam\Documents\defi_aggregator\running-results-table\internal" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build main.go">
+    <configuration name="go build backend_data_structures.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="defi_aggregator" />
+      <working_directory value="$PROJECT_DIR$/running-results-table/internal/db" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="defi_aggregator" />
+      <working_directory value="$PROJECT_DIR$/MongoDBtest" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/MongoDBtest/main.go" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build mysql.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="defi_aggregator" />
+      <working_directory value="$PROJECT_DIR$/MongoDBtest" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/MongoDBtest/mysql.go" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build quickstart" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="defi_aggregator" />
+      <working_directory value="$PROJECT_DIR$/MongoDBtest" />
+      <kind value="PACKAGE" />
+      <filePath value="$PROJECT_DIR$/MongoDBtest/main.go" />
+      <package value="quickstart" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestAddOptimisedPortfolioRecord in quickstart" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="defi_aggregator" />
+      <working_directory value="$PROJECT_DIR$/running-results-table/internal/db" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="quickstart" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestAddOptimisedPortfolioRecord\E$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build main.go" />
+        <item itemvalue="Go Test.TestAddOptimisedPortfolioRecord in quickstart" />
+        <item itemvalue="Go Build.go build backend_data_structures.go" />
+        <item itemvalue="Go Build.go build mysql.go" />
+        <item itemvalue="Go Build.go build quickstart" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VgoProject">
+    <integration-enabled>true</integration-enabled>
+  </component>
+</project>

@@ -87,11 +87,26 @@ func addHistoricalCurrencyData(date int64, price float32, CollectionOrTicker str
 	err = client.Connect(ctx)
 	if err != nil {
 		log.Fatal(err)
+
 	}
 	defer client.Disconnect(ctx)
 
 	Database := client.Database("test2")
 	historicaldata := Database.Collection(CollectionOrTicker)
+
+	// check if date exists in that collection - if yes return "already exists"
+	cursor, err := historicaldata.Find(ctx, bson.M{"date": date})
+	if err != nil {
+	}
+
+	var collectionFiltered []bson.M
+	if err = cursor.All(ctx, &collectionFiltered); err != nil {
+		log.Fatal(err)
+	}
+
+	if collectionFiltered == nil {
+		return "data already there"
+	}
 
 	new_data, err := historicaldata.InsertOne(ctx, bson.D{
 		{Key: "Date", Value: date},
