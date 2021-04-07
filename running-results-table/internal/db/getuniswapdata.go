@@ -353,6 +353,11 @@ query{
 			future_daily_volume_est, future_pool_sz_est := estimate_future_uniswap_volume_and_pool_sz(respUniswapHistVolume)
 			historical_pool_sz_avg, historical_pool_daily_volume_avg := future_pool_sz_est, future_daily_volume_est
 
+			fmt.Println("-----------ABOUT TO RUN NEW DATABASE RETRIEVAL FUNC---------------------------")
+			xxx := retrieveDataForTokensFromDatabase2(token0symbol, token1symbol)
+			fmt.Println(xxx)
+			fmt.Println("-----------RAN NEW DATABASE RETRIEVAL FUNC---------------------------")
+
 			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
 
 			fmt.Print("volatility hist for: ")

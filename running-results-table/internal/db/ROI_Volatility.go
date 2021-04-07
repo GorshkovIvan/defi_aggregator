@@ -1,7 +1,12 @@
 package db
 
 import (
+	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 	"math"
 	"sort"
 	"strconv"
@@ -35,6 +40,106 @@ func estimate_impermanent_loss_hist(standard_deviation float32, current_exchange
 func calculate_price_return_x_days(hist_date_px_series HistoricalCurrencyData, days int) float32 {
 
 	return 0.0
+}
+
+
+func appendDataForTokensFromDatabase(HistoricalCurrencyData) {
+
+	// get token
+
+}
+
+
+
+// Database versions
+func retrieveDataForTokensFromDatabase2(token0 string, token1 string) HistoricalCurrencyData {
+	fmt.Print("RETRIEVING DATA FOR PAIR - Tokens: ")
+	fmt.Println(token0 + "/" + token1 + " : ")
+
+	token0dataishere := isHistDataAlreadyDownloadedDatabase(token0)
+	token1dataishere := isHistDataAlreadyDownloadedDatabase(token1)
+
+	if !token0dataishere || !token1dataishere {
+		fmt.Println("ERROR 899: ticker combo not found in database..returning blank object")
+		return NewHistoricalCurrencyData()
+	}
+
+	var token0datesarray []int64
+	var token0pricesarray []float64
+
+	var token1datesarray []int64
+	var token1pricesarray []float64
+
+	if token0dataishere{
+		token0datesarray = returnDatesInCollection(token0)
+		token0pricesarray = returnPricesInCollection(token0)
+	}
+
+	if token1dataishere{
+		token1datesarray = returnDatesInCollection(token0)
+		token1pricesarray = returnPricesInCollection(token0)
+	}
+
+	// parse the string data
+	var histcombo HistoricalCurrencyData
+	histcombo.Ticker = token0 + "/" + token1
+
+	lengthoflookbackhist := len(token0datesarray)
+	lengthoflookbackhist2 := len(token1datesarray)
+	lengthoflookbackhist = int(math.Min(float64(lengthoflookbackhist), float64(lengthoflookbackhist2)))
+
+	fmt.Print("length of lookback = ")
+	fmt.Println(lengthoflookbackhist)
+
+	for i := lengthoflookbackhist - 1; i >= 0; i-- {
+		fmt.Print("i: ")
+		fmt.Print(token0datesarray[i])
+		fmt.Print("parsed time: ")
+		fmt.Print(token1datesarray[i]) // tm
+		fmt.Print(" | px0: ")
+		fmt.Print(token0pricesarray[i])
+		fmt.Print(" | px1: ")
+		fmt.Print(token1pricesarray[i])
+
+		// Synchronise indices i and j in token1
+		if token0datesarray[i] == token1datesarray[i] {
+			// Move here
+		}
+		histcombo.Date = append(histcombo.Date, token0datesarray[i])
+
+		var price float64
+		if token1pricesarray[i]> 0 {
+			price = token0pricesarray[i] / token1pricesarray[i]
+		} else {
+			price = 0.0
+		}
+		if math.IsInf(float64(price), 0) {
+			price = 0.0
+			fmt.Println("WARNING 987: Inf in calculating token combo price")
+		}
+		if math.IsNaN(float64(price)) {
+			price = 0.0
+			fmt.Println("WARNING 987: Nan in calculating token combo price")
+		}
+
+		histcombo.Price = append(histcombo.Price, float32(price))
+	}
+
+	fmt.Print("SIZE of returned combo for ticker: ")
+	fmt.Print(histcombo.Ticker)
+	fmt.Print(": ")
+	fmt.Println(len(histcombo.Price))
+
+	if len(histcombo.Price) >= 2 {
+		fmt.Print(histcombo.Date[0])
+		fmt.Print(" | ")
+		fmt.Println(histcombo.Price[0])
+		fmt.Print(histcombo.Date[1])
+		fmt.Print(" | ")
+		fmt.Print(histcombo.Price[1])
+	}
+
+	return histcombo
 }
 
 func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
@@ -195,6 +300,42 @@ func calculateROI_raw_est(interestrate float32, pool_reward_pct float32, future_
 	}
 
 	return float32(ROI)
+}
+
+
+
+// Database version
+func isHistDataAlreadyDownloadedDatabase(token string) bool {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("test2")
+
+	array, err:= Database.ListCollectionNames(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i := 0; i < len(array); i++ {
+		if array[i] == token {
+			// also add date check LATER : if latest date is within 24 hours of NOW database.historicalcurrencydata[i].
+			/*
+				fmt.Print("Checking if data already downloaded for: ")
+				fmt.Print(token)
+				fmt.Print("..Data found!!")
+			*/
+			return true
+		}
+	}
+	return false
 }
 
 func isHistDataAlreadyDownloaded(token string, database *Database) bool {

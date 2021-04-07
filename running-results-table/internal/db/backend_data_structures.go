@@ -193,6 +193,92 @@ func dropEntireCollection(collectionName string) {
 	}
 }
 
+
+func returnDatesInCollection(collectionName string) [] int64 {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("test2")
+	collection := Database.Collection(collectionName)
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+
+	var records []bson.M
+
+	if err = cursor.All(ctx, &records); err != nil {
+		log.Fatal(err)
+	}
+
+	var dates [] int64
+	for _, record := range records {
+		//fmt.Println(record)
+		//fmt.Println(reflect.TypeOf(record[attribute]))
+		date := record["date"]
+		//fmt.Println(attribute_value)
+		//fmt.Println(reflect.TypeOf(attribute_value))
+		//attributes = append(attributes, fmt.Sprint(attribute_value))
+		dates = append(dates, date.(int64))
+	}
+
+	return dates
+}
+
+
+func returnPricesInCollection(collectionName string) []float64{
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+
+	Database := client.Database("test2")
+	collection := Database.Collection(collectionName)
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+
+	var records []bson.M
+
+	if err = cursor.All(ctx, &records); err != nil {
+		log.Fatal(err)
+	}
+
+	var prices []float64
+	for _, record := range records {
+		//fmt.Println(record)
+		//fmt.Println(reflect.TypeOf(record[attribute]))
+		price := record["prices"]
+		//fmt.Println(attribute_value)
+		//fmt.Println(reflect.TypeOf(attribute_value))
+		//attributes = append(attributes, fmt.Sprint(attribute_value))
+		prices = append(prices, price.(float64))
+	}
+
+	return prices
+}
+
 func returnAttributeInCollection(collectionName string, attribute string) []string {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
