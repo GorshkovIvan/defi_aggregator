@@ -104,6 +104,9 @@ func addHistoricalCurrencyData(date int64, price float32, CollectionOrTicker str
 		log.Fatal(err)
 	}
 
+	fmt.Print("Collection Filtered: ")
+	fmt.Println(collectionFiltered)
+
 	if collectionFiltered == nil {
 		return "data already there"
 	}
