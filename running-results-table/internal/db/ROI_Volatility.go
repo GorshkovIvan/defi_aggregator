@@ -3,14 +3,15 @@ package db
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"math"
 	"sort"
 	"strconv"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func IsNumeric(s string) bool {
@@ -46,14 +47,12 @@ func calculate_price_return_x_days(hist_date_px_series HistoricalCurrencyData, d
 func appendDataForTokensFromDatabase(Histrecord HistoricalCurrencyData) {
 
 	// append non-overlapping dates
-	for i:=0; i < len(Histrecord.Date);i++ {
+	for i := 0; i < len(Histrecord.Date); i++ {
 		// if date not already in collec
-		id:= addHistoricalCurrencyData(Histrecord.Date[i], Histrecord.Price[i], Histrecord.Ticker)
+		id := addHistoricalCurrencyData(Histrecord.Date[i], Histrecord.Price[i], Histrecord.Ticker)
 		fmt.Println(id)
 	}
 }
-
-
 
 // Database versions
 func retrieveDataForTokensFromDatabase2(token0 string, token1 string) HistoricalCurrencyData {
@@ -76,13 +75,13 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 
 	fmt.Println("Checkpoint 1")
 
-	if token0dataishere{
+	if token0dataishere {
 		token0datesarray = returnDatesInCollection(token0)
 
 		token0pricesarray = returnPricesInCollection(token0)
 	}
 
-	if token1dataishere{
+	if token1dataishere {
 		token1datesarray = returnDatesInCollection(token0)
 		token1pricesarray = returnPricesInCollection(token0)
 	}
@@ -120,7 +119,7 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 		histcombo.Date = append(histcombo.Date, token0datesarray[i])
 
 		var price float64
-		if token1pricesarray[i]> 0 {
+		if token1pricesarray[i] > 0 {
 			price = token0pricesarray[i] / token1pricesarray[i]
 		} else {
 			price = 0.0
@@ -314,8 +313,6 @@ func calculateROI_raw_est(interestrate float32, pool_reward_pct float32, future_
 	return float32(ROI)
 }
 
-
-
 // Database version
 func isHistDataAlreadyDownloadedDatabase(token string) bool {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
@@ -331,7 +328,7 @@ func isHistDataAlreadyDownloadedDatabase(token string) bool {
 
 	Database := client.Database("test2")
 
-	array, err:= Database.ListCollectionNames(ctx, bson.M{})
+	array, err := Database.ListCollectionNames(ctx, bson.M{})
 	if err != nil {
 		log.Fatal(err)
 	}

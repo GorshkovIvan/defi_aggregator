@@ -3,10 +3,11 @@ package db
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"strconv"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -210,8 +211,7 @@ func dropEntireCollection(collectionName string) {
 	}
 }
 
-
-func returnDatesInCollection(collectionName string) [] int64 {
+func returnDatesInCollection(collectionName string) []int64 {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
@@ -223,7 +223,6 @@ func returnDatesInCollection(collectionName string) [] int64 {
 	}
 	defer client.Disconnect(ctx)
 
-
 	Database := client.Database("test2")
 	collection := Database.Collection(collectionName)
 
@@ -232,14 +231,13 @@ func returnDatesInCollection(collectionName string) [] int64 {
 		log.Fatal(err)
 	}
 
-
 	var records []bson.M
 
 	if err = cursor.All(ctx, &records); err != nil {
 		log.Fatal(err)
 	}
 
-	var dates [] int64
+	var dates []int64
 	for _, record := range records {
 		//fmt.Println(record)
 		//fmt.Println(reflect.TypeOf(record["Date"]))
@@ -253,8 +251,7 @@ func returnDatesInCollection(collectionName string) [] int64 {
 	return dates
 }
 
-
-func returnPricesInCollection(collectionName string) []float64{
+func returnPricesInCollection(collectionName string) []float64 {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
@@ -266,7 +263,6 @@ func returnPricesInCollection(collectionName string) []float64{
 	}
 	defer client.Disconnect(ctx)
 
-
 	Database := client.Database("test2")
 	collection := Database.Collection(collectionName)
 
@@ -274,7 +270,6 @@ func returnPricesInCollection(collectionName string) []float64{
 	if err != nil {
 		log.Fatal(err)
 	}
-
 
 	var records []bson.M
 
@@ -286,7 +281,7 @@ func returnPricesInCollection(collectionName string) []float64{
 	for _, record := range records {
 		//fmt.Println(record)
 		//fmt.Println(reflect.TypeOf(record[attribute]))
-		price := record["Prices"]
+		price := record["Price"]
 		//fmt.Println(attribute_value)
 		//fmt.Println(reflect.TypeOf(attribute_value))
 		//attributes = append(attributes, fmt.Sprint(attribute_value))
