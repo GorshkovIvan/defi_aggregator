@@ -93,7 +93,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 				for j := 0; j < len(tokenqueue); j++ {
 					// Check if database already has historical data
-					if !isHistDataAlreadyDownloaded(convBalancerToken(tokenqueue[j]), database) {
+					if !isHistDataAlreadyDownloadedDatabase(convBalancerToken(tokenqueue[j])) {
+						//					if !isHistDataAlreadyDownloaded(convBalancerToken(tokenqueue[j]), database) {
 						// Get Uniswap Ids of these tokens
 						uniswapreqdata.reqUniswapIDFromTokenTicker.Var("ticker", convBalancerToken(tokenqueue[j]))
 						if err := uniswapreqdata.clientUniswap.Run(ctx, uniswapreqdata.reqUniswapIDFromTokenTicker, &respUniswapTicker); err != nil {
@@ -116,7 +117,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 							// if returned data - append it to database
 							if len(respUniswapHist.DailyTimeSeries) > 0 {
 								// Append to database
-								database.historicalcurrencydata = append(database.historicalcurrencydata, NewHistoricalCurrencyDataFromRaw(tokenqueue[j], respUniswapHist.DailyTimeSeries))
+								appendDataForTokensFromDatabase(NewHistoricalCurrencyDataFromRaw(tokenqueue[j], respUniswapHist.DailyTimeSeries))
+								//								database.historicalcurrencydata = append(database.historicalcurrencydata, NewHistoricalCurrencyDataFromRaw(tokenqueue[j], respUniswapHist.DailyTimeSeries))
 							}
 						} // if managed to find some IDs for this TOKEN
 					} // if historical data needs updating
@@ -134,7 +136,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				currentInterestrate := float32(0.00)                                         // Zero for liquidity pool
 				BalancerRewardPercentage := float32(0.003)                                   // TO DO
 
-				volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
+				volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(token0symbol, token1symbol), 30)
+				//			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
 				ROI_raw_est := calculateROI_raw_est(currentInterestrate, BalancerRewardPercentage, float32(currentVolume), volatility, 0.0)
 
 				var recordalreadyexists bool

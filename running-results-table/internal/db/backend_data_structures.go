@@ -98,10 +98,12 @@ func addHistoricalCurrencyData(date int64, price float32, CollectionOrTicker str
 	// check if date exists in that collection - if yes return "already exists"
 	cursor, err := historicaldata.Find(ctx, bson.M{"Date": date})
 	if err != nil {
+		log.Fatal(err)
 	}
 
 	var collectionFiltered []bson.M
-	if err = cursor.All(ctx, &collectionFiltered); err != nil {
+	err = cursor.All(ctx, &collectionFiltered)
+	if err != nil {
 		log.Fatal(err)
 	}
 

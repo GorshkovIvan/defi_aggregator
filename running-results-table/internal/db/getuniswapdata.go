@@ -249,7 +249,8 @@ query{
 
 			for j := 0; j < len(tokenqueueIDs); j++ {
 				// Check if database already has historical data
-				if !isHistDataAlreadyDownloaded(tokenqueue[j], database) {
+				if !isHistDataAlreadyDownloadedDatabase(tokenqueue[j]) {
+					//				if !isHistDataAlreadyDownloaded(tokenqueue[j], database) {
 					// No need to get uniswap ids of these tokens
 					// Download historical data for each token for which data is missing
 					// request data from uniswap using this queried ticker
@@ -268,7 +269,7 @@ query{
 					// if returned data - append it to database
 					if len(respUniswapHist.DailyTimeSeries) > 0 {
 						Histrecord = NewHistoricalCurrencyDataFromRaw(tokenqueue[j], respUniswapHist.DailyTimeSeries)
-						database.historicalcurrencydata = append(database.historicalcurrencydata, Histrecord)
+						//database.historicalcurrencydata = append(database.historicalcurrencydata, Histrecord)
 						fmt.Println("-------ABOUT TO RUN NEW APPEND FUNCTION")
 						appendDataForTokensFromDatabase(Histrecord)
 						fmt.Println("-------RAN NEW APPEND FUNCTION")
@@ -357,11 +358,11 @@ query{
 			historical_pool_sz_avg, historical_pool_daily_volume_avg := future_pool_sz_est, future_daily_volume_est
 
 			fmt.Println("-----------ABOUT TO RUN NEW DATABASE RETRIEVAL FUNC---------------------------")
-			xxx := retrieveDataForTokensFromDatabase2(token0symbol, token1symbol)
-			fmt.Println(xxx)
+			//			xxx := retrieveDataForTokensFromDatabase2(token0symbol, token1symbol)
+			//			fmt.Println(xxx)
+			//			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
+			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(token0symbol, token1symbol), 30)
 			fmt.Println("-----------RAN NEW DATABASE RETRIEVAL FUNC---------------------------")
-
-			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
 
 			fmt.Print("volatility hist for: ")
 			fmt.Print(token0symbol)
@@ -403,6 +404,8 @@ query{
 
 			// APPEND IF NEW
 			if !recordalreadyexists {
+				//				appendDataForTokensFromDatabase(CurrencyInputData{token0symbol + "/" + token1symbol, float32(future_pool_sz_est),
+				//					float32(future_daily_volume_est), currentInterestrate, "Uniswap", volatility, ROI_raw_est, ROI_vol_adj_est, ROI_hist})
 				database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(future_pool_sz_est),
 					float32(future_daily_volume_est), currentInterestrate, "Uniswap", volatility, ROI_raw_est, ROI_vol_adj_est, ROI_hist})
 				//				database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize), float32(currentVolume), currentInterestrate, "Uniswap", volatility, ROI})

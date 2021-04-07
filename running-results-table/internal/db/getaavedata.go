@@ -70,7 +70,8 @@ func getAaveCurrentData(database *Database) (string, float32, float32, float32, 
 	//volatility := float32(420)
 	fmt.Print("AAVE symbol: ")
 	fmt.Println(respAave.Reserve.Symbol)
-	volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(convBalancerToken(respAave.Reserve.Symbol), "DAI", database), 30)
+	volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(convBalancerToken(respAave.Reserve.Symbol), "DAI"), 30)
+	//	volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(convBalancerToken(respAave.Reserve.Symbol), "DAI", database), 30)
 
 	return respAave.Reserve.Symbol, size, volume, interest, volatility
 }
@@ -144,7 +145,8 @@ func getAaveData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 				//for j := 0; j < len(tokenqueue); j++ {
 				// Check if database already has historical data
-				if !isHistDataAlreadyDownloaded(token0symbol, database) { // tokenqueue[j]
+				if !isHistDataAlreadyDownloadedDatabase(token0symbol) { // tokenqueue[j]
+					//				if !isHistDataAlreadyDownloaded(token0symbol, database) { // tokenqueue[j]
 
 					uniswapreqdata.reqUniswapIDFromTokenTicker.Var("ticker", token0symbol) // tokenqueue[j]
 
@@ -168,7 +170,8 @@ func getAaveData(database *Database, uniswapreqdata UniswapInputStruct) {
 						// if returned data - append it to database
 						if len(respUniswapHist.DailyTimeSeries) > 0 {
 							// Append to database
-							database.historicalcurrencydata = append(database.historicalcurrencydata, NewHistoricalCurrencyDataFromRaw(token0symbol, respUniswapHist.DailyTimeSeries)) // tokenqueue[j]
+							appendDataForTokensFromDatabase(NewHistoricalCurrencyDataFromRaw(token0symbol, respUniswapHist.DailyTimeSeries))
+							//							database.historicalcurrencydata = append(database.historicalcurrencydata, NewHistoricalCurrencyDataFromRaw(token0symbol, respUniswapHist.DailyTimeSeries)) // tokenqueue[j]
 						}
 					}
 

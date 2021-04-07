@@ -347,22 +347,25 @@ func isHistDataAlreadyDownloadedDatabase(token string) bool {
 	return false
 }
 
+/*
 func isHistDataAlreadyDownloaded(token string, database *Database) bool {
 
 	for i := 0; i < len(database.historicalcurrencydata); i++ {
 		if database.historicalcurrencydata[i].Ticker == token {
 			// also add date check LATER : if latest date is within 24 hours of NOW database.historicalcurrencydata[i].
-			/*
-				fmt.Print("Checking if data already downloaded for: ")
-				fmt.Print(token)
-				fmt.Print("..Data found!!")
-			*/
+
+			//	fmt.Print("Checking if data already downloaded for: ")
+			//	fmt.Print(token)
+			//	fmt.Print("..Data found!!")
+
 			return true
 		}
 	}
 	return false
 }
+*/
 
+/*
 func retrieveDataForTokensFromDatabase(token0 string, token1 string, database *Database) HistoricalCurrencyData {
 	fmt.Print("RETRIEVING DATA FOR PAIR - Tokens: ")
 	fmt.Println(token0 + "/" + token1 + " : ")
@@ -481,6 +484,7 @@ func retrieveDataForTokensFromDatabase(token0 string, token1 string, database *D
 
 	return histcombo
 }
+*/
 
 // For looking up Uniswap IDs of tokens
 func setUniswapQueryIDForToken(token string, ID string) string {
