@@ -16,7 +16,7 @@ func main() {
 	//var id = addOwnPortfolioRecord("DAI", 69)
 	//returnEntryById("Own Portfolio Record", id)
 	//fmt.Println(returnAttributeInCollection("Historical Currency Data", "Price"))
-	returnEntryById("Historical Currency Data","6065bf8f6c946d7006428b8d")
+	returnEntryById("Historical Currency Data","6065bf8f6c976d7006428b8d")
 	//removeRecordById("Own Portfolio Record", "6065b79b738be8435f30b458")
 	//dropEntireCollection("Own Portfolio Record")
 	/*
@@ -248,7 +248,7 @@ func returnEntryById(collectionName string, id string) {
 		log.Fatal(err)
 	}
 
-	if collectionFiltered == nil {
+	if len(collectionFiltered) == 0 {
 		fmt.Println("already there")
 	}
 
