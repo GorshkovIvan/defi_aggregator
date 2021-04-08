@@ -1,8 +1,14 @@
 package db
 
-import "fmt"
+import (
+	"fmt"
+	"gonum.org/v1/gonum/mat"
+	//	"math"
+)
 
 func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
+	fmt.Println("----ENTERING PORTFOLIO OPTIMISATION----------")
+
 	var listOfAvailablePairsWithoutConversion []string // clean starting portfolio for duplicates
 	// var listOfAvailablePairswithConversion []string
 
@@ -18,12 +24,42 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 		} // add
 	}
 
-	// Now create all possible PAIRS from this list of UNIQUE tokens - PERMUTE
-	// Use token1 as both USD and other tokens - i.e. 2nd token in LENDING POOLS is always USD
-	// Query database for best ROI on items from this list
+	// NEW ALGO
+	ret := mat.NewVecDense(4, []float64{0.1, 0.2, 0.3, 0.4}) // vector of returns
+	fmt.Print("ret: ")
+	fmt.Println(ret)
 
-	// Pack recommended pools into a the optimisedportfolio
+	vol := mat.NewVecDense(4, []float64{0.05, 0.15, 0.25, 03}) // vector of volatility
+	fmt.Print("vol: ")
+	fmt.Println(vol)
 
-	// For now just a placeholder for result
+	weights := mat.NewVecDense(4, []float64{0.25, 0.25, 0.2}) // vector of portfolio weights
+	fmt.Print("weights: ")
+	fmt.Println(weights)
+
+	cov := mat.NewDense(4, 4, nil)
+	fmt.Print("cov: ")
+	fmt.Println(cov)
+
+	// cov = CovarianceMatrix(dst *mat.SymDns mat.Matrix,weights) // (vol) // covariance matrix of returns?
+	var blended_return mat.Dense
+	blended_return.Mul(ret.T(), weights)
+	fmt.Print("blended return: ")
+	fmt.Println(blended_return)
+	/*
+		portfolio_volatility := mat.Dot(weights.T(), mat.Dot(cov, weights))
+		fmt.Print("portfolio_volatility: ")
+		fmt.Println(portfolio_volatility)
+
+		portfolio_volatility_r := new(mat.Dense)
+		portfolio_volatility_r.Apply(func(i, j int, v float64) float64 { return math.Sqrt(v) }, portfolio_volatility)
+
+		fmt.Print("portfolio_volatility_r: ")
+		fmt.Println(portfolio_volatility_r)
+	*/
+	lambda := 0.0 // weighting parameter - https://jump.dev/Convex.jl/stable/examples/portfolio_optimization/portfolio_optimization2/
+	fmt.Print("lambda: ")
+	fmt.Println(lambda)
+
 	return NewOptimisedPortfolio(database)
 }
