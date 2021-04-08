@@ -40,6 +40,8 @@ func estimate_impermanent_loss_hist(standard_deviation float32, current_exchange
 
 func calculate_price_return_x_days(hist_date_px_series HistoricalCurrencyData, days int) float32 {
 
+	/// XX - add
+
 	return 0.0
 }
 
@@ -73,22 +75,31 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 	var token1datesarray []int64
 	var token1pricesarray []float64
 
-	fmt.Println("Checkpoint 1")
+	//	fmt.Println("Checkpoint 1")
 
 	if token0dataishere {
 		token0datesarray = returnDatesInCollection(token0)
-
 		token0pricesarray = returnPricesInCollection(token0)
 	}
 
 	if token1dataishere {
-		token1datesarray = returnDatesInCollection(token0)
-		token1pricesarray = returnPricesInCollection(token0)
+		token1datesarray = returnDatesInCollection(token1)
+		token1pricesarray = returnPricesInCollection(token1)
 	}
 
-	fmt.Println("Checkpoint 2")
+	ago0 := time.Since(time.Unix(MaxIntSlice(token0datesarray), 0))
+	ago1 := time.Since(time.Unix(MaxIntSlice(token1datesarray), 0))
 
-	// parse the string data
+	if ago0.Hours() < 24 {
+		fmt.Print("Data 0 is recent - no need to update! ")
+		fmt.Println(ago0.Hours())
+	}
+
+	if ago1.Hours() < 24 {
+		fmt.Println("Data 1 is recent - no need to update! ")
+		fmt.Println(ago1.Hours())
+	}
+
 	var histcombo HistoricalCurrencyData
 	histcombo.Ticker = token0 + "/" + token1
 
@@ -98,42 +109,45 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 
 	fmt.Print("length of lookback = ")
 	fmt.Println(lengthoflookbackhist)
-
-	fmt.Println("Checkpoint 3")
+	//	fmt.Println("Checkpoint 3")
 
 	for i := lengthoflookbackhist - 1; i >= 0; i-- {
 		fmt.Print("i: ")
+		fmt.Print(i)
+		fmt.Print(" | t0: ")
 		fmt.Print(token0datesarray[i])
-		fmt.Print("parsed time: ")
-		fmt.Print(token1datesarray[i]) // tm
 		fmt.Print(" | px0: ")
 		fmt.Print(token0pricesarray[i])
+		fmt.Print(" | t1: ")
+		fmt.Print(token1datesarray[i])
 		fmt.Print(" | px1: ")
 		fmt.Print(token1pricesarray[i])
 
 		// Synchronise indices i and j in token1
 		if token0datesarray[i] == token1datesarray[i] {
-			// Move here
-			fmt.Println("dates match")
-		}
-		histcombo.Date = append(histcombo.Date, token0datesarray[i])
+			fmt.Println(" ..dates match")
+			histcombo.Date = append(histcombo.Date, token0datesarray[i])
 
-		var price float64
-		if token1pricesarray[i] > 0 {
-			price = token0pricesarray[i] / token1pricesarray[i]
+			var price float64
+			if token1pricesarray[i] > 0 {
+				price = token0pricesarray[i] / token1pricesarray[i]
+			} else {
+				price = 0.0
+			}
+			if math.IsInf(float64(price), 0) {
+				price = 0.0
+				fmt.Println("WARNING 987: Inf in calculating token combo price")
+			}
+			if math.IsNaN(float64(price)) {
+				price = 0.0
+				fmt.Println("WARNING 987: Nan in calculating token combo price")
+			}
+
+			histcombo.Price = append(histcombo.Price, float32(price))
 		} else {
-			price = 0.0
-		}
-		if math.IsInf(float64(price), 0) {
-			price = 0.0
-			fmt.Println("WARNING 987: Inf in calculating token combo price")
-		}
-		if math.IsNaN(float64(price)) {
-			price = 0.0
-			fmt.Println("WARNING 987: Nan in calculating token combo price")
+			fmt.Print(" | Error: dates do not match!!!")
 		}
 
-		histcombo.Price = append(histcombo.Price, float32(price))
 	}
 
 	fmt.Print("SIZE of returned combo for ticker: ")
@@ -161,9 +175,7 @@ func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 	vol = 0.05
 
 	if len(H.Price) == 0 {
-		fmt.Print("Error: no historical data found for ticker: ")
-		//fmt.Print(H.Ticker)
-		//fmt.Print(" ..returning -1 for volatility..")
+		fmt.Print("Error: no historical data found..returning -1: ")
 		return -1
 	}
 
@@ -313,6 +325,18 @@ func calculateROI_raw_est(interestrate float32, pool_reward_pct float32, future_
 	return float32(ROI)
 }
 
+func MaxIntSlice(v []int64) (m int64) {
+	if len(v) > 0 {
+		m = v[0]
+	}
+	for i := 1; i < len(v); i++ {
+		if v[i] > m {
+			m = v[i]
+		}
+	}
+	return
+}
+
 // Database version
 func isHistDataAlreadyDownloadedDatabase(token string) bool {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
@@ -344,6 +368,7 @@ func isHistDataAlreadyDownloadedDatabase(token string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
