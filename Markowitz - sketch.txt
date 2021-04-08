@@ -1,0 +1,30 @@
+	ret := mat.NewVecDense(4, []float64{0.1,0.2,0.3,0.4}) 	// vector of returns
+/*
+///	vol := mat.NewVecDense(4, []float64{0.05,0.15,0.25,03})		// vector of volatility
+/	/// weights := mat.NewVecDense(4, []float64{0.25,0.25,0.2})		// vector of portfolio weights
+
+//cov := mat.NewDense(4, 4, nil)
+	cov = CovarianceMatrix(dst *mat.SymDns mat.Matrix,weights) // (vol) // covariance matrix of returns?
+
+	blended_return = mat.Dot(ret, weights)
+
+	portfolio_volatility = mat.Dot(weight.T(), mat.Dot(cov, weights))
+	portfolio_volatility_r := new(mat.Dense)
+    portfolio_volatility_r.Apply(func(i, j int, v float64) float64 { return math.Sqrt(v) }, portfolio_volatility)
+
+	lambda := 0.0 // weighting parameter - https://jump.dev/Convex.jl/stable/examples/portfolio_optimization/portfolio_optimization2/
+	minfunc := lambda * portfolio_volatility_r - (1-lambda)* blended_return // func to feed to optimiser
+
+	// constraints: 
+	sum(weights) = 1
+	weights[i] >=  0
+	weights[i] <=  1
+
+	optimised_weights := optimize.Minimize(minfunc,constraints)
+*/
+
+	// Now create all possible PAIRS from this list of UNIQUE tokens - PERMUTE
+	// Use token1 as both USD and other tokens - i.e. 2nd token in LENDING POOLS is always USD
+	// Query database for best ROI on items from this list
+
+	// Pack recommended pools into a the optimisedportfolio
