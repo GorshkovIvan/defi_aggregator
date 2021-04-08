@@ -25,15 +25,15 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 	}
 
 	// NEW ALGO
-	ret := mat.NewVecDense(4, []float64{0.1, 0.2, 0.3, 0.4}) // vector of returns
+	ret := mat.NewDense(4, 1, []float64{0.1, 0.2, 0.3, 0.4}) // vector of returns
 	fmt.Print("ret: ")
 	fmt.Println(ret)
 
-	vol := mat.NewVecDense(4, []float64{0.05, 0.15, 0.25, 03}) // vector of volatility
+	vol := mat.NewDense(4, 1, []float64{0.05, 0.15, 0.25, 03}) // vector of volatility
 	fmt.Print("vol: ")
 	fmt.Println(vol)
 
-	weights := mat.NewVecDense(4, []float64{0.25, 0.25, 0.2}) // vector of portfolio weights
+	weights := mat.NewDense(4, 1, []float64{0.25, 0.25, 0.2}) // vector of portfolio weights
 	fmt.Print("weights: ")
 	fmt.Println(weights)
 
@@ -43,7 +43,7 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 
 	// cov = CovarianceMatrix(dst *mat.SymDns mat.Matrix,weights) // (vol) // covariance matrix of returns?
 	var blended_return mat.Dense
-	blended_return.Mul(ret.T(), weights)
+	blended_return.Mul(ret, weights)
 	fmt.Print("blended return: ")
 	fmt.Println(blended_return)
 	/*
@@ -61,5 +61,9 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 	fmt.Print("lambda: ")
 	fmt.Println(lambda)
 
+	// Now create all possible PAIRS from this list of UNIQUE tokens - PERMUTE
+	// Use token1 as both USD and other tokens - i.e. 2nd token in LENDING POOLS is always USD
+	// Query database for best ROI on items from this list
+	// Pack recommended pools into a the optimisedportfolio
 	return NewOptimisedPortfolio(database)
 }

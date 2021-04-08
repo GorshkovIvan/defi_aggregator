@@ -28,3 +28,18 @@
 	// Query database for best ROI on items from this list
 
 	// Pack recommended pools into a the optimisedportfolio
+	
+	
+LINKS:
+https://github.com/chaitjo/markowitz-portfolio-optimization/blob/master/markowitz.py
+https://docs.mosek.com/9.2/cxxfusion/case-studies-portfolio.html
+https://github.com/bormanjo/efficient-frontier/blob/master/Code/src/EfficientFrontier.cpp
+https://plotly.com/python/v3/ipython-notebooks/markowitz-portfolio-optimization/
+https://sbinet.github.io/posts/2017-10-10-lep-data-minimization/
+https://sbinet.github.io/posts/2017-10-09-intro-to-minimization/
+https://github.com/emef/go.ml
+https://medium.com/python-data/effient-frontier-in-python-34b0c3043314
+https://jump.dev/Convex.jl/stable/examples/portfolio_optimization/portfolio_optimization2/
+https://medium.com/python-data/efficient-frontier-portfolio-optimization-with-python-part-2-2-2fe23413ad94
+https://medium.com/wireless-registry-engineering/gonum-tutorial-linear-algebra-in-go-21ef136fc2d7
+https://medium.com/wireless-registry-engineering/gonum-tutorial-linear-algebra-in-go-21ef136fc2d7
