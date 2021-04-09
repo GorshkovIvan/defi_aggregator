@@ -2,19 +2,13 @@ package db
 
 import (
 	"fmt"
-	"gonum.org/v1/gonum/mat"
-	"gonum.org/v1/gonum/stat"
-	"gonum.org/v1/gonum/optimize"
+	"log"
 	"math"
-)
 
-func makeRange(min, max int) []int {
-	a := make([]int, max-min+1)
-	for i := range a {
-		a[i] = min + i
-	}
-	return a
-}
+	"gonum.org/v1/gonum/mat"
+	"gonum.org/v1/gonum/optimize"
+	"gonum.org/v1/gonum/stat"
+)
 
 func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 	fmt.Println("----ENTERING PORTFOLIO OPTIMISATION----------")
@@ -83,62 +77,62 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 	fmt.Println("blended return: ")
 	fmt.Println(blended_return)
 
+	// x = cov . weights
 	x := mat.NewVecDense(4, nil)
 	x.MulVec(cov, weights)
 	fmt.Print("Convolution step 1: ")
 	fmt.Print(x)
 
-	portfolio_volatility := 0.0 
-	fmt.Print("portfolio_volatility 1: ")
-	fmt.Println(portfolio_volatility)
+	risk := 0.0 
+	fmt.Print("risk 1: ")
+	fmt.Println(risk)
 
-	portfolio_volatility = math.Sqrt(mat.Dot(weights, x))
+	risk = math.Sqrt(mat.Dot(weights, x))
+	fmt.Print("risk 2: ")
+	fmt.Println(risk)
 
-	fmt.Print("portfolio_volatility 2: ")
-	fmt.Println(portfolio_volatility)
-	
-	var lambda_vals [99]float32
-		lambda_vals[0] = 0.01
-	
-		for i := 1; i < 100;i++ {
-			lambda_vals[i] = lambda_vals[i-1] + 0.01 
+	var lambda_vals [100]float32
+	lambda_vals[0] = 0.01
+
+	for i := 1; i < 100; i++ {
+		lambda_vals[i] = lambda_vals[i-1] + 0.01
+	}
+
+	//MeanVarA := mat.NewDense(101, 2, nil)
+
+	// why are we running 100 iterations?
+	// this is as per the example; can always change later
+	for i := 0; i < 100; i++ {
+
+		fcn := func(x []float64) float64 {
+			return float64(lambda_vals[i])*risk - (1-float64(lambda_vals[i]))*blended_return
 		}
 
-		MeanVarB := mat.NewDense(101, 2, nil)
-	
-		w_lower := 0
-		w_upper := 1
+		p := optimize.Problem{
+			Func: fcn,
+		}
 		
-		// why are we running 100 iterations?
-		for i := 1; i < 101; i++ { 
-			//lambda := lambda_vals[i]
-			fcn := func(x []float64) float64 {
-				return float64(lambda_vals[i])*portfolio_volatility + (1-float64(lambda_vals[i]))*blended_return
-			}
+		//var meth = &optimize.Newton{} // meth - does this do anything?
+		var p0 = []float64{0.3, 0.1, 0.22, 0.23} // initial value for mu
+		//	weights := mat.NewVecDense(4, []float64{0.25, 0.25, 0.25, 0.25}) // vector of portfolio weights
 
-			p := optimize.Problem{
-				Func: fcn,
-			}
-
-			//var c mat.Dense
-			//c.Mul(weights.T(), sigma)
-			//c.Mul(sigma, weights)
-
-			//var meth = &optimize.Newton{} // meth - does this do anything?
-			var p0 = []float64{1} // initial value for mu
-			//	weights := mat.NewVecDense(4, []float64{0.25, 0.25, 0.25, 0.25}) // vector of portfolio weights
-
-			result, err := optimize.Minimize(p, p0, nil, nil)
-			if err != nil {
-				log.Fatal(err)
-			}
-			if err = result.Status.Err(); err != nil {
-				log.Fatal(err)
-			}
-
-			//MeanVarB[i,:]= [evaluate(ret),evaluate(risk)] - need to change from python?
+		result, err := optimize.Minimize(p, p0, nil, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err = result.Status.Err(); err != nil {
+			log.Fatal(err)
 		}
 
+		fmt.Print("result:")
+		fmt.Println(result)
+
+		fmt.Print("p0:")
+		fmt.Println(p0)
+
+		fmt.Print("lambda:")
+		fmt.Println(lambda_vals[i])
+	}
 
 	return NewOptimisedPortfolio(database)
 }
