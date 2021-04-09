@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
-
-	//"github.com/cpmech/gosl/num"
+	"strings"
 
 	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/gonum/optimize"
@@ -20,117 +19,153 @@ func sum(array []float64) float64 {
 	return result
 }
 
+
 func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 	fmt.Println("----ENTERING PORTFOLIO OPTIMISATION----------")
 
-	var listOfAvailablePairsWithoutConversion []string // clean starting portfolio for duplicates
+	var startingTokenTickers []string 
+	var startingTokenAmounts []float32
 	// var listOfAvailablePairswithConversion []string
 
-	// Pack risk tolerance somewhere here
 	if database.Risksetting == 0 {
-		fmt.Println("Risk setting set to zero!")
+		fmt.Println("WARNING: Risk setting set to zero!")
 	}
+	
+	// Get some data for testing locally
+	/*
+	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{"WETH" + "/" + "DAI", float32(99),
+					float32(98), 0.05, "Uniswap", 0.15, 0.16, 0.17, 0.18})
+	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{"WETH", float32(199),
+					float32(198), 0.15, "Aave", 0.05, 0.06, 0.07, 0.08})
+	database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{"USDC", float32(199),
+					float32(198), 0.15, "Balancer", 0.05, 0.06, 0.07, 0.08})
+	*/
 
-	// Remove non unique items
+	database.ownstartingportfolio = append(database.ownstartingportfolio,OwnPortfolioRecord{"WETH",420.0})
+	database.ownstartingportfolio = append(database.ownstartingportfolio,OwnPortfolioRecord{"DAI",69.0})
+		database.ownstartingportfolio = append(database.ownstartingportfolio,OwnPortfolioRecord{"USD",69.0})
+
+	// 0 - Clean starting portfolio for duplicates
 	for i := 0; i < len(database.ownstartingportfolio); i++ {
-		if !stringInSlice(database.ownstartingportfolio[i].Token, listOfAvailablePairsWithoutConversion) {
-			listOfAvailablePairsWithoutConversion = append(listOfAvailablePairsWithoutConversion, database.ownstartingportfolio[i].Token)
-		} // add
+		if !stringInSlice(database.ownstartingportfolio[i].Token, startingTokenTickers) {
+			startingTokenTickers = append(startingTokenTickers, database.ownstartingportfolio[i].Token)
+		}
+	}
+	
+	for i := 0; i < len(startingTokenTickers); i++ {
+		for j:=0; j < len(database.ownstartingportfolio); j++ {
+				if database.ownstartingportfolio[j].Token == startingTokenTickers[i]{
+					startingTokenAmounts = append(startingTokenAmounts, database.ownstartingportfolio[j].Amount)			
+				}
+			}
 	}
 
-	// Now create all possible PAIRS from this list of UNIQUE tokens - PERMUTE
-	// Use token1 as both USD and other tokens - i.e. 2nd token in LENDING POOLS is always USD
-	// Query database for best ROI on items from this list
-	// Pack recommended pools into a the optimisedportfolio
+		fmt.Println("TRYING TO OPTIMISE PORTFOLIO: ")
+		fmt.Print("risk: ")
+		fmt.Println(database.Risksetting)
+		
+		for i := 0; i < len(startingTokenTickers); i++ {
+			fmt.Print(startingTokenTickers[i])
+			fmt.Print(" | ")
+			fmt.Println(startingTokenAmounts[i])
+		}
+				
+		fmt.Println("AVAILABLE POOLS TO DEPLOY INTO: ")
+		for i := 0; i < len(database.currencyinputdata); i++ {		
+			fmt.Print(database.currencyinputdata[i].Pool)
+			fmt.Print(" | ")
+			fmt.Print(database.currencyinputdata[i].Pair)
+			fmt.Print(" | ")
+			fmt.Print(database.currencyinputdata[i].ROI_raw_est)
+			
+			// for each pair - if pair is made up of portfolio tokens - add to available pool list
+			s := strings.Split(database.currencyinputdata[i].Pair, "/")
+			fmt.Print(" | Extracted tokens: ")
+			fmt.Print(s[0])
+			fmt.Print("   |   ")
+			if len(s) > 1 {
+				fmt.Print(s[1])
+			}
+			
+			fmt.Print(" Available given portfolio?: ")
+			if len(s) == 2 {
+				fmt.Println(stringInSlice(s[0],startingTokenTickers) && stringInSlice(s[1],startingTokenTickers))
+			} else {
+				fmt.Println(stringInSlice(s[0],startingTokenTickers))
+			}
+		}
+		
+		// Filter out pools for which available true
+		// ret raw = matrix(get prices of constituent tokens of filtered pools)
+		// +hist return + other return - swap costs
+		// figure out how to sum pools to 1	- 2 assets
+		// hist return is not just prices here - it is also other stuff
 
-	var lambda_vals [100]float32
-	lambda_vals[0] = 0.01
-
-	for i := 1; i < 100; i++ {
-		lambda_vals[i] = lambda_vals[i-1] + 0.01
-	}
-
-	// why are we running 100 iterations?
-	// this is as per the example; can always change later
-	for i := 0; i < 100; i++ {
-
+		// Define optimization function
 		fcn := func(x_weights []float64) float64 {
 			print := false
+			
+			number_of_tokens := 4 // cols (=intersection of pools + portfolio)
+			number_of_days := 4 // rows (=lowest number of days in historical data)
 
-			// NEW ALGO
-			/*
-				ret_mat := mat.NewDense(4, 4, []float64{
-					11.1, 14.2, 11.3, 11.4,
-					12.1, 12.2, 18.3, 13.4,
-					13.1, 11.2, 17.2, 12.4,
-					16.1, 11.2, 13.3, 11.4,
-				})
-			*/
-			/*
-				ret_mat := mat.NewDense(4, 4, []float64{
-					11.1, 14.2, 1.3, 111.4,
-					11.1, 42.2, 38.3, 113.4,
-					11.1, 561.2, 37.2, 412.4,
-					11.1, 21.2, 33.3, 111.4,
-				})*/
-
-			//2 assets with zero volatility
-			ret_mat := mat.NewDense(4, 4, []float64{
+			ret_mat := mat.NewDense(number_of_days, number_of_tokens, []float64{
 				11.1, 14.2, 31, 111.4,
 				11.2, 16, 38.3, 111.3,
 				11.3, 11, 37.2, 111.2,
 				11.15, 21.2, 33.3, 111.1,
 			})
-			/*
-				ret_mat := mat.NewDense(4, 4, []float64{
-					41.1, 44.2, 51.3, 41.4,
-					42.1, 42.2, 58.3, 53.4,
-					43.1, 41.2, 57.2, 72.4,
-					46.1, 41.2, 53.3, 61.4,
-				})*/
 
-			ret_mat_pct := mat.NewDense(4, 4, nil)
+			//fmt.Println("Checkpoint 1")
 
-			for jj := 0; jj < 4; jj++ {
-				for ii := 0; ii < 4; ii++ {
-					if ii > 0 {
-						ret_mat_pct.Set(ii, jj, ret_mat.At(ii, jj)/ret_mat.At(ii-1, jj)-1.0)
-					} else {
-						ret_mat_pct.Set(ii, jj, 0.0)
-					}
+			ret_mat_pct := mat.NewDense(number_of_days - 1, number_of_tokens, nil)
+
+				for ii := 0; ii < number_of_days - 1; ii++ { // row
+					for jj := 0; jj < number_of_tokens; jj++ { // col
+						ret_mat_pct.Set(ii, jj, ret_mat.At(ii+1, jj)/ret_mat.At(ii, jj)-1.0)
 				} // ii
 			} // jj
 
-			v0 := ret_mat.At(3, 0)/ret_mat.At(0, 0) - 1
-			v1 := ret_mat.At(3, 1)/ret_mat.At(0, 1) - 1
-			v2 := ret_mat.At(3, 2)/ret_mat.At(0, 2) - 1
-			v3 := ret_mat.At(3, 3)/ret_mat.At(0, 3) - 1
-			/*
+			//fmt.Println("Checkpoint 2")
+
+			var avg_returns []float64 
+
+			for jj := 0; jj < number_of_tokens; jj++ {
+				total := 0.0
+				for ii := 0; ii < number_of_days - 1; ii++ { 
+					total += ret_mat_pct.At(ii,jj)
+				}
+			avg_returns = append(avg_returns,252*total/float64((number_of_days - 1)))
+		}
+
+			//fmt.Println("Checkpoint 3")
+		
+		if print {
+				fmt.Print("RET %:")
+
+				fmt.Println(ret_mat_pct)
+			
 				fmt.Println("RETURNS: ")
-				fmt.Print(v0)
+				fmt.Print(avg_returns[0])
 				fmt.Print(" | ")
-				fmt.Print(v1)
+				fmt.Print(avg_returns[1])
 				fmt.Print(" | ")
-				fmt.Print(v2)
+				fmt.Print(avg_returns[2])
 				fmt.Print(" | ")
-				fmt.Println(v3)
-			*/
-			ret := mat.NewVecDense(4, []float64{v0, v1, v2, v3}) // vector of returns
+				fmt.Println(avg_returns[3])
+		}
+			
+			
+			ret := mat.NewVecDense(4, avg_returns) // vector of returns
 			if print {
-				fmt.Print("ret: ")
+				fmt.Print("RET: ")
 				fmt.Println(ret)
 			}
-			/*
-				vol := mat.NewVecDense(4, []float64{0.05, 0.15, 0.25, 03}) // vector of volatility
-				if print {
-					fmt.Print("vol: ")
-					fmt.Println(vol)
-				}
-			*/
-			/*
+			
+
+			if print {
 				fmt.Print("x_weights before normalisation: ")
 				fmt.Println(x_weights)
-			*/
+			}
 			for j := 0; j < len(x_weights); j++ {
 				if x_weights[j] < 0 {
 					x_weights[j] = 0
@@ -141,64 +176,64 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 			for j := 0; j < len(x_weights); j++ {
 				x_weights[j] = x_weights[j] / totl
 			}
-			/*
+			if print {
 				fmt.Print("x_weights after normalisation: ")
 				fmt.Println(x_weights)
-			*/
-			weights := mat.NewVecDense(4, x_weights) // vector of portfolio weights
-			//weights := mat.NewVecDense(4, []float64{0.25, 0.25, 0.25, 0.25}) // vector of portfolio weights
-			if print {
-				fmt.Print("weights: ")
-				fmt.Println(weights)
 			}
-			var cov *mat.SymDense = mat.NewSymDense(4, nil)
-			cov.Reset()
-			if print {
-				fmt.Println("ISEMPTY:")
-				fmt.Println(cov.IsEmpty())
-			}
+			weights := mat.NewVecDense(number_of_tokens, x_weights) // vector of portfolio weights
+			//weights := mat.NewVecDense(number_of_tokens, []float64{0.25, 0.25, 0.25, 0.25}) // vector of portfolio weights
 
+			var cov *mat.SymDense = mat.NewSymDense(number_of_tokens, nil)
+			cov.Reset()
+
+			stat.CovarianceMatrix(cov, ret_mat_pct, nil) 
 			if print {
-				fmt.Print("ret in matrix form:")
-				fmt.Println(ret_mat)
-				fmt.Println(ret_mat_pct)
-			}
-			stat.CovarianceMatrix(cov, ret_mat_pct.T(), nil) //TRANSPOSE KEEP OR DELETE - ?
-			if print {
-				fmt.Print("covariance matrix return: ")
+				fmt.Print("COV WITH T: ")
 				fmt.Println(cov)
 			}
+
+			var cov2 *mat.SymDense = mat.NewSymDense(number_of_tokens, nil)
+			//cov2.Reset()
+						
+			for ii := 0; ii < number_of_tokens; ii++ { // row
+					for jj := 0; jj < number_of_tokens; jj++ { // col
+						cov2.SetSym(ii, jj, cov.At(ii, jj)*252) // annualise them
+				} // ii
+			} // jj
+			
+			// fmt.Println("Checkpoint 3.5")
+			
 			blended_return := mat.Dot(ret, weights)
 			if print {
-				fmt.Println("blended return: ")
+				fmt.Println("BLENDED RETURN: ")
 				fmt.Println(blended_return)
 			}
+			
+			//fmt.Println("Checkpoint 4")
+			
 			risk_step0 := mat.NewVecDense(4, nil)
-			risk_step0.MulVec(cov, weights)
+			risk_step0.MulVec(cov2, weights)
 			if print {
-				fmt.Print("Convolution step 1: ")
+				fmt.Print("Portfolio var step 0: ")
 				fmt.Print(risk_step0)
+				fmt.Print(" | ")
 			}
 			risk := math.Sqrt(mat.Dot(weights, risk_step0))
 			if print {
-				fmt.Print("risk 2: ")
+				fmt.Print("PORTVOLIO VOLATILITY: ")
 				fmt.Println(risk)
 			}
 
-			return 1 * (float64(lambda_vals[i])*risk - (1-float64(lambda_vals[i]))*blended_return)
+			return -blended_return / risk
 		}
+
+		var p0 = []float64{0.25, 0.25, 0.25, 0.25} 
+		fmt.Println("TESTING WITH INITIAL 25% WEIGHTS: ")
+		fmt.Print(fcn(p0))
 
 		p := optimize.Problem{
 			Func: fcn,
 		}
-		/*
-			xa, xb := 0.0, 0.11
-			solver := num.NewBrent(p, nil)
-			xo := solver.Root(xa, xb)
-			fmt.Print("xo")
-			fmt.Println(xo)
-		*/
-		var p0 = []float64{0.25, 0.25, 0.25, 0.25} // initial value for mu
 
 		result, err := optimize.Minimize(p, p0, nil, nil)
 		if err != nil {
@@ -230,18 +265,8 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 		fmt.Print(result_norm.Location.X[2])
 		fmt.Print(" | ")
 		fmt.Println(result_norm.Location.X[3])
-
-		xxx := []float64{result_norm.Location.X[0], result_norm.Location.X[1], result_norm.Location.X[2], result_norm.Location.X[3]}
-
-		fmt.Println("Optimal return: ")
-		fmt.Println(fcn(xxx))
-
-		fmt.Print("p0:")
-		fmt.Println(p0)
-
-		fmt.Print("lambda:")
-		fmt.Println(lambda_vals[i])
-	}
+		
+		fmt.Println("OPTIMIZATION COMPLETE")
 
 	return NewOptimisedPortfolio(database)
 }

@@ -1,42 +1,20 @@
-DATABASE FUNCS
-Right now we have these:
-func isHistDataAlreadyDownloaded(token string, database *Database) bool {
-func retrieveDataForTokensFromDatabase(token0 string, token1 string, database *Database) HistoricalCurrencyData {
-func (database *Database) RankBestCurrencies() {
-database.historicalcurrencydata = append(database.historicalcurrencydata, Histrecord)
-len(database.historicalcurrencydata)
-
-Need to have the following:
-i.e. we need to get the database pointer out - and have the ability to retrieve and append structs from/to actual database
-func isHistDataAlreadyDownloaded(token string) bool - which will query the historical database and tell if data is present for the token - MODIFICATION OF EXISTING
-func retrieveDataForTokensFromDatabase(token0 string, token1 string) HistoricalCurrencyData - gets the pair price in form of a HistoricalCurrencyData struct - MODIFICATION OF EXISTING
-func appendDataForTokensFromDatabase(HistoricalCurrencyData) - appends a record (raw form is HistoricalCurrencyData) to the actual database - NEW
-func getLenPrices(string token) - gets number of non-empty price records in database for given token - NEW 
-func getLenDates(string token) - gets number of non-empty date records in database for given token - NEW
-func getLen() - gets number of tokens with historical records in database - NEW
-
-
 NEXT STEPS:
 Historical Trading volume data (ex Uniswap)		- need for accurate ROI
 Add check in data combination to ensure dates consistent across 2 datasets
 Why is VolumeUSD so different from actual daily pair volume?
 Why so many zeroes in historical volume
 
-
-Implement MongoDB historical interface functions
-Add pair-uniswap id mapping to database - instead of 1000 records
+OptimisePortfolio 			- finalize - Ratios + with Swaps
 Hist price return estimator func
-
 Get Reward Mechanism			- need to figure out what it is for pools other than Uniswap
 
 Add logo to front end - NFT!!
 Format numbers on front end
 Add popup boxes explaining what each window does
 Contact form
-OptimisePortfolio 			- need to implement algo. Step 1 - create token pair permutations
+
 Curve data pulling implementation 
 Get gas fees
-Version of OptimisePortfolio with swaps
 
 
 HOW TO COMPILE
@@ -74,6 +52,23 @@ Aave data pulling implementation	- check to confirm j loop in tokenqueue is 1 el
 Create risk var in database				- done 
 WETH Data not downloading correctly 	- done
 Why runs 3x?							- done
+Implement MongoDB historical interface functions
+Add pair-uniswap id mapping to database - instead of 1000 records
+
+func isHistDataAlreadyDownloaded(token string, database *Database) bool {
+func retrieveDataForTokensFromDatabase(token0 string, token1 string, database *Database) HistoricalCurrencyData {
+func (database *Database) RankBestCurrencies() {
+database.historicalcurrencydata = append(database.historicalcurrencydata, Histrecord)
+len(database.historicalcurrencydata)
+
+i.e. we need to get the database pointer out - and have the ability to retrieve and append structs from/to actual database
+func isHistDataAlreadyDownloaded(token string) bool - which will query the historical database and tell if data is present for the token - MODIFICATION OF EXISTING
+func retrieveDataForTokensFromDatabase(token0 string, token1 string) HistoricalCurrencyData - gets the pair price in form of a HistoricalCurrencyData struct - MODIFICATION OF EXISTING
+func appendDataForTokensFromDatabase(HistoricalCurrencyData) - appends a record (raw form is HistoricalCurrencyData) to the actual database - NEW
+func getLenPrices(string token) - gets number of non-empty price records in database for given token - NEW 
+func getLenDates(string token) - gets number of non-empty date records in database for given token - NEW
+func getLen() - gets number of tokens with historical records in database - NEW
+
 
 
 TO BUILD AND RUN
