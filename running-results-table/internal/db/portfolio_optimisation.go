@@ -76,10 +76,10 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 
 			//2 assets with zero volatility
 			ret_mat := mat.NewDense(4, 4, []float64{
-				11.1, 14.2, 1.3, 111.4,
-				11.1, 42.2, 38.3, 111.4,
-				11.1, 561.2, 37.2, 111.4,
-				11.1, 21.2, 33.3, 111.4,
+				11.1, 14.2, 31, 111.4,
+				11.2, 16, 38.3, 111.3,
+				11.3, 11, 37.2, 111.2,
+				11.15, 21.2, 33.3, 111.1,
 			})
 			/*
 				ret_mat := mat.NewDense(4, 4, []float64{
