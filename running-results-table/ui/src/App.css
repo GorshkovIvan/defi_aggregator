@@ -1,4 +1,4 @@
-.App{
+.App, .Contact, .About {
   background: var(--theme-page-background);
 }
 
@@ -66,6 +66,24 @@ h5 {
 
 .contact:hover {
   color: rgb(81, 146, 253);
+}
+
+i {
+  color: rgb(81, 146, 253);
+}
+
+.back {
+  text-align: center;
+  padding: 50px;
+}
+
+.paragraph {
+  width: 50%;
+  margin: 0 auto;
+}
+
+p {
+  text-align: left;
 }
 
 h4 {
