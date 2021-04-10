@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import ConnectedResultsTable from './ConnectedResultsTable';
 import NewResultsForm from './NewResultsForm';
 import RankedCurrenciesTable from './RankedCurrenciesTable';
@@ -7,6 +8,8 @@ import './theme.css';
 import Slider from './Slider.js';
 import Toggle from './toggle.js';
 import { keepTheme } from './themes.js';
+import './about.js';
+import './contact.js';
 
 function App() {
   
@@ -18,6 +21,10 @@ function App() {
       <div className="TopTable">
         <h1>High Yield 4 Me</h1>
         <h5>The place to find optimal yield for your cryptocurrency portfolio.*</h5>
+        <div class="menuBar">
+          <Link to="/about" class="about">About</Link>
+          <Link to="/contact" class="contact">Contact</Link>
+        </div>
       </div>
       <Toggle></Toggle>
       <RankedCurrenciesTable />
