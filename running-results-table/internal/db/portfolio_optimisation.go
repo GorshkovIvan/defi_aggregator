@@ -19,6 +19,69 @@ func sum(array []float64) float64 {
 	return result
 }
 
+func nrm_pool_wgts(pool_weights_raw []float64, pool_tkn0s []string, pool_tkn1s []string, pool_ratios []float64, own_pf []OwnPortfolioRecord) []float64 {
+	var weights_optimised []float64
+	
+	if len(pool_tkn0s) == 0 {return weights_optimised}
+	
+	// eliminate negatives
+	for j := 0; j < len(pool_weights_raw); j++ {
+		if pool_weights_raw[j] < 0 {
+				weights_optimised = append(weights_optimised,0.0)
+		} else {
+				weights_optimised = append(weights_optimised,pool_weights_raw[j])
+		}
+	}
+
+	fmt.Print("Checkpoint 001")
+
+	var balances []float64 // what balances of pf translates into len(own_pf)
+	var tokens 	 []float64 // what tokens are own pf
+	
+	fmt.Print(len(balances))
+	fmt.Print(len(tokens))
+	
+	total := 0.0 // sum current prices x balances of deployable tokens // 0 - XXX
+	
+
+	// now translate pool weights to total token balances
+	for j := 0; j < len(pool_weights_raw); j++ {
+		idx0 := 0 // find idx of pool_tkn0s[j] // token0 // 1 - XXX
+		idx1 := 1 // find idx of pool_tkn1s[j] // token1 // 2 - XXX
+		
+		balances[idx0] += weights_optimised[j] * total
+		balances[idx1] += weights_optimised[j] * pool_ratios[j] * total 	
+	}
+
+	fmt.Print("Checkpoint 002")
+	
+	// var c int
+	c := 0
+	for c > 0 {		
+		c = 1 // count if these balances exceed real balances + count_pf_from_pools_weights(pool_weights,token0, token1)
+		if c > 0 {
+			// make sure they sum to individual token balances
+			for j := 0; j < len(weights_optimised); j++ {
+				idx0 := 0 // find tokens[j] in own_pf
+				rat := balances[j]/float64(own_pf[idx0].Amount)
+				if rat > 1 {
+					weights_optimised[j] = weights_optimised[j] / rat	
+				} // if rat
+			} // for len pool weights raw		
+		}
+		
+		c = 0 // count again
+	}
+	
+	fmt.Print("Checkpoint 003")
+		
+	//fmt.Print("RETURNING NORMALIZED WEIGHTS: ")
+	//fmt.Print(weights_optimised[0])
+	//fmt.Print("they sum to: ")
+	//fmt.Print(" vs actual portfolio: ")
+	
+	return weights_optimised
+}
 
 func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 	fmt.Println("----ENTERING PORTFOLIO OPTIMISATION----------")
@@ -144,9 +207,38 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 			// fmt.Print(ret_mat_xxx)
 		} // if len(h_array) > 0
 		
-		// returns = get from currencyinputdata // +hist return + other return - swap costs - not just prices here - it is also other stuff
-		// figure out how to sum pools to 1	- 2 assets - ratio?
+		
+		var pool_tkn0s []string
+		var pool_tkn1s []string 
+		var pool_ratios []float64 
+		
+		// populate these arrays
+		for j:=0; j < len(h_array); j++ {
+			s := strings.Split(h_array[j].Ticker, "/")
+			pool_tkn0s = append(pool_tkn1s,s[0])
+			if len(s) == 1 {
+				pool_tkn1s = append(pool_tkn1s,"USD")
+			} else {
+				pool_tkn1s = append(pool_tkn1s,s[1])
+			}
+			
+			pool_ratios = append(pool_ratios,1.25)
+		}
 
+		fmt.Print("ABOUT TO RUN NORMALIZATION OF WEIGHTS FUNC----")		
+		var x_weights []float64
+		x_weights = append(x_weights, 1.00)
+		x_weights = nrm_pool_wgts(x_weights, pool_tkn0s, pool_tkn1s, pool_ratios, database.ownstartingportfolio)		
+		fmt.Print(x_weights)
+		fmt.Print("RAN NORMALIZATION OF WEIGHTS FUNC----")
+		
+		// 0 - Recalculate returns - how? +hist return + other return - swap costs - not just prices here - it is also other stuff
+		// 1 - Add ratio to pool data - assume 50/50 for now
+		// 2 - vector of ratios
+		// 3 - Move inside optimiser
+		// 4 - Two asset - by ratio
+		// 5 - Add costs
+		
 		// Define optimization function
 		fcn := func(x_weights []float64) float64 {
 			print := false
@@ -162,7 +254,6 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 			})
 
 			//fmt.Println("Checkpoint 1")
-
 			ret_mat_pct := mat.NewDense(number_of_days - 1, number_of_tokens, nil)
 
 				for ii := 0; ii < number_of_days - 1; ii++ { // row
@@ -212,6 +303,8 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 				fmt.Print("x_weights before normalisation: ")
 				fmt.Println(x_weights)
 			}
+			
+			// NORMALISE WEIGHTS - XXX
 			for j := 0; j < len(x_weights); j++ {
 				if x_weights[j] < 0 {
 					x_weights[j] = 0
@@ -227,7 +320,6 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 				fmt.Println(x_weights)
 			}
 			weights := mat.NewVecDense(number_of_tokens, x_weights) // vector of portfolio weights
-			//weights := mat.NewVecDense(number_of_tokens, []float64{0.25, 0.25, 0.25, 0.25}) // vector of portfolio weights
 
 			var cov *mat.SymDense = mat.NewSymDense(number_of_tokens, nil)
 			cov.Reset()
