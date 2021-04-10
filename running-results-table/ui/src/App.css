@@ -41,7 +41,31 @@ h1 {
 h5 {
   color: rgb(116, 140, 174);
   text-align: center;
-  padding-bottom: 50px;
+  padding-bottom: 25px;
+}
+
+.menuBar {
+  text-align: center;
+}
+
+.about {
+  font-weight: bold;
+  color: rgb(116, 140, 174);
+  padding-right: 5px;
+}
+
+.about:hover {
+  color: rgb(81, 146, 253);
+}
+
+.contact {
+  font-weight: bold;
+  color: rgb(116, 140, 174);
+  padding-left: 5px;
+}
+
+.contact:hover {
+  color: rgb(81, 146, 253);
 }
 
 h4 {
