@@ -64,7 +64,7 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 	token0dataishere := isHistDataAlreadyDownloadedDatabase(token0)
 	token1dataishere := isHistDataAlreadyDownloadedDatabase(token1)
 
-	if !token0dataishere || !token1dataishere {
+	if !token0dataishere || !token1dataishere && (token1 != "USD") {
 		fmt.Println("ERROR 899: ticker combo not found in database..returning blank object")
 		return NewHistoricalCurrencyData()
 	}
@@ -74,8 +74,6 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 
 	var token1datesarray []int64
 	var token1pricesarray []float64
-
-	//	fmt.Println("Checkpoint 1")
 
 	if token0dataishere {
 		token0datesarray = returnDatesInCollection(token0)
@@ -104,12 +102,18 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 	histcombo.Ticker = token0 + "/" + token1
 
 	lengthoflookbackhist := len(token0datesarray)
-	lengthoflookbackhist2 := len(token1datesarray)
-	lengthoflookbackhist = int(math.Min(float64(lengthoflookbackhist), float64(lengthoflookbackhist2)))
 
-	fmt.Print("length of lookback = ")
-	fmt.Println(lengthoflookbackhist)
-	//	fmt.Println("Checkpoint 3")
+	if token1 != "USD" {
+		lengthoflookbackhist2 := len(token1datesarray)
+		lengthoflookbackhist = int(math.Min(float64(lengthoflookbackhist), float64(lengthoflookbackhist2)))
+	
+		fmt.Print("length of lookback = ")
+		fmt.Println(lengthoflookbackhist)	
+	} else {
+		lengthoflookbackhist2 := lengthoflookbackhist
+		lengthoflookbackhist = int(math.Min(float64(lengthoflookbackhist), float64(lengthoflookbackhist2)))
+	}
+
 
 	for i := lengthoflookbackhist - 1; i >= 0; i-- {
 		fmt.Print("i: ")
@@ -118,11 +122,12 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 		fmt.Print(token0datesarray[i])
 		fmt.Print(" | px0: ")
 		fmt.Print(token0pricesarray[i])
-		fmt.Print(" | t1: ")
-		fmt.Print(token1datesarray[i])
-		fmt.Print(" | px1: ")
-		fmt.Print(token1pricesarray[i])
-
+		if token1 != "USD" {
+			fmt.Print(" | t1: ")
+			fmt.Print(token1datesarray[i])
+			fmt.Print(" | px1: ")
+			fmt.Print(token1pricesarray[i])
+		
 		// Synchronise indices i and j in token1
 		if token0datesarray[i] == token1datesarray[i] {
 			fmt.Println(" ..dates match")
@@ -147,6 +152,10 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 		} else {
 			fmt.Print(" | Error: dates do not match!!!")
 		}
+	} else if token1 == "USD" {
+		histcombo.Date = append(histcombo.Date, token0datesarray[i])
+		histcombo.Price = append(histcombo.Price, float32(token0pricesarray[i]))
+	}
 
 	}
 
@@ -225,17 +234,19 @@ func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 	for i := 1; i < int(vol_period); i++ {
 		if !math.IsNaN(float64(H.Price[i])) && float64(H.Price[i]) > 0 && float64(H.Price[i-1]) > 0 {
 			differencesvsmean = append(differencesvsmean, H.Price[i]/H.Price[i-1]-1-mean) // calculate difference between each value and mean
-			fmt.Print("Date: ")
-			fmt.Print(H.Date[i])
-			fmt.Print(" | ")
-			fmt.Print("Price: ")
-			fmt.Print(H.Price[i])
-			fmt.Print(" | ")
-			fmt.Print("Price - mean: ")
-			fmt.Print(H.Price[i] - mean)
 			squaresofdifferencesvsmean = append(squaresofdifferencesvsmean, float32(math.Pow(float64(H.Price[i]/H.Price[i-1]-1-mean), 2.0)))
-			fmt.Print(" | Sqr: ")
-			fmt.Println(float32(math.Pow(float64(H.Price[i]/H.Price[i-1]-1-mean), 2.0)))
+			/*
+				fmt.Print("Date: ")
+				fmt.Print(H.Date[i])
+				fmt.Print(" | ")
+				fmt.Print("Price: ")
+				fmt.Print(H.Price[i])
+				fmt.Print(" | ")
+				fmt.Print("Price - mean: ")
+				fmt.Print(H.Price[i] - mean)
+				fmt.Print(" | Sqr: ")
+				fmt.Println(float32(math.Pow(float64(H.Price[i]/H.Price[i-1]-1-mean), 2.0)))
+			*/
 		}
 	}
 

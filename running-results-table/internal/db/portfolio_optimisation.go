@@ -43,7 +43,10 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 
 	database.ownstartingportfolio = append(database.ownstartingportfolio,OwnPortfolioRecord{"WETH",420.0})
 	database.ownstartingportfolio = append(database.ownstartingportfolio,OwnPortfolioRecord{"DAI",69.0})
-		database.ownstartingportfolio = append(database.ownstartingportfolio,OwnPortfolioRecord{"USD",69.0})
+	database.ownstartingportfolio = append(database.ownstartingportfolio,OwnPortfolioRecord{"USD",420.69})
+
+	// MOVE INTO FCN
+	var h_array []HistoricalCurrencyData
 
 	// 0 - Clean starting portfolio for duplicates
 	for i := 0; i < len(database.ownstartingportfolio); i++ {
@@ -57,7 +60,7 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 				if database.ownstartingportfolio[j].Token == startingTokenTickers[i]{
 					startingTokenAmounts = append(startingTokenAmounts, database.ownstartingportfolio[j].Amount)			
 				}
-			}
+		}
 	}
 
 		fmt.Println("TRYING TO OPTIMISE PORTFOLIO: ")
@@ -86,20 +89,63 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 			if len(s) > 1 {
 				fmt.Print(s[1])
 			}
+			// fmt.Print("   |   ")
+			// fmt.Print(ratio)
+			// Filter out pools for which available true			
 			
-			fmt.Print(" Available given portfolio?: ")
+			var Available bool
+			
+			fmt.Print(" Available y/n: ")
 			if len(s) == 2 {
-				fmt.Println(stringInSlice(s[0],startingTokenTickers) && stringInSlice(s[1],startingTokenTickers))
+				Available = stringInSlice(s[0],startingTokenTickers) && stringInSlice(s[1],startingTokenTickers)
+				fmt.Println(Available)
 			} else {
-				fmt.Println(stringInSlice(s[0],startingTokenTickers))
+				Available = stringInSlice(s[0],startingTokenTickers)
+				fmt.Println(Available)
 			}
-		}
+			
+			// ret raw = matrix(get prices of constituent tokens of filtered pools)		
+			if Available {
+				var h HistoricalCurrencyData
+				if len(s) == 2 {
+					h = retrieveDataForTokensFromDatabase2(s[0], s[1])
+					fmt.Print("XXXX APPENDING!!!")
+					h_array = append(h_array,h)
+				} else {
+					h = retrieveDataForTokensFromDatabase2(s[0], "USD")
+					fmt.Print("XXXX APPENDING!!!")
+					h_array = append(h_array,h)
+				}
+				
+				for jjj := 0; jjj < len(h.Date); jjj++ {
+					fmt.Print(jjj)
+						fmt.Print(" | ")
+					fmt.Print(h.Date[jjj])	
+						fmt.Print(" | ")
+					fmt.Println(h.Price[jjj])		
+				}
+			} // if Available
+
+		} // for pools
 		
-		// Filter out pools for which available true
-		// ret raw = matrix(get prices of constituent tokens of filtered pools)
-		// +hist return + other return - swap costs
-		// figure out how to sum pools to 1	- 2 assets
-		// hist return is not just prices here - it is also other stuff
+		// fmt.Print("Checkpoint 11111111111")
+		// fmt.Print(len(h_array))		
+		// TO MATRIX		
+		if len(h_array) > 0 {
+			ret_mat_xxx := mat.NewDense(len(h_array[0].Price), len(h_array), nil)
+			// fmt.Print("RET MAT XXX: ")
+			// fmt.Print(ret_mat_xxx)
+			for ii:= 0; ii < len(h_array[0].Price); ii++ { // row?
+				for jj:= 0; jj < len(h_array); jj++ {		
+					ret_mat_xxx.Set(ii,jj,float64(h_array[jj].Price[ii]))
+				}
+			}			
+			// fmt.Print("RET MAT XXX: ")
+			// fmt.Print(ret_mat_xxx)
+		} // if len(h_array) > 0
+		
+		// returns = get from currencyinputdata // +hist return + other return - swap costs - not just prices here - it is also other stuff
+		// figure out how to sum pools to 1	- 2 assets - ratio?
 
 		// Define optimization function
 		fcn := func(x_weights []float64) float64 {
