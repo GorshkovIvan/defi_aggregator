@@ -1,18 +1,23 @@
 NEXT STEPS:
+Get pool ratios
+OptimisePortfolio - speed up + finalize + with Swaps
+Remove multiple calls to database - for getdata
+Get rid of loops to find idx0 and idx1 - pack into a function
+
+Complete balancer data download
 Historical Trading volume data (ex Uniswap)		- need for accurate ROI
 Add check in data combination to ensure dates consistent across 2 datasets
 Why is VolumeUSD so different from actual daily pair volume?
 Why so many zeroes in historical volume
 
-OptimisePortfolio 			- finalize - Ratios + with Swaps
-Hist price return estimator func
-Get Reward Mechanism			- need to figure out what it is for pools other than Uniswap
-
 Add logo to front end - NFT!!
-Format numbers on front end
-Add popup boxes explaining what each window does
+Format numbers on front end - 2 decimals
+Add explanations re calcs
+Add risk rating of destination pools?
 Contact form
 
+Hist price return estimator func - implement
+Get Reward Mechanism			- need to figure out what it is for pools other than Uniswap
 Curve data pulling implementation 
 Get gas fees
 
@@ -28,6 +33,7 @@ on namecheap console, run: PORT=1234 ./running-results-table
 
 
 COMPLETE
+Add popup boxes explaining what each window does
 Add dark lite mode to front end
 Impermanent loss estimator function
 1 year old data - fixed with desc
