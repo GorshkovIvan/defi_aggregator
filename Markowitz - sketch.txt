@@ -3,8 +3,24 @@
 	// Query database for best ROI on items from this list
 
 	// Pack recommended pools into a the optimisedportfolio
-	
-	
+
+	// Now create all possible PAIRS from this list of UNIQUE tokens - PERMUTE
+	// Use token1 as both USD and other tokens - i.e. 2nd token in LENDING POOLS is always USD
+	// Query database for best ROI on items from this list
+	// Pack recommended pools into a the optimisedportfolio
+
+			// 0 - Change cov feed in data to to 3x4
+			// 1 - Change ret to averages + annualized
+			// 2 - Check cov annualization
+			// 3 - Check sharpe matches
+			// 4 - Maximise sharpe, remove lambda
+			// 5 - Check blended return
+			// 6 - Check blended vol
+			
+					// 0 - Recalculate returns - how? +hist return + other return - swap costs - not just prices here - it is also other stuff
+		// 1 - Add ratio to pool data - assume 50/50 for now
+		// 5 - Add costs
+		
 LINKS:
 https://www.youtube.com/watch?v=CNIVd_b7YJc - BEST VIDEO - EXCEL SAVED IN ONE OF RECENT COMMITS
 https://github.com/chaitjo/markowitz-portfolio-optimization/blob/master/markowitz.py

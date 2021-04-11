@@ -116,21 +116,24 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 
 
 	for i := lengthoflookbackhist - 1; i >= 0; i-- {
+		/*
 		fmt.Print("i: ")
 		fmt.Print(i)
 		fmt.Print(" | t0: ")
 		fmt.Print(token0datesarray[i])
 		fmt.Print(" | px0: ")
 		fmt.Print(token0pricesarray[i])
+		*/
 		if token1 != "USD" {
+		/*
 			fmt.Print(" | t1: ")
 			fmt.Print(token1datesarray[i])
 			fmt.Print(" | px1: ")
 			fmt.Print(token1pricesarray[i])
-		
+		*/
 		// Synchronise indices i and j in token1
 		if token0datesarray[i] == token1datesarray[i] {
-			fmt.Println(" ..dates match")
+			//fmt.Println(" ..dates match")
 			histcombo.Date = append(histcombo.Date, token0datesarray[i])
 
 			var price float64
@@ -158,12 +161,13 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 	}
 
 	}
-
+/*
 	fmt.Print("SIZE of returned combo for ticker: ")
 	fmt.Print(histcombo.Ticker)
 	fmt.Print(": ")
 	fmt.Println(len(histcombo.Price))
-
+*/
+/*
 	if len(histcombo.Price) >= 2 {
 		fmt.Print(histcombo.Date[0])
 		fmt.Print(" | ")
@@ -172,7 +176,7 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 		fmt.Print(" | ")
 		fmt.Print(histcombo.Price[1])
 	}
-
+*/
 	return histcombo
 }
 
