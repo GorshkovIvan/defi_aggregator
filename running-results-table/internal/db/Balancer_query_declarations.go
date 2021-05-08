@@ -17,24 +17,43 @@ type BalancerQuery struct {
 
 type BalancerPool struct {
 	ID              string          `json:"id"`
-	Finalized       bool            `json:"finalized"`
-	PublicSwap      bool            `json:"publicSwap"`
+
 	SwapFee         string          `json:"swapFee"`
-	TotalSwapVolume string          `json:"totalSwapVolume"`
-	TotalWeight     string          `json:"totalWeight"`
+	Liquidity		string          `json:"liquidity"`
+	TotalWeight		string          `json:"totalWeight"`
+	TotalSwapVolume	string 			`json:"totalSwapVolume"`
+
 	TokensList      []string        `json:"tokensList"`
 	Tokens          []BalancerToken `json:"tokens"`
 }
 
-type BalancerById struct {
-	BalancerPool `json:"pool"`
+type BalancerById struct { // wrapper struct
+	Pool 	BalancerPool `json:"pool"`
 }
 
 type BalancerToken struct {
 	ID           string `json:"id"`
 	Address      string `json:"address"`
 	Balance      string `json:"balance"`
-	Decimals     int    `json:"decimals"`
 	Symbol       string `json:"symbol"`
-	DenormWeight string `json:"denormWeight"`
+}
+
+type PoolWrapper struct {
+	Swaps []BalancerHistVolumeSingleT `json:"swaps"`
+}
+
+type BalancerHistVolumeQuery struct {
+	Pool 	PoolWrapper `json:"pool"`
+}
+
+type BalancerHistVolumeSingleT struct {
+	Timestamp		int 		`json:"timestamp"`
+	FeeValue		string 		`json:"feeValue"`
+	TokenInSym		string 		`json:"tokenInSym"`
+	TokenOutSym		string 		`json:"tokenOutSym"`
+	TokenIn			string 		`json:"tokenIn"`
+	TokenOut		string 		`json:"tokenOut"`
+	TokenAmountIn	string 		`json:"tokenAmountIn"`
+	TokenAmountOut 	string 		`json:"tokenAmountOut"`
+	PoolLiquidity	string 		`json:"poolLiquidity"`
 }
