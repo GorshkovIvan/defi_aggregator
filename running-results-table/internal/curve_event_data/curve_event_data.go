@@ -20,12 +20,14 @@ type CurvePoolData struct {
 
 	poolAddress common.Address 
 	poolCurrentBalances [8]*big.Int
-	poolName string
 	assetAddresses [8]common.Address
 	assetDecimals [8]*big.Int
 	assetIndices []*big.Int
+	assetBalances [8]*big.Int
 	volumes *[8]*big.Int 
 	fees *[8]*big.Float
+	returns []*big.Float
+
 	
 
 }
@@ -86,42 +88,35 @@ func main() {
 	// Getting current pool balances 
 
 	
-
-	// Getting coin indicies for undelying coins in the pool
-	/*
-	var coin_indices []*big.Int
-
-	index1, index2, _, err := provider.GetCoinIndices(&bind.CallOpts{}, pool_address, coin_addresses[0], coin_addresses[1])
+	// Getting swap volumes and fees and balances
+	volumes, fees := curveGetPoolVolume(pool_address, oldest_block, client)
+	
+	current_coin_balances, err := provider.GetUnderlyingBalances(pool_address)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	
-	coin_indices = append(coin_indices, index1)
-	coin_indices = append(coin_indices, index2)
-	
-	for i := 2; i < 7; i++{
+	// Add decimal spaces to volumes and fees and balances 
 
-		index1, index2, _, err := provider.GetCoinIndices(&bind.CallOpts{}, pool_address, coin_addresses[i], coin_addresses[i+1])
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		coin_indices = append(coin_indices, index1)
-		coin_indices = append(coin_indices, index2)
-
-
+	for i := 0; i < 8; i++{
+		normvolumes[i] = negPow(volumes[i], coin_decimals.Int64())
+		normfees[i] = negPow(fees[i], coin_decimals.Int64())
+		current_coin_balances[i] = negPow(current_coin_balances[i], coin_decimals.Int64())
 	}
-	*/
 
-	// Getting swap volumes and fees
-	volumes, fees := curveGetPoolVolume(pool_address, oldest_block, client)
+	// Calculate returns
+
+	var returns []*big.Float
+
+	for i := 0; i < 8; i++{
+		returns = append(returns, Quo(normfees[i], current_coin_balances[i]) )
+	}
 
 	// Appending a list of pool data structs
 	pools = append(pools, CurvePoolData{poolAddress: pool_address, assetAddresses: coin_addresses, 
-					volumes: volumes, fees:fees, assetDecimals: coin_decimals})
+					volumes: volumes, fees:fees, assetDecimals: coin_decimals, returns: returns })
+
 	fmt.Println("pool address:")				
 	fmt.Println(pool_address)
 	fmt.Println("Fees collected:")
@@ -130,10 +125,25 @@ func main() {
 	fmt.Println(pools[count_pools].assetAddresses)
 	fmt.Println("Decimals for coins in the pool:")
 	fmt.Println(pools[count_pools].assetDecimals)
-	/*
-	fmt.Println("Indicies for coins in the pool:")
-	fmt.Println(pools[count_pools].assetIndices)
-		*/
+	fmt.Println("Returns:")
+	fmt.Println(pools[count_pools].returns)
+	/*	
+	for i := 0; i < 8; i++{
+
+		normalisedVolume := new(big.Float).SetInt(pools[count_pools].volumes[i])
+
+		normalisedVolume = negPow(normalisedVolume, pools[count_pools].assetDecimals[i].Int64())
+
+		fmt.Println("Orginal volume")
+		fmt.Println(pools[count_pools].volumes[i])
+		fmt.Println("Normalised volume")
+		fmt.Println(normalisedVolume)
+
+		
+		
+	}
+	
+	*/
 	
 	// Getting data for the rest of the pools
 
@@ -160,33 +170,7 @@ func main() {
 		}
 
 		// Get indicies for underlying coins
-		/*
-		var coin_indices []*big.Int
 
-		index1, index2, _, err := provider.GetCoinIndices(&bind.CallOpts{}, pool_address, coin_addresses[0], coin_addresses[1])
-	
-		if err != nil {
-			log.Fatal(err)
-		}
-	
-		
-		coin_indices = append(coin_indices, index1)
-		coin_indices = append(coin_indices, index2)
-		
-		for i := 2; i < 7; i++{
-	
-			index1, index2, _, err := provider.GetCoinIndices(&bind.CallOpts{}, pool_address, coin_addresses[i], coin_addresses[i+1])
-	
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			coin_indices = append(coin_indices, index1)
-			coin_indices = append(coin_indices, index2)
-	
-	
-		}
-		*/
 
 		// Getting volumes and fees
 
@@ -204,10 +188,20 @@ func main() {
 		fmt.Println(pools[count_pools].assetAddresses)
 		fmt.Println("Decimals for coins in the pool:")
 		fmt.Println(pools[count_pools].assetDecimals)
-		/*
-		fmt.Println("Indicies for coins in the pool:")
-		fmt.Println(pools[count_pools].assetIndices)
-		*/
+		fmt.Println("Normalised volumes:")
+		
+		for i := 0; i < 8; i++{
+	
+			normalisedVolume := new(big.Float).SetInt(pools[count_pools].volumes[i])
+			
+			normalisedVolume = negPow(normalisedVolume, pools[count_pools].assetDecimals[i].Int64())
+
+			fmt.Println("Orginal volume")
+			fmt.Println(pools[count_pools].volumes[i])
+			fmt.Println("Normalised volume")
+			fmt.Println(normalisedVolume)
+			
+		}
 
 	}
 
@@ -346,4 +340,23 @@ func getTradingVolumeFromTxLog(logs []*types.Log, pooltopics []string) (int, *bi
 	asset0_index, asset0_volume, asset1_index, asset1_volume := decodeBytes(firstLog)
 
 	return asset0_index, asset0_volume, asset1_index, asset1_volume
+}
+
+func negPow(a *big.Float, e int64) *big.Float {
+    result := Zero().Copy(a)
+	divTen := big.NewFloat(0.1)
+    for i:=int64(0); i<e-1; i++ {
+        result = Mul(result, divTen)
+    }
+    return result
+}
+
+func Zero() *big.Float {
+    r := big.NewFloat(0.0)
+    r.SetPrec(256)
+    return r
+}
+
+func Mul(a, b *big.Float) *big.Float {
+    return Zero().Mul(a, b)
 }
