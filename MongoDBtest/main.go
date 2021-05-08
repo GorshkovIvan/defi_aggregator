@@ -9,11 +9,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 )
 
 
 func main() {
+	now := time.Now()
+	append_record_to_database("Uniswap", "ETH", "DAI", now.Unix(), 100, 200)
+
 	//var id = addOwnPortfolioRecord("DAI", 69)
 	//returnEntryById("Own Portfolio Record", id)
 	//fmt.Println(returnAttributeInCollection("Historical Currency Data", "Price"))
@@ -329,4 +333,40 @@ func returnDatesInCollection(collectionName string) [] int64 {
 	}
 
 	return dates
+}
+
+func append_record_to_database(pool string, token0 string, token1 string, date int64, trading_volume_usd int64, pool_sz_usd int64) string {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("De-Fi_Aggregator")
+	s := []string{pool, token0, token1}
+	v := strings.Join(s, " ")
+	optimisedportfolio := Database.Collection(v)
+
+	new_portfolio, err := optimisedportfolio.InsertOne(ctx, bson.D{
+		{Key: "pool", Value: pool},
+		{Key: "token0", Value: token0},
+		{Key: "token1", Value: token1},
+		{Key: "date", Value: date},
+		{Key: "trading_Volume_USD", Value: trading_volume_usd},
+		{Key: "pool_sz_USD", Value: pool_sz_usd},
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	newID := new_portfolio.InsertedID
+	hexID := newID.(primitive.ObjectID).Hex()
+
+	return hexID
 }
