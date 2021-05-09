@@ -16,7 +16,11 @@ function App() {
   useEffect(() => { keepTheme(); })
 
   return (
-      <Router>
+    
+    // ======================= !!! IMPORTANT !!! ============================
+    // commented out for the website to work, uncomment for the tests to work
+
+    //<Router>
     <div className="App">
       <div className="TopTable">
         <h1>High Yield 4 Me</h1>
@@ -36,7 +40,7 @@ function App() {
           <div class="recommendedPortfolio">
             <ConnectedResultsTable />
           </div>
-          <div className="resultsForm">
+          <div class="resultsForm">
             <NewResultsForm />
             <Slider />
           </div>
@@ -44,7 +48,8 @@ function App() {
       </div>
       <div><h6>*Disclaimer: the information presented on this website is not financial advice. Invest at your own risk. High Yield 4 Me is not responsible for any losses incurred from using this website.</h6></div>
     </div>
-      </Router>
+    
+    //</Router>
   );
 }
 
