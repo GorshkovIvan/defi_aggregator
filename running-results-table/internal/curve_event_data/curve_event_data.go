@@ -74,13 +74,13 @@ func main() {
 	//fmt.Println(pool_address)
 
 	// Addresses of underlying coins in the pool
-	coin_addresses, err := provider.GetUnderlyingCoins(&bind.CallOpts{}, pool_address)
+	coin_addresses, err := provider.GetCoins(&bind.CallOpts{}, pool_address)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Getting the number of decimal spaces for undelying coins in the pool
-	coin_decimals, err := provider.GetUnderlyingDecimals(&bind.CallOpts{}, pool_address)
+	coin_decimals, err := provider.GetDecimals(&bind.CallOpts{}, pool_address)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -90,7 +90,7 @@ func main() {
 	
 	// Getting swap volumes and fees and balances
 	volumes, fees := curveGetPoolVolume(pool_address, oldest_block, client)
-	
+	/*
 	current_coin_balances, err := provider.GetUnderlyingBalances(pool_address)
 
 	if err != nil {
@@ -112,10 +112,11 @@ func main() {
 	for i := 0; i < 8; i++{
 		returns = append(returns, Quo(normfees[i], current_coin_balances[i]) )
 	}
+	*/
 
 	// Appending a list of pool data structs
 	pools = append(pools, CurvePoolData{poolAddress: pool_address, assetAddresses: coin_addresses, 
-					volumes: volumes, fees:fees, assetDecimals: coin_decimals, returns: returns })
+					volumes: volumes, fees:fees, assetDecimals: coin_decimals })
 
 	fmt.Println("pool address:")				
 	fmt.Println(pool_address)
@@ -125,9 +126,10 @@ func main() {
 	fmt.Println(pools[count_pools].assetAddresses)
 	fmt.Println("Decimals for coins in the pool:")
 	fmt.Println(pools[count_pools].assetDecimals)
+	/*
 	fmt.Println("Returns:")
 	fmt.Println(pools[count_pools].returns)
-	/*	
+	
 	for i := 0; i < 8; i++{
 
 		normalisedVolume := new(big.Float).SetInt(pools[count_pools].volumes[i])
@@ -156,14 +158,14 @@ func main() {
 			log.Fatal(err)
 		}
 		
-		coin_addresses, err := provider.GetUnderlyingCoins(&bind.CallOpts{}, pool_address)
+		coin_addresses, err := provider.GetCoins(&bind.CallOpts{}, pool_address)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		// Get decimals for underlying tokens 
 
-		coin_decimals, err := provider.GetUnderlyingDecimals(&bind.CallOpts{}, pool_address)
+		coin_decimals, err := provider.GetDecimals(&bind.CallOpts{}, pool_address)
 
 		if err != nil {
 			log.Fatal(err)
@@ -252,7 +254,7 @@ func getOldestBlock(client *ethclient.Client) *big.Int {
 
 func curveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, client *ethclient.Client) (*[8]*big.Int, *[8]*big.Float) {
 
-	poolTopics := []string{/*"0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140",*/ "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"}
+	poolTopics := []string{"0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140"/* "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"*/}
 
 	//3)  Query between oldest and current block for Balancer-specific addresses
 
