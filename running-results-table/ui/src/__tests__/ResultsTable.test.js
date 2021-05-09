@@ -21,10 +21,8 @@ test( 'ResultsTable test, renders table 1 (User specified Table)', () => {
 
     console.log('HTML ->', document.body.innerHTML);
 
-    var results = ResultsTable()    
-    //const TableRowElem = elem.querySelector('Table.Row');
-    //expect(TableRowElem).toHaveTextContent("hello?")
+    act( () => {
+        render(<ResultsTable/>, elem);
+    });
 
-    //This test is currently doing nothing....
 });
-

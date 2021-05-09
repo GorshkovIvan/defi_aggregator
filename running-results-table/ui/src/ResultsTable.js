@@ -1,6 +1,43 @@
 import React from 'react';
 import { Form, Table, Segment, Label } from 'semantic-ui-react'
 
+// results needed for testing, DONT delete
+/*
+var results = [
+    {
+        tokenorpair: "ETH",
+        pool: 'Uniswap',
+        amount: 69,
+        percentageofportfolio: 420,
+        roi_estimate: 420,
+        risk_setting: 420
+    },
+    {
+        tokenorpair: "BTC",
+        pool: "Uniswap",
+        amount: 69,
+        percentageofportfolio: 420,
+        roi_estimate: 420,
+        risk_setting: 420
+    },
+    {
+        tokenorpair: "BTC",
+        pool: 'Uniswap',
+        amount: 420,
+        percentageofportfolio: 420,
+        roi_estimate: 50,
+        risk_setting: 1,
+    },
+    {
+        tokenorpair: "wETH",
+        pool: 'Uniswap',
+        amount: 123,
+        percentageofportfolio: 10,
+        roi_estimate: 100,
+        risk_setting: 100,
+    }
+]*/
+//export default function ResultsTable() {
 export default function ResultsTable({results}) {
     const rows = results.map(((result, index) => {
         let color='grey';
