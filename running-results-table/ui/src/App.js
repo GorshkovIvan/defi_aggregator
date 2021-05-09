@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, BrowserRouter as Router } from 'react-router-dom';
 import ConnectedResultsTable from './ConnectedResultsTable';
 import NewResultsForm from './NewResultsForm';
 import RankedCurrenciesTable from './RankedCurrenciesTable';
@@ -16,14 +16,14 @@ function App() {
   useEffect(() => { keepTheme(); })
 
   return (
-
+      <Router>
     <div className="App">
       <div className="TopTable">
         <h1>High Yield 4 Me</h1>
         <h5>The place to find optimal yield for your cryptocurrency portfolio.*</h5>
         <div class="menuBar">
-          <Link to="/about" class="about">About</Link>
-          <Link to="/contact" class="contact">Contact</Link>
+            <Link to="/about" class="about">About</Link>
+            <Link to="/contact" class="contact">Contact</Link>
         </div>
       </div>
       <Toggle></Toggle>
@@ -36,7 +36,7 @@ function App() {
           <div class="recommendedPortfolio">
             <ConnectedResultsTable />
           </div>
-          <div class="resultsForm">
+          <div className="resultsForm">
             <NewResultsForm />
             <Slider />
           </div>
@@ -44,6 +44,7 @@ function App() {
       </div>
       <div><h6>*Disclaimer: the information presented on this website is not financial advice. Invest at your own risk. High Yield 4 Me is not responsible for any losses incurred from using this website.</h6></div>
     </div>
+      </Router>
   );
 }
 

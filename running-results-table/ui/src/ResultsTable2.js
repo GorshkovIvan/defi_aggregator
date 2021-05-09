@@ -1,6 +1,54 @@
 import React from 'react';
 import { Form, Table, Segment, Label, Popup } from 'semantic-ui-react'
-
+// currencoutputtable needed for testing, DONT delete
+/*
+var currencyoutputtable = [
+    {
+        backend_pair: "ETH/DAI",
+        backend_poolsize: 420,
+        backend_volume: 420,
+        backend_yield: 460,
+        pool_source: "Uniswap",
+        volatility: 123,
+        ROIestimate: 10,
+        ROIvoladjest: 100,
+        ROIhist: 100,
+    },
+    {
+        backend_pair: "ETH/DAI",
+        backend_poolsize: 420,
+        backend_volume: 420,
+        backend_yield: 460,
+        pool_source: "Uniswap",
+        volatility: 123,
+        ROIestimate: 10,
+        ROIvoladjest: 100,
+        ROIhist: 100,
+    },
+    {
+        backend_pair: "ETH/DAI",
+        backend_poolsize: 420,
+        backend_volume: 420,
+        backend_yield: 460,
+        pool_source: "Uniswap",
+        volatility: 123,
+        ROIestimate: 10,
+        ROIvoladjest: 100,
+        ROIhist: 100,
+    },
+    {
+        backend_pair: "ETH/DAI",
+        backend_poolsize: 420,
+        backend_volume: 420,
+        backend_yield: 460,
+        pool_source: "Uniswap",
+        volatility: 123,
+        ROIestimate: 10,
+        ROIvoladjest: 100,
+        ROIhist: 100,
+    }
+]*/
+//export default function ResultsTable2() {
 export default function ResultsTable2({currencyoutputtable}) {
     const rows = currencyoutputtable.map(((result, index) => {
         let color;
