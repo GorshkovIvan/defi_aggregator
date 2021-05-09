@@ -1,0 +1,17 @@
+Curve:
+
+1) Convert to daily data
+2) Convert to USD
+3) Get current balances 
+4) Convert datatypes to the ones required by the database
+5) Change coin names to match the ones in the database
+
+AAVE:
+
+1) Convert to daily data
+2) Convert to USD
+3) Get current balances 
+4) Find flash loan data for version 2
+5) Convert datatypes to the ones required by the database
+6) Change coin names to match the ones in the database
+

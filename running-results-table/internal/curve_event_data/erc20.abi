@@ -213,7 +213,7 @@
             {
                 "indexed": false,
                 "name": "value",
-                "type": "uint256"
+                "type": "uint2cd -56"
             }
         ],
         "name": "Transfer",

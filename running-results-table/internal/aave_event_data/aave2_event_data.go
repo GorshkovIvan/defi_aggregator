@@ -40,8 +40,8 @@ func main() {
 	}
 
 	oldest_block := getOldestBlock(client)
-	pool_address := common.HexToAddress("0x398ec7346dcd622edc5ae82352f02be94c62d119")
-	
+	//pool_address := common.HexToAddress("0x398ec7346dcd622edc5ae82352f02be94c62d119")
+	pool_address := common.HexToAddress("0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9")
 
 	if err != nil {
 		log.Fatal(err)
@@ -150,8 +150,8 @@ func aaveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, clien
 
 	var pools []AavePoolData
 
-	poolTopics := []string{"0x1e77446728e5558aa1b7e81e0cdab9cc1b075ba893b740600c76a315c2caa553"}
-	
+	//poolTopics := []string{"0x1e77446728e5558aa1b7e81e0cdab9cc1b075ba893b740600c76a315c2caa553"}
+	poolTopics := []string{"0xc6a898309e823ee50bac64e45ca8adba6690e99e7841c45d754e2a38e9019d9b"}
 
 	query := ethereum.FilterQuery{
 
@@ -241,11 +241,11 @@ func decodeBytes(log *types.Log) (*big.Int, int, *big.Int) {
 
 
 	amount := new(big.Int).SetBytes(log.Data[0:32])
-	rate_type, _ := strconv.Atoi((new(big.Int).SetBytes(log.Data[32:64])).String())
-	interest_rate := new(big.Int).SetBytes(log.Data[64:96])
+	rate_type, _ := strconv.Atoi((new(big.Int).SetBytes(log.Data[64:96])).String())
+	interest_rate := new(big.Int).SetBytes(log.Data[32:64])
 
 	return amount, rate_type, interest_rate
-
+	
 }
 /*
 func decodeBytes(log *types.Log) (*big.Int, int, *big.Int) {
