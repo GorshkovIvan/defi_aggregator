@@ -13,10 +13,31 @@ function About() {
             <h4>About High Yield 4 Me</h4>
             <div class="paragraph">
                 <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec aliquet sapien orci, vitae vestibulum ligula malesuada commodo. Suspendisse dapibus aliquam justo. Sed enim metus, feugiat vitae sollicitudin vitae, finibus at tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Maecenas accumsan eleifend malesuada. Fusce felis arcu, elementum eget auctor id, fringilla a nisi. Integer in arcu purus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Maecenas malesuada dui et est rutrum, sit amet laoreet elit venenatis. Praesent ultrices tincidunt pretium. Nam vestibulum, dolor in ultricies iaculis, mi lorem dapibus ligula, laoreet consequat augue odio at mauris. Donec a laoreet leo. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+                    While in CeFi, infrastructure for benchmarking returns from various investments is well developed, in DeFi it is unregulated, 
+                    and few marketplaces exist for comparing returns from available investments. Moreover, DeFi products work differently from their 
+                    classic equivalents, and require alternative ways for calculating return on investment (ROI) and for quantifying risks. The 
+                    engineering part of the problem is to develop a platform which aggregates and displays data on various pools, ranking them by ROI. 
+                    The analytical part of the problem is to develop a standardised ROI formula, which will process data from pools into a single, 
+                    reliable metric allowing investors to optimise their portfolio.
                 </p>
             </div>
-            <div class="back">
+            
+            <div class="Links">
+                <div class="ui icon buttons">
+                    <div class="ui button">
+                        <a href="https://www.overleaf.com/project/606f024e52270d0b2fd71896">
+                            <i class="file alternate icon" />
+                        </a>
+                    </div>
+                    <div class="ui button">
+                        <a href="https://gitlab.doc.ic.ac.uk/g207004212/defi_aggregator">
+                            <i class="gitlab icon" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="back-about">
                 <Link to="/">
                     <div class="ui animated fade button" tabindex="0">
                         <div class="visible content">Back</div>

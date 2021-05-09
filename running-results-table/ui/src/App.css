@@ -77,6 +77,15 @@ i {
   padding: 50px;
 }
 
+.Links {
+  text-align: center;
+  padding: 50px;
+}
+
+.back-about {
+  text-align: center;
+}
+
 .paragraph {
   width: 50%;
   margin: 0 auto;
@@ -91,6 +100,25 @@ h4 {
   text-align: center;
   padding: 10px;
   font-family: LemonMilkBold;
+}
+
+h3 {
+  color: var(--theme-page-text);
+  text-align: center;
+  padding: 10px;
+}
+
+.column {
+  float: left;
+  width: 50%;
+  text-align: center;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
 }
 
 h6 {
