@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math"
 	"math/big"
 	"time"
 
@@ -54,26 +53,56 @@ func getbalancerdata_from_blockchain() {
 
 	//Quering the db for oldest available Record
 	oldest_available_record := time.Now() // get oldest timestamp from DB
-	oldest_available_record = now.AddDate(0, 0, -2)
+	oldest_available_record = oldest_available_record.AddDate(0, 0, -2)
 
-	if (time.Now()).sub(oldest_available_record).Hours() > 24 {
+	oldest_lookup_time := time.Now() //.Unix()
+
+	days_ago := 3
+
+	if (time.Now()).Sub(oldest_available_record).Hours() > 24 {
 		fmt.Println("DATA IS OLD!!! NEED TO UPDATE!!!!!!!!!")
-		oldest_lookup_time = math.Max(now.AddDate(0, 0, -days_ago), oldest_available_record).Unix()
+		oldest_lookup_time = oldest_lookup_time.AddDate(0, 0, -days_ago) // oldest_available_record.Unix()
+		// math.Max(now.AddDate(0, 0, -days_ago)
 	}
 
 	// oldest_lookup_time := uint64((now.AddDate(0, 0, -days_ago)).Unix())
 	fmt.Print("Now: ")
-	fmt.Println(now)
+	fmt.Println(time.Now())
 	fmt.Print("BoD for today: ")
 	fmt.Println(BoD(time.Now()))
 	fmt.Print("diff: ")
-	t := (time.Now()).sub(oldest_available_record).Hours()
+	t := (time.Now()).Sub(oldest_available_record).Hours()
 	fmt.Print(t)
 
 	// 1) If data is old and need to update it - Define pool specific parameters
 	var BalancerpoolAddress = common.HexToAddress("0x1eff8af5d577060ba4ac8a29a13525bb0ee2a3d5") //pass in the pool id...
 	balancertopic := "0x908fb5ee8f16c6bc9bc3690973819f32a4d4b10188134543c88706e0e1d43378"
 	fmt.Println("CONNECTED TO INFURA SUCCESSFULLY!!!!!!")
+
+	/*
+		var xxx = common.HexToAddress("0x71c7656ec7ab88b098defb751b7401b5f6d8976f")
+
+		tokenAddress := common.HexToAddress("0x2260fac5e5542a773aa44fbcfedf7c193bc2c599")
+		instance, err := token.NewToken(tokenAddress, client)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		bal, err := instance.BalanceOf(&bind.CallOpts{}, xxx)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("wei: %s\n", bal) // "wei: 74605500647408739782407023"
+
+		balance, err := client.BalanceAt(context.Background(), BalancerpoolAddress, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Print("POOL SIZE test: ")
+		fmt.Print(balance)
+	*/
 
 	var current_block *big.Int
 	var oldest_block *big.Int
@@ -89,8 +118,7 @@ func getbalancerdata_from_blockchain() {
 
 	//2)  Find oldest block in our lookup date range
 	oldest_block = new(big.Int).Set(current_block)
-	now := time.Now()
-	days_ago := 3
+	// now := time.Now()
 
 	// func get_oldest_timestamp_from_db(pool string, token0 string, token1 string) uint64
 	// func append_record_to_database(pool string, token0 string, token1 string, date uint64, trading_volume_usd int64, pool_sz_usd int64)
@@ -108,7 +136,7 @@ func getbalancerdata_from_blockchain() {
 			log.Fatal(err)
 		}
 
-		if block.Time() <= oldest_lookup_time {
+		if block.Time() <= uint64(oldest_lookup_time.Unix()) {
 			fmt.Print("nd oldest lookup block: ") // 5671744
 			fmt.Println(oldest_block)
 			fmt.Print(" | time: ")
@@ -134,15 +162,24 @@ func getbalancerdata_from_blockchain() {
 		log.Fatal(err)
 	}
 
-	var total_volume_token0 *big.Int // cumulative
-	var total_volume_token1 *big.Int // cumulative
+	//var total_volume_token0 *big.Int // cumulative
+	//var total_volume_token1 *big.Int // cumulative
 
-	total_volume_token0 = big.NewInt(0)
-	total_volume_token1 = big.NewInt(0)
+	//total_volume_token0 = big.NewInt(0)
+	//total_volume_token1 = big.NewInt(0)
 
 	fmt.Print("Number of block logs: ")
 	fmt.Print(len(logsX))
 	fmt.Println(" ...Looping through each retrieved record..")
+
+	// Count volumes by day
+	var dates []int64
+	var tradingvolumes []int64
+
+	cumulative_for_day := int64(0)
+
+	t_prev := uint64(0) // oldest time logsX[0].
+	t_new := uint64(0)  // oldest time
 
 	//4)  Loop through received data and filter it again
 	// For each transaction in logsX - check if it matches lookup criteria - add volume if does:
@@ -158,18 +195,7 @@ func getbalancerdata_from_blockchain() {
 		fmt.Print(" | blk#: ")
 		fmt.Print(logsX[i].BlockNumber)
 		fmt.Print(" | ")
-		/*
-			tx, isPending, err := client.TransactionByHash(context.Background(), logsX[i].TxHash)
-			if err != nil {
-				log.Fatal(err)
-			}
-			fmt.Println(isPending)
 
-			fmt.Print(tx.Gas)
-			fmt.Print(" | gas px: ")
-			fmt.Print(tx.GasPrice().Uint64())
-			fmt.Print(" | ")
-		*/
 		//Get date from block number
 		block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(logsX[i].BlockNumber)))
 		if err != nil {
@@ -184,47 +210,50 @@ func getbalancerdata_from_blockchain() {
 			log.Fatal(err)
 		}
 
+		/*
+			DAILY COUNT LOOP GOES HERE
+		*/
+		t_prev = t_new       // uint
+		t_new = block.Time() // uint
+
+		if t_prev == 0 || t_new-t_prev > 24*60*60 { // 1 day
+			fmt.Println("DATA OLD!!!! APPENDING NEW DAY!!!!")
+			dates = append(dates, int64(BoD(time.Unix(int64(t_new), 0)).Unix()))
+			tradingvolumes = append(tradingvolumes, cumulative_for_day)
+			cumulative_for_day = 0
+		} else {
+			x0, x1 := getTradingVolumeFromTxLog2(txlog.Logs, balancertopic)
+			// convert to usd
+			// decimals
+			//f := new(big.Float).SetInt(x0)
+			fmt.Print(x1)
+			var smallnum, _ = new(big.Int).SetString(x0.Text(16), 10)
+			num := smallnum.Uint64()
+			cumulative_for_day += int64(num)
+		}
+
+		/*
+			for i := 0; i < len(dates); i++ {
+				// append record to database
+				// also need to get volume of pool
+			}
+
+		*/
+
 		// add to volume
 		x0, x1 := getTradingVolumeFromTxLog2(txlog.Logs, balancertopic)
-		total_volume_token0.Add(total_volume_token0, x0)
-		total_volume_token1.Add(total_volume_token1, x1)
+		//total_volume_token0.Add(total_volume_token0, x0)
+		// total_volume_token1.Add(total_volume_token1, x1)
 
 		fmt.Print(" | x0: ")
 		fmt.Print(x0)
 		fmt.Print(" | x1: ")
 		fmt.Println(x1)
-		fmt.Print(" | cum0: ")
-		fmt.Println(total_volume_token0)
+		//fmt.Print(" | cum0: ")
+		//fmt.Println(total_volume_token0)
 		//} // if txhash
+
 	} // loop through log finished
-
-	var dates []int64
-	var tradingvolumes []int64
-
-	t_prev := oldest time
-	t_new := oldest time
-
-	for i := 0; i < len(txlog); i++ {
-		t_prev = t_new
-		t_new = txlog.timestamp
-
-		if t_new.sub(tprev) > 1 day {
-			dates = append(dates, BoD(t_new))
-			tradingvolumes = append(tradingvolumes, cumulative_for_day)
-			cumulative_for_day = 0
-		} else {
-			x0, x1 := getTradingVolumeFromTxLog2(txlog.Logs, balancertopic)
-			cumulative_for_day.Add(cumulative_for_day, x0)
-			// convert to usd
-			// decimals
-			// convert big int to float
-		}
-	}
-	
-	for i := 0; i < len(dates); i++ {
-		// append record to database
-		// also need to get volume of pool
-	}
 
 }
 
@@ -292,6 +321,7 @@ func getTradingVolumeFromTxLog2(logs []*types.Log, pooltopic string) (actualIn *
 	//		return big.NewInt(0), big.NewInt(0)
 	//	}
 }
+
 // xxxx
 /*
 func getTradingVolumeFromTxLog(logs []*types.Log, pooltopic string) (actualIn *big.Int, actualOut *big.Int) {
