@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	"reflect"
 	"strings"
 	"time"
 )
@@ -16,12 +15,18 @@ import (
 
 func main() {
 	now := time.Now()
-	append_record_to_database("Uniswap", "ETH", "DAI", now.Unix(), 100, 200)
+	append_record_to_database("Uniswap", "ETH", "DAI", now.Unix(), 2000, 1000)
+
+
+	//create_new_hist_volume_poolsz_entry("Balancer", "Token0", "Token1")
+
+	fmt.Println(get_oldest_timestamp_from_db("Uniswap", "ETH", "DAI"))
+
 
 	//var id = addOwnPortfolioRecord("DAI", 69)
 	//returnEntryById("Own Portfolio Record", id)
 	//fmt.Println(returnAttributeInCollection("Historical Currency Data", "Price"))
-	returnDatesInCollection("WETH")
+	//returnDatesInCollection("Uniswap ETH DAI")
 	//removeRecordById("Own Portfolio Record", "6065b79b738be8435f30b458")
 	//dropEntireCollection("Own Portfolio Record")
 	/*
@@ -194,7 +199,7 @@ func returnDateInCollection(collectionName string, attribute string) [] primitiv
 	defer client.Disconnect(ctx)
 
 
-	Database := client.Database("test2")
+	Database := client.Database("De-Fi_Aggregator")
 	collection := Database.Collection(collectionName)
 
 	cursor, err := collection.Find(ctx, bson.M{})
@@ -293,7 +298,7 @@ func isHistDataAlreadyDownloadedDatabase(token string) bool {
 	return false
 }
 
-func returnDatesInCollection(collectionName string) [] int64 {
+func returnDatesInCollection(collectionName string) []int64 {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
@@ -305,8 +310,7 @@ func returnDatesInCollection(collectionName string) [] int64 {
 	}
 	defer client.Disconnect(ctx)
 
-
-	Database := client.Database("test2")
+	Database := client.Database("De-Fi_Aggregator")
 	collection := Database.Collection(collectionName)
 
 	cursor, err := collection.Find(ctx, bson.M{})
@@ -314,27 +318,25 @@ func returnDatesInCollection(collectionName string) [] int64 {
 		log.Fatal(err)
 	}
 
-
 	var records []bson.M
 
 	if err = cursor.All(ctx, &records); err != nil {
 		log.Fatal(err)
 	}
 
-	var dates [] int64
+	var dates []int64
 	for _, record := range records {
-		fmt.Println(record)
-		fmt.Println(reflect.TypeOf(record["Date"]))
-		date := record["Date"]
-		//fmt.Println(attribute_value)
-		//fmt.Println(reflect.TypeOf(attribute_value))
+		//fmt.Println(record)
+		//fmt.Println(reflect.TypeOf(record["Date"]))
+		date := record["date"]
+		//fmt.Println(date)
+		//fmt.Println(reflect.TypeOf(date))
 		//attributes = append(attributes, fmt.Sprint(attribute_value))
 		dates = append(dates, date.(int64))
 	}
 
 	return dates
 }
-
 func append_record_to_database(pool string, token0 string, token1 string, date int64, trading_volume_usd int64, pool_sz_usd int64) string {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
@@ -359,6 +361,58 @@ func append_record_to_database(pool string, token0 string, token1 string, date i
 		{Key: "date", Value: date},
 		{Key: "trading_Volume_USD", Value: trading_volume_usd},
 		{Key: "pool_sz_USD", Value: pool_sz_usd},
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	newID := new_portfolio.InsertedID
+	hexID := newID.(primitive.ObjectID).Hex()
+
+	return hexID
+}
+
+func get_oldest_timestamp_from_db(pool string, token0 string, token1 string) int64 {
+	s := []string{pool, token0, token1}
+	v := strings.Join(s, " ")
+	dates := returnDatesInCollection(v)
+
+	min := int64(0)
+	for _, v := range dates {
+		if v < min {
+			min = v
+		}
+	}
+
+	if min == 0 {
+		log.Fatal()
+	}
+
+	return min
+}
+
+func create_new_hist_volume_poolsz_entry(pool string, token0 string, token1 string) string {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("De-Fi_Aggregator")
+	s := []string{pool, token0, token1, "hist volume poolsz"}
+	v := strings.Join(s, " ")
+	optimisedportfolio := Database.Collection(v)
+
+	new_portfolio, err := optimisedportfolio.InsertOne(ctx, bson.D{
+		{Key: "pool", Value: pool},
+		{Key: "token0", Value: token0},
+		{Key: "token1", Value: token1},
 	})
 
 	if err != nil {
