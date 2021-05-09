@@ -1,12 +1,11 @@
 package db
 
-// ---Balancer---
 type BalancerPoolID struct {
 	ID         string          `json:"id"`
 	TokensList []string        `json:"tokensList"`
 	Tokens     []BalancerToken `json:"tokens"`
 }
-
+// xxx
 type BalancerPoolList struct {
 	Pools []BalancerPoolID `json:"pools"`
 }

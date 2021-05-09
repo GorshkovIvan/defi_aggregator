@@ -292,7 +292,7 @@ func getTradingVolumeFromTxLog2(logs []*types.Log, pooltopic string) (actualIn *
 	//		return big.NewInt(0), big.NewInt(0)
 	//	}
 }
-
+// xxxx
 /*
 func getTradingVolumeFromTxLog(logs []*types.Log, pooltopic string) (actualIn *big.Int, actualOut *big.Int) {
 	fmt.Println("Getting Trading Volume from logs!!! ")

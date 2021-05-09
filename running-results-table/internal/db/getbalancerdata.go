@@ -9,7 +9,7 @@ import (
 
 	"github.com/machinebox/graphql"
 )
-
+// xxx
 func estimate_future_balancer_volume_and_pool_sz(histvolume BalancerHistVolumeQuery) (float32, float32) {
 	future_volume_est := 0.0
 	future_sz_est := 0.0
