@@ -15,6 +15,52 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+func isAave1RecordsInDb() bool {
+	names := getCollectionNames("De-Fi Aggregator")
+
+	for _, name := range names {
+		fmt.Println(name)
+		if name == "Aave1 USDC USDC" {
+			return true
+		}
+	}
+	return false
+}
+
+func getCollectionNames(database string) []string {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("De-Fi_Aggregator")
+	collection, err := Database.ListCollections(ctx, bson.D{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+
+	var collectionNames []bson.M
+	err = collection.All(ctx, &collectionNames)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var allNames []string
+	for _, name := range collectionNames {
+		aName := name["name"]
+		allNames = append(allNames, fmt.Sprint(aName))
+	}
+
+	return allNames
+}
+
 func returnAttributeInCollectionAsInt64(collectionName string, attribute string) []int64 {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {

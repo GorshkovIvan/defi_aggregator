@@ -185,8 +185,8 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 			fmt.Print(histcombo.Price[1])
 		}
 	*/
-//	fmt.Print("returning sz of histcombo: ")
-//	fmt.Print(len(histcombo.Date))
+	//	fmt.Print("returning sz of histcombo: ")
+	//	fmt.Print(len(histcombo.Date))
 
 	return histcombo
 }
@@ -578,15 +578,16 @@ func isPoolPartOfFilter(token0 string, token1 string) bool {
 	t2 := "USDT"
 	t3 := "WETH"
 	t4 := "WBTC"
+	t5 := "BAL"
 
 	var t0ok bool
 	var t1ok bool
 
-	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 {
+	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 || token0 == t5 {
 		t0ok = true
 	}
 
-	if token1 == t0 || token1 == t1 || token1 == t2 || token1 == t3 || token1 == t4 {
+	if token1 == t0 || token1 == t1 || token1 == t2 || token1 == t3 || token1 == t4 || token0 == t5 {
 		t1ok = true
 	}
 

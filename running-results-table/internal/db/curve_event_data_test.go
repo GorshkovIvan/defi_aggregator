@@ -1,4 +1,4 @@
-package curve_event_data
+package db // curve_event_data
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-
+/*
 func TestGetOldestBlock(t *testing.T) {
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
 
@@ -31,7 +31,7 @@ func TestGetOldestBlock(t *testing.T) {
 
 
 }
-
+*/
 func TestCurveGetPoolVolume(t *testing.T){
 
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
@@ -55,7 +55,7 @@ func TestCurveGetPoolVolume(t *testing.T){
 	
 }
 /*
-func TestDecodeBytes(t *testing.T) {
+func TestDecodeBytesCurve(t *testing.T) {
 	// Connecting to client 
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
 	//client, err := ethclient.Dial("http://localhost:8888")
@@ -169,7 +169,7 @@ func TestDecodeBytes(t *testing.T) {
 		if firstLog == nil { // could not find any valid swaps, thus the transaction failed
 			return -1, common.Big0, -1, common.Big0
 		}
-		asset0_index, asset0_volume, asset1_index, asset1_volume := decodeBytes(firstLog)
+		asset0_index, asset0_volume, asset1_index, asset1_volume := decodeBytesCurve(firstLog)
 		
 		if (asset0_index == nil) {
 			t.Errorf("No asset0_index decoded")
@@ -187,7 +187,7 @@ func TestDecodeBytes(t *testing.T) {
 }
 */
 /*
-func testDecodeBytes(t *testing.T) {
+func testDecodeBytesCurve(t *testing.T) {
 	var firstLog *types.Log
 
 	poolTopics := []string{ "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"}
@@ -245,7 +245,7 @@ func TestGetTradingVolumeFromTxLog(t *testing.T) {
 
 	txlog, err := client.TransactionReceipt(context.Background(), logsX[0].TxHash)
 
-	asset0_index, asset0_volume, asset1_index, asset1_volume := getTradingVolumeFromTxLog(txlog.Logs, poolTopics)
+	asset0_index, asset0_volume, asset1_index, asset1_volume := getTradingVolumeFromTxLogCurve(txlog.Logs, poolTopics)
 
 	if(asset0_index == nil) {
 		t.Errorf("Index of asset0 not retrieved!")

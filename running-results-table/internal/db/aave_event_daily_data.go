@@ -9,8 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	// token "./erc20Interface"
-	//aaveDataProvider "./aave_protocol_data_provider"
 	"encoding/hex"
 	"strings"
 
@@ -38,8 +36,11 @@ type AaveDailyData struct {
 	volumes   []*big.Int
 }
 
+func getAave2Data() {
 
-func getAaveDataDaily() {
+}
+
+func getAave1Data() {
 
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
 	if err != nil {
@@ -48,22 +49,23 @@ func getAaveDataDaily() {
 
 	var aave_daily_data []AavePoolData
 
-	aave_daily_data = newGetAaveData(client, aave_daily_data, 3)
-	fmt.Println("Day 1 done")
-	aave_daily_data = newGetAaveData(client, aave_daily_data, 2)
-	fmt.Println("Day 2 done")
-
-	for i := 0; i < len(aave_daily_data); i++ {
+	//var listofaave1tokens []string
+	//listofaave1tokens = retrieveAllAave1TokensFromDb()
+	days := 2
+	if !isAave1RecordsInDb() {
+		days = 30
+	}
+	// if list empty --> download everything for 30 days	// otherwise -- for 1 day
+	for i := days; i >= 2; i-- {
+		aave_daily_data = newGetAaveData(client, aave_daily_data, i) // appender
+		getUsdFromVolumeAave1(aave_daily_data[i])
 		fmt.Println("Name")
 		fmt.Println(aave_daily_data[i].assetName)
 		fmt.Println("Volumes")
 		fmt.Println(aave_daily_data[i].volumes)
-
 	}
-	fmt.Print("Checkpoint 643")
-	getUsdFromVolumeAave1(aave_daily_data[0])
 
-} 
+}
 
 func sumVolumes(volumes []*big.Int) *big.Int {
 
@@ -278,7 +280,6 @@ func aaveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, lates
 	return pools
 }
 
-
 func decodeBytes(log *types.Log) (*big.Int, int, *big.Int) {
 
 	amount := new(big.Int).SetBytes(log.Data[0:32])
@@ -287,7 +288,7 @@ func decodeBytes(log *types.Log) (*big.Int, int, *big.Int) {
 
 	return amount, rate_type, interest_rate
 
-} 
+}
 
 /*
 func decodeBytes(log *types.Log) (*big.Int, int, *big.Int) {

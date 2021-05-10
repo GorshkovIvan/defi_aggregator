@@ -12,20 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-/*
-type AavePoolData struct {
-
-	assetAddress string
-	assetName string
-	interest_rates []*big.Int
-	volumes []*big.Int
-	rate_types []int
-	flashLoanVolumes []*big.Int
-	flashLoanFees []*big.Int
-
-}
-*/
-
 func convaavetoken(aavetoken string) string {
 	assetName := " "
 	if aavetoken == "Eth" {
@@ -52,7 +38,6 @@ func convaavetoken(aavetoken string) string {
 }
 
 func getUsdFromVolumeAave1(aavePoolData AavePoolData) {
-
 	fmt.Print("Asset name BEFORE: ")
 	fmt.Print(aavePoolData.assetName)
 
@@ -61,8 +46,11 @@ func getUsdFromVolumeAave1(aavePoolData AavePoolData) {
 	fmt.Print("Asset name: ")
 	fmt.Print(assetName)
 
-	histcombo := retrieveDataForTokensFromDatabase2(assetName,
-		"USD")
+	if !isPoolPartOfFilter(assetName, assetName) {
+		return
+	}
+
+	histcombo := retrieveDataForTokensFromDatabase2(assetName, "USD")
 	exchangeRate := histcombo.Price
 	if len(exchangeRate) == 0 {
 		fmt.Print("No data!!!! 647")
@@ -73,10 +61,8 @@ func getUsdFromVolumeAave1(aavePoolData AavePoolData) {
 	if coinPegged {
 		exch_fixed = 1.0
 		assetName = ticker
-
 		if exch_fixed == 0 {
 		}
-
 	}
 
 	for i := 0; i < len(aavePoolData.volumes); i++ {
@@ -107,23 +93,25 @@ func getUsdFromVolumeAave1(aavePoolData AavePoolData) {
 
 		// check if that day is already in db
 
-		data_is_old := false
-		oldest_available_record := time.Unix(get_newest_timestamp_from_db_hist_volume_and_sz("Aave1", assetName, assetName), 0)
+		//		data_is_old := false
+		//		oldest_available_record := time.Unix(get_newest_timestamp_from_db_hist_volume_and_sz("Aave1", assetName, assetName), 0)
 
-		if (time.Since(oldest_available_record).Hours()) > 24 {
-			data_is_old = true
-		}
+		//		if (time.Since(oldest_available_record).Hours()) > 24 {
+		//			data_is_old = true
+		//		}
 
-		if data_is_old { // if no -- add
-			//		addAave1PoolDataToAave1Database(assetName, float32(volumeUSD),
-			//			0.0, BoD(time.Now()).Unix()-int64(86400*30+i*86400))
-		} else {
-			fmt.Print("Data already appended")
-		}
-		pool_sz_usd := int64(0.0)
+		//		if data_is_old { // if no -- add
+		//		addAave1PoolDataToAave1Database(assetName, float32(volumeUSD),
+		//			0.0, BoD(time.Now()).Unix()-int64(86400*30+i*86400))
+		//		} else {
+		//fmt.Print("Data already appended")
+		//		}
+
+		// Add pool size
 		// Add fees
-		// fees :=
-		xx := append_hist_volume_record_to_database("Aave1", assetName, assetName, BoD(time.Now()).Unix()-int64(86400*30)+int64(i*86400), int64(volumeUSD), pool_sz_usd)
+		days_ago := 30
+		pool_sz_usd := int64(0.0)
+		xx := append_hist_volume_record_to_database("Aave1", assetName, assetName, BoD(time.Now()).Unix()-int64(86400*days_ago)+int64(i*86400), int64(volumeUSD), pool_sz_usd)
 		if xx == " " {
 		}
 	}

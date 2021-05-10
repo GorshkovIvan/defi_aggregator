@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"context"
@@ -6,49 +6,38 @@ import (
 	"log"
 	"math/big"
 	"strconv"
-	"time"
 
-	curveRegistry "./curveRegistry"
+	//	"time"
+
+	"pusher/defi_aggregator/running-results-table/internal/db/curveRegistry"
+
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
-/*
-type CurvePoolData struct {
-
-	poolAddress common.Address 
-	//poolCurrentBalances [8]*big.Int
-	assetAddresses [8]common.Address
-	assetDecimals [8]*big.Int
-	volumes *[8]*big.Int 
-	fees *[8]*big.Float
-	
-}*/
 
 type CurvePoolData struct {
-
-	poolAddress common.Address 
+	poolAddress common.Address
 	//poolCurrentBalances [8]*big.Int
-	assetAddresses [8]common.Address
-	assetDecimals [8]*big.Int
-	volumes []*[8]*big.Int 
-	fees []*[8]*big.Float
-	balances []*[8]*big.Int
+	assetAddresses     [8]common.Address
+	assetDecimals      [8]*big.Int
+	volumes            []*[8]*big.Int
+	fees               []*[8]*big.Float
+	balances           []*[8]*big.Int
 	normalsiedBalances []*big.Float
-	
 }
 
-func main(){
+func getCurveData() {
 
-	// Connecting to client 
+	// Connecting to client
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Creaitng a contract instance 
+	// Creaitng a contract instance
 	var curveRegistryAddress = common.HexToAddress("0x7D86446dDb609eD0F5f8684AcF30380a356b2B4c")
 	provider, err := curveRegistry.NewMain(curveRegistryAddress, client)
 
@@ -57,23 +46,25 @@ func main(){
 	}
 
 	var pools []CurvePoolData
-	
-	pools = getCurveData(client, provider, pools, 3, true)
+
+	fmt.Print("chk999")
+
+	pools = getCurveDataI(client, provider, pools, 3, true)
+	fmt.Print("chk998")
 	fmt.Println("Got day one")
-	pools = getCurveData(client, provider, pools, 4, false)
-	fmt.Println("Got day two")
-	//pools = getCurveData(client, provider, pools, 5, false)
+	//	pools = getCurveDataI(client, provider, pools, 4, false)
+	//	fmt.Println("Got day two")
+	//pools = getCurveDataI(client, provider, pools, 5, false)
 	//for i := 2; i > 2; i--{
-		//pools = getCurveData(client, provider, pools, i, false)
+	//pools = getCurveDataI(client, provider, pools, i, false)
 	//}
 
-	for i := 0; i < 31; i++{
+	for i := 0; i < 31; i++ {
 
-	
-		fmt.Println("pool address:")				
+		fmt.Println("pool address:")
 		fmt.Println(pools[i].poolAddress)
 		fmt.Println("Fees collected:")
-		for j := 0; j < 2; j++{
+		for j := 0; j < 2; j++ {
 			fmt.Println(pools[i].fees[j])
 		}
 		fmt.Println("Addresses of coins in the pool:")
@@ -81,23 +72,21 @@ func main(){
 		fmt.Println("Decimals for coins in the pool:")
 		fmt.Println(pools[i].assetDecimals)
 		/*
-		fmt.Println("Normalised volumes:")
-		
-		for j := 0; j < 8; j++{
-	
-			normalisedVolume := new(big.Float).SetInt(pools[i].volumes[j])
-			
-			normalisedVolume = negPow(normalisedVolume, pools[i].assetDecimals[j].Int64())
-			
-		}
+			fmt.Println("Normalised volumes:")
+
+			for j := 0; j < 8; j++{
+
+				normalisedVolume := new(big.Float).SetInt(pools[i].volumes[j])
+
+				normalisedVolume = negPow(normalisedVolume, pools[i].assetDecimals[j].Int64())
+
+			}
 		*/
 	}
-	
-
 
 	zero := big.NewFloat(0)
 
-	for i := 0; i < 4; i++{
+	for i := 0; i < 4; i++ {
 		var normalsied_fees []*big.Float
 		var normalsied_balances []*big.Float
 		current_coin_balances, err := provider.GetBalances(&bind.CallOpts{}, pools[i].poolAddress)
@@ -113,18 +102,18 @@ func main(){
 		}
 
 		for j := 0; j < 8; j++ {
-			
+
 			fee := negPow(pools[i].fees[0][j], pools[i].assetDecimals[j].Int64())
 			normalsied_fees = append(normalsied_fees, fee)
 		}
 
 		pools[i].normalsiedBalances = normalsied_balances
-		
+
 		fmt.Println("Returns:")
 		for j := 0; j < 8; j++ {
-			if(pools[i].normalsiedBalances[j].Cmp(zero) > 0){
+			if pools[i].normalsiedBalances[j].Cmp(zero) > 0 {
 				returns := new(big.Float).Quo(normalsied_fees[j], pools[i].normalsiedBalances[j])
-				fmt.Println(returns)	
+				fmt.Println(returns)
 			}
 
 		}
@@ -132,27 +121,25 @@ func main(){
 	}
 }
 
-func getCurveData(client *ethclient.Client, provider *curveRegistry.Main, pools []CurvePoolData, daysAgo int, first_turn bool) []CurvePoolData {
-
+func getCurveDataI(client *ethclient.Client, provider *curveRegistry.Main, pools []CurvePoolData, daysAgo int, first_turn bool) []CurvePoolData {
 
 	number_of_pools := big.NewInt(32)
 	oldest_block := getOldestBlock(client, daysAgo)
-	latest_block := getOldestBlock(client, daysAgo - 1)
+	latest_block := getOldestBlock(client, daysAgo-1)
 	count_pools := 0
 	var one = big.NewInt(1)
 	start := big.NewInt(1)
 	end := big.NewInt(0).Sub(number_of_pools, big.NewInt(1))
 
-	if(first_turn){
+	if first_turn {
 
-		// Getting data from pools 
+		// Getting data from pools
 		// Getting data for the first pool
 		pool_address, err := provider.PoolList(&bind.CallOpts{}, big.NewInt(0))
 
 		if err != nil {
 			log.Fatal(err)
 		}
-
 
 		// Addresses of underlying coins in the pool
 		coin_addresses, err := provider.GetCoins(&bind.CallOpts{}, pool_address)
@@ -166,9 +153,8 @@ func getCurveData(client *ethclient.Client, provider *curveRegistry.Main, pools 
 			log.Fatal(err)
 		}
 
-		// Getting current pool balances 
+		// Getting current pool balances
 
-		
 		// Getting swap volumes and fees and balances
 		volumes, fees := curveGetPoolVolume(pool_address, oldest_block, latest_block, client)
 		var volumes_array []*[8]*big.Int
@@ -177,22 +163,21 @@ func getCurveData(client *ethclient.Client, provider *curveRegistry.Main, pools 
 		fees_array = append(fees_array, fees)
 
 		// Appending a list of pool data structs
-		pools = append(pools, CurvePoolData{poolAddress: pool_address, assetAddresses: coin_addresses, 
-						volumes: volumes_array, fees:fees_array, assetDecimals: coin_decimals })
-		
+		pools = append(pools, CurvePoolData{poolAddress: pool_address, assetAddresses: coin_addresses,
+			volumes: volumes_array, fees: fees_array, assetDecimals: coin_decimals})
+
 		count_pools++
 		/*
-		fmt.Println("pool address:")				
-		fmt.Println(pool_address)
-		fmt.Println("Fees collected:")
-		fmt.Println(pools[count_pools].fees)
-		fmt.Println("Addresses of coins in the pool:")
-		fmt.Println(pools[count_pools].assetAddresses)
-		fmt.Println("Decimals for coins in the pool:")
-		fmt.Println(pools[count_pools].assetDecimals)
+			fmt.Println("pool address:")
+			fmt.Println(pool_address)
+			fmt.Println("Fees collected:")
+			fmt.Println(pools[count_pools].fees)
+			fmt.Println("Addresses of coins in the pool:")
+			fmt.Println(pools[count_pools].assetAddresses)
+			fmt.Println("Decimals for coins in the pool:")
+			fmt.Println(pools[count_pools].assetDecimals)
 		*/
 
-		
 		// Getting data for the rest of the pools
 
 		// i must be a new int so that it does not overwrite start
@@ -203,13 +188,13 @@ func getCurveData(client *ethclient.Client, provider *curveRegistry.Main, pools 
 			if err != nil {
 				log.Fatal(err)
 			}
-			
+
 			coin_addresses, err := provider.GetCoins(&bind.CallOpts{}, pool_address)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			// Get decimals for underlying tokens 
+			// Get decimals for underlying tokens
 
 			coin_decimals, err := provider.GetDecimals(&bind.CallOpts{}, pool_address)
 
@@ -217,25 +202,23 @@ func getCurveData(client *ethclient.Client, provider *curveRegistry.Main, pools 
 				log.Fatal(err)
 			}
 
-
 			// Getting volumes and fees
 
-			
 			volumes, fees := curveGetPoolVolume(pool_address, oldest_block, latest_block, client)
 
-			var volumes_array []*[8]*big.Int 
+			var volumes_array []*[8]*big.Int
 			volumes_array = append(volumes_array, volumes)
 			var fees_array []*[8]*big.Float
 			fees_array = append(fees_array, fees)
 
-			pools = append(pools, CurvePoolData{poolAddress: pool_address, assetAddresses: coin_addresses, 
+			pools = append(pools, CurvePoolData{poolAddress: pool_address, assetAddresses: coin_addresses,
 				volumes: volumes_array, fees: fees_array, assetDecimals: coin_decimals})
 
 			count_pools++
 
 		}
 
-	}else{
+	} else {
 
 		fmt.Println("Got into else")
 
@@ -267,13 +250,13 @@ func getCurveData(client *ethclient.Client, provider *curveRegistry.Main, pools 
 			count_pools++
 
 		}
-		 
-		
+
 	}
 
 	return pools
 }
 
+/*
 func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
 
 	var current_block *big.Int
@@ -295,8 +278,8 @@ func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
 
 	//timeonehourago := uint64(now.Add(-2*time.Hour).Unix())
 	//timeonemonthago := uint64((now.AddDate(0, 0, -1)).Unix())
-	timeonemonthago := uint64(now.Unix()) - 24 * 60 * 60 * uint64(daysAgo)
-	
+	timeonemonthago := uint64(now.Unix()) - 24*60*60*uint64(daysAgo)
+
 	var j int64
 	j = 0
 
@@ -317,10 +300,11 @@ func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
 
 	return oldest_block
 }
+*/
 
 func curveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, latest_block *big.Int, client *ethclient.Client) (*[8]*big.Int, *[8]*big.Float) {
 
-	poolTopics := []string{"0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140"/* "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"*/}
+	poolTopics := []string{"0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140" /* "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"*/}
 
 	//3)  Query between oldest and current block for Balancer-specific addresses
 
@@ -330,8 +314,6 @@ func curveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, late
 		ToBlock:   latest_block, // = latest block
 		Addresses: []common.Address{pool_address},
 	}
-
-
 
 	logsX, err := client.FilterLogs(context.Background(), query)
 	if err != nil {
@@ -364,7 +346,7 @@ func curveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, late
 		}
 
 		// add to volume
-		asset0_index, asset0_volume, asset1_index, asset1_volume := getTradingVolumeFromTxLog(txlog.Logs, poolTopics)
+		asset0_index, asset0_volume, asset1_index, asset1_volume := getTradingVolumeFromTxLogCurve(txlog.Logs, poolTopics)
 		swap_volumes[asset0_index].Add(swap_volumes[asset0_index], asset0_volume)
 		swap_volumes[asset1_index].Add(swap_volumes[asset1_index], asset1_volume)
 		volume_float := new(big.Float).SetInt(asset1_volume)
@@ -376,7 +358,7 @@ func curveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, late
 
 }
 
-func decodeBytes(log *types.Log) (int, *big.Int, int, *big.Int) {
+func decodeBytesCurve(log *types.Log) (int, *big.Int, int, *big.Int) {
 
 	asset0_index, _ := strconv.Atoi((new(big.Int).SetBytes(log.Data[0:32])).String())
 	asset0_volume := new(big.Int).SetBytes(log.Data[32:64])
@@ -387,7 +369,7 @@ func decodeBytes(log *types.Log) (int, *big.Int, int, *big.Int) {
 	return asset0_index, asset0_volume, asset1_index, asset1_volume
 }
 
-func getTradingVolumeFromTxLog(logs []*types.Log, pooltopics []string) (int, *big.Int, int, *big.Int) {
+func getTradingVolumeFromTxLogCurve(logs []*types.Log, pooltopics []string) (int, *big.Int, int, *big.Int) {
 
 	var firstLog *types.Log
 	//var lastLog *types.Log
@@ -405,28 +387,28 @@ func getTradingVolumeFromTxLog(logs []*types.Log, pooltopics []string) (int, *bi
 	if firstLog == nil { // could not find any valid swaps, thus the transaction failed
 		return -1, common.Big0, -1, common.Big0
 	}
-	asset0_index, asset0_volume, asset1_index, asset1_volume := decodeBytes(firstLog)
+	asset0_index, asset0_volume, asset1_index, asset1_volume := decodeBytesCurve(firstLog)
 
 	return asset0_index, asset0_volume, asset1_index, asset1_volume
 }
 
 func negPow(a *big.Float, e int64) *big.Float {
-    result := Zero().Copy(a)
+	result := Zero().Copy(a)
 	divTen := big.NewFloat(0.1)
-    for i:=int64(0); i<e-1; i++ {
-        result = Mul(result, divTen)
-    }
-    return result
+	for i := int64(0); i < e-1; i++ {
+		result = Mul(result, divTen)
+	}
+	return result
 }
 
 func Zero() *big.Float {
-    r := big.NewFloat(0.0)
-    r.SetPrec(256)
-    return r
+	r := big.NewFloat(0.0)
+	r.SetPrec(256)
+	return r
 }
 
 func Mul(a, b *big.Float) *big.Float {
-    return Zero().Mul(a, b)
+	return Zero().Mul(a, b)
 }
 
 /*
@@ -438,7 +420,7 @@ func Mul(a, b *big.Float) *big.Float {
 		log.Fatal(err)
 	}
 
-	// Add decimal spaces to volumes and fees and balances 
+	// Add decimal spaces to volumes and fees and balances
 
 	for i := 0; i < 8; i++{
 		normvolumes[i] = negPow(volumes[i], coin_decimals.Int64())
@@ -453,13 +435,13 @@ func Mul(a, b *big.Float) *big.Float {
 	for i := 0; i < 8; i++{
 		returns = append(returns, Quo(normfees[i], current_coin_balances[i]) )
 	}
-	*/
+*/
 
 /*
 	/*
 	fmt.Println("Returns:")
 	fmt.Println(pools[count_pools].returns)
-	
+
 	for i := 0; i < 8; i++{
 
 		normalisedVolume := new(big.Float).SetInt(pools[count_pools].volumes[i])
@@ -471,8 +453,8 @@ func Mul(a, b *big.Float) *big.Float {
 		fmt.Println("Normalised volume")
 		fmt.Println(normalisedVolume)
 
-		
-		
+
+
 	}
-	
-	*/
+
+*/

@@ -1,6 +1,6 @@
 Curve:
 
-1) Convert to daily data
+1) Convert to daily dataFix 
 2) Convert to USD
 3) Get current balances 
 4) Convert datatypes to the ones required by the database
@@ -15,3 +15,19 @@ AAVE:
 5) Convert datatypes to the ones required by the database
 6) Change coin names to match the ones in the database
 
+
+
+Aave 1 - Check if data is old
+Aave 1 - balances missing
+Aave 1 - interest to decimals
+Aave 1 - Sync coin list
+
+Aave 2 - balances
+Aave 2 - interest
+Calculate avg interest
+Calculate ROI func
+Bring back Aave Graphql
+
+Curve - incorporate with rest of code
+
+BAL - get interest
