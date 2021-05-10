@@ -75,15 +75,21 @@ export default function ResultsTable2({currencyoutputtable}) {
     return (
         <div className="ui container">
             <Segment>
-                <h4>Recommended Liquidity Pools</h4>
-                <Form className="tableButton">
-                    <div class="ui animated fade button">
-                        <div class="visible content">Refresh</div>
-                        <div class="hidden content">
-                            <i class="refresh icon"></i>
-                        </div>
+                <div className="recommended-float">
+                    <div className="recommended-header">
+                        <div>Recommended Liquidity Pools</div>
                     </div>
-                </Form>
+                    <div className="recommended-reset">
+                        <Form className="tableButton">
+                            <div class="ui animated fade button">
+                                <div class="visible content">Refresh</div>
+                                <div class="hidden content">
+                                    <i class="refresh icon"></i>
+                                </div>
+                            </div>
+                        </Form>
+                    </div>
+                </div>
                 <div class="ui basic table">
                     <Table.Header>
                         <Table.Row>
