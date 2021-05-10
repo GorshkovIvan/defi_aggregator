@@ -10,10 +10,10 @@ function Contact() {
     return (
         <div class="Contact">
             <h1>High Yield 4 Me</h1>
-            <h4>Meet the Team:</h4>
+            <div className="about-header">Meet the Team:</div>
             <h3>Some kind of description...</h3>
             <div class="ui container">
-                <h4>Databases & Testing</h4>
+                <div className="about-header">Databases & Testing</div>
                 <div class="row">
                     <div class="column">
                         <h3>Aaron Lam</h3>
@@ -25,7 +25,7 @@ function Contact() {
                     </div>
                 </div>
 
-                <h4>Front End</h4>
+                <div className="about-header">Front End</div>
                 <div class="row">
                     <div class="column">
                         <h3>Chris Stanford</h3>
@@ -37,7 +37,7 @@ function Contact() {
                     </div>
                 </div>
 
-                <h4>Back End</h4>
+                <div className="about-header">Back End</div>
                 <div class="row">
                     <div class="column">
                         <h3>Ivan Gorshkov</h3>
