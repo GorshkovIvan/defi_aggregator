@@ -64,6 +64,9 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 	token0dataishere := isHistDataAlreadyDownloadedDatabase(token0)
 	token1dataishere := isHistDataAlreadyDownloadedDatabase(token1)
 
+	//	fmt.Println(token0dataishere)
+	//	fmt.Println(token1dataishere)
+
 	if !token0dataishere || !token1dataishere && (token1 != "USD") {
 		fmt.Println("ERROR 899: ticker combo not found in database..returning blank object")
 		return NewHistoricalCurrencyData()
@@ -80,10 +83,16 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 		token0pricesarray = returnPricesInCollection(token0)
 	}
 
+	//	fmt.Print(len(token0datesarray))
+	//	fmt.Print(len(token0pricesarray))
+
 	if token1dataishere {
 		token1datesarray = returnDatesInCollection(token1)
 		token1pricesarray = returnPricesInCollection(token1)
 	}
+
+	fmt.Print(len(token1datesarray))
+	fmt.Print(len(token1pricesarray))
 
 	ago0 := time.Since(time.Unix(MaxIntSlice(token0datesarray), 0))
 	ago1 := time.Since(time.Unix(MaxIntSlice(token1datesarray), 0))
@@ -106,77 +115,79 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 	if token1 != "USD" {
 		lengthoflookbackhist2 := len(token1datesarray)
 		lengthoflookbackhist = int(math.Min(float64(lengthoflookbackhist), float64(lengthoflookbackhist2)))
-	
-		fmt.Print("length of lookback = ")
-		fmt.Println(lengthoflookbackhist)	
+
+		//	fmt.Print("length of lookback = ")
+		//	fmt.Println(lengthoflookbackhist)
 	} else {
 		lengthoflookbackhist2 := lengthoflookbackhist
 		lengthoflookbackhist = int(math.Min(float64(lengthoflookbackhist), float64(lengthoflookbackhist2)))
 	}
 
-
 	for i := lengthoflookbackhist - 1; i >= 0; i-- {
-		/*
-		fmt.Print("i: ")
-		fmt.Print(i)
-		fmt.Print(" | t0: ")
-		fmt.Print(token0datesarray[i])
-		fmt.Print(" | px0: ")
-		fmt.Print(token0pricesarray[i])
-		*/
+
+		//	fmt.Print("i: ")
+		//	fmt.Print(i)
+		//	fmt.Print(" | t0: ")
+		//	fmt.Print(token0datesarray[i])
+		//	fmt.Print(" | px0: ")
+		//	fmt.Print(token0pricesarray[i])
+
 		if token1 != "USD" {
-		/*
-			fmt.Print(" | t1: ")
-			fmt.Print(token1datesarray[i])
-			fmt.Print(" | px1: ")
-			fmt.Print(token1pricesarray[i])
-		*/
-		// Synchronise indices i and j in token1
-		if token0datesarray[i] == token1datesarray[i] {
-			//fmt.Println(" ..dates match")
-			histcombo.Date = append(histcombo.Date, token0datesarray[i])
 
-			var price float64
-			if token1pricesarray[i] > 0 {
-				price = token0pricesarray[i] / token1pricesarray[i]
+			//	fmt.Print(" | t1: ")
+			//	fmt.Print(token1datesarray[i])
+			//	fmt.Print(" | px1: ")
+			//	fmt.Print(token1pricesarray[i])
+
+			// Synchronise indices i and j in token1
+			if token0datesarray[i] == token1datesarray[i] {
+				//fmt.Println(" ..dates match")
+				histcombo.Date = append(histcombo.Date, token0datesarray[i])
+
+				var price float64
+				if token1pricesarray[i] > 0 {
+					price = token0pricesarray[i] / token1pricesarray[i]
+				} else {
+					price = 0.0
+				}
+				if math.IsInf(float64(price), 0) {
+					price = 0.0
+					fmt.Println("WARNING 987: Inf in calculating token combo price")
+				}
+				if math.IsNaN(float64(price)) {
+					price = 0.0
+					fmt.Println("WARNING 987: Nan in calculating token combo price")
+				}
+
+				histcombo.Price = append(histcombo.Price, float32(price))
 			} else {
-				price = 0.0
+				fmt.Print(" | Error: dates do not match!!!")
 			}
-			if math.IsInf(float64(price), 0) {
-				price = 0.0
-				fmt.Println("WARNING 987: Inf in calculating token combo price")
-			}
-			if math.IsNaN(float64(price)) {
-				price = 0.0
-				fmt.Println("WARNING 987: Nan in calculating token combo price")
-			}
-
-			histcombo.Price = append(histcombo.Price, float32(price))
-		} else {
-			fmt.Print(" | Error: dates do not match!!!")
+		} else if token1 == "USD" {
+			histcombo.Date = append(histcombo.Date, token0datesarray[i])
+			histcombo.Price = append(histcombo.Price, float32(token0pricesarray[i]))
 		}
-	} else if token1 == "USD" {
-		histcombo.Date = append(histcombo.Date, token0datesarray[i])
-		histcombo.Price = append(histcombo.Price, float32(token0pricesarray[i]))
-	}
 
 	}
-/*
-	fmt.Print("SIZE of returned combo for ticker: ")
-	fmt.Print(histcombo.Ticker)
-	fmt.Print(": ")
-	fmt.Println(len(histcombo.Price))
-*/
-/*
-	if len(histcombo.Price) >= 2 {
-		fmt.Print(histcombo.Date[0])
-		fmt.Print(" | ")
-		fmt.Println(histcombo.Price[0])
-		fmt.Print(histcombo.Date[1])
-		fmt.Print(" | ")
-		fmt.Print(histcombo.Price[1])
-	}
-*/
+	/*
+		fmt.Print("SIZE of returned combo for ticker: ")
+		fmt.Print(histcombo.Ticker)
+		fmt.Print(": ")
+		fmt.Println(len(histcombo.Price))
+	*/
+	/*
+		if len(histcombo.Price) >= 2 {
+			fmt.Print(histcombo.Date[0])
+			fmt.Print(" | ")
+			fmt.Println(histcombo.Price[0])
+			fmt.Print(histcombo.Date[1])
+			fmt.Print(" | ")
+			fmt.Print(histcombo.Price[1])
+		}
+	*/
+//	fmt.Print("returning sz of histcombo: ")
+//	fmt.Print(len(histcombo.Date))
+
 	return histcombo
 }
 

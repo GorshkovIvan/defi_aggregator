@@ -15,10 +15,54 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func get_newest_timestamp_from_db(pool string, token0 string, token1 string) int64 {
+func returnAttributeInCollectionAsInt64(collectionName string, attribute string) []int64 {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("De-Fi_Aggregator")
+	collection := Database.Collection(collectionName)
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var records []bson.M
+
+	if err = cursor.All(ctx, &records); err != nil {
+		log.Fatal(err)
+	}
+
+	var array []int64
+	for _, record := range records {
+		val := record[attribute]
+		array = append(array, val.(int64))
+	}
+
+	return array
+}
+
+func retrieve_hist_pool_sizes_volumes(pool string, token0 string, token1 string) (dates []int64, tradingvolumes []int64, poolsizes []int64) {
 	s := []string{pool, token0, token1}
 	v := strings.Join(s, " ")
-	dates := returnDatesInCollection(v)
+	dates = returnAttributeInCollectionAsInt64(v, "date")
+	tradingvolumes = returnAttributeInCollectionAsInt64(v, "trading_Volume_USD")
+	poolsizes = returnAttributeInCollectionAsInt64(v, "pool_sz_USD")
+	return dates, tradingvolumes, poolsizes
+}
+
+func get_newest_timestamp_from_db_hist_volume_and_sz(pool string, token0 string, token1 string) int64 {
+	s := []string{pool, token0, token1}
+	v := strings.Join(s, " ")
+	dates := returnDatesInCollectionHistVolumes(v)
 
 	max := int64(0)
 	for _, v := range dates {
@@ -27,10 +71,7 @@ func get_newest_timestamp_from_db(pool string, token0 string, token1 string) int
 		}
 	}
 
-	if max == 0 {
-		log.Fatal()
-	}
-
+	fmt.Println(max)
 	return max
 }
 
@@ -92,11 +133,11 @@ func append_hist_volume_record_to_database(pool string, token0 string, token1 st
 		{Key: "trading_Volume_USD", Value: trading_volume_usd},
 		{Key: "pool_sz_USD", Value: pool_sz_usd},
 	})
-
+	//fmt.Print("chk009..")
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	//fmt.Print("chk010..")
 	newID := new_portfolio.InsertedID
 	hexID := newID.(primitive.ObjectID).Hex()
 
@@ -115,7 +156,7 @@ func addOwnPortfolioRecord(token string, amount float32) string {
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("De-Fi_Aggregator")
+	Database := client.Database("test2")
 	ownstartingportfolio := Database.Collection("Own Portfolio Record")
 
 	new_portfolio, err := ownstartingportfolio.InsertOne(ctx, bson.D{
@@ -146,7 +187,7 @@ func addOptimisedPortfolioRecord(tokenorpair string, pool string, amount float32
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("De-Fi_Aggregator")
+	Database := client.Database("test2")
 	optimisedportfolio := Database.Collection("Optimised Portfolio Record")
 
 	new_portfolio, err := optimisedportfolio.InsertOne(ctx, bson.D{
@@ -181,7 +222,7 @@ func addHistoricalCurrencyData(date int64, price float32, CollectionOrTicker str
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("De-Fi_Aggregator")
+	Database := client.Database("test2")
 	historicaldata := Database.Collection(CollectionOrTicker)
 
 	// check if date exists in that collection - if yes return "already exists"
@@ -231,7 +272,7 @@ func addCurrencyInputData(pair string, poolsize float32, poolvolume float32, yie
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("De-Fi_Aggregator")
+	Database := client.Database("test2")
 	ownstartingportfolio := Database.Collection("Currency Input Data")
 
 	new_data, err := ownstartingportfolio.InsertOne(ctx, bson.D{
@@ -268,7 +309,7 @@ func removeRecordById(collectionName string, id string) {
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("De-Fi_Aggregator")
+	Database := client.Database("test2")
 	a_collection := Database.Collection(collectionName)
 
 	objID, _ := primitive.ObjectIDFromHex(id)
@@ -294,7 +335,7 @@ func dropEntireCollection(collectionName string) {
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("De-Fi_Aggregator")
+	Database := client.Database("test2")
 	collection := Database.Collection(collectionName)
 
 	if err = collection.Drop(ctx); err != nil {
@@ -302,7 +343,7 @@ func dropEntireCollection(collectionName string) {
 	}
 }
 
-func returnDatesInCollection(collectionName string) []int64 {
+func returnDatesInCollectionHistVolumes(collectionName string) []int64 {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
@@ -342,6 +383,46 @@ func returnDatesInCollection(collectionName string) []int64 {
 	return dates
 }
 
+func returnDatesInCollection(collectionName string) []int64 {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("test2")
+	collection := Database.Collection(collectionName)
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var records []bson.M
+
+	if err = cursor.All(ctx, &records); err != nil {
+		log.Fatal(err)
+	}
+
+	var dates []int64
+	for _, record := range records {
+		//fmt.Println(record)
+		//fmt.Println(reflect.TypeOf(record["Date"]))
+		date := record["Date"]
+		//fmt.Println(date)
+		//fmt.Println(reflect.TypeOf(date))
+		//attributes = append(attributes, fmt.Sprint(attribute_value))
+		dates = append(dates, date.(int64))
+	}
+
+	return dates
+}
+
 func returnPricesInCollection(collectionName string) []float64 {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
@@ -354,7 +435,7 @@ func returnPricesInCollection(collectionName string) []float64 {
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("De-Fi_Aggregator")
+	Database := client.Database("test2")
 	collection := Database.Collection(collectionName)
 
 	cursor, err := collection.Find(ctx, bson.M{})
@@ -394,7 +475,7 @@ func returnAttributeInCollection(collectionName string, attribute string) []stri
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("De-Fi_Aggregator")
+	Database := client.Database("test2")
 	collection := Database.Collection(collectionName)
 
 	cursor, err := collection.Find(ctx, bson.M{})
@@ -430,7 +511,7 @@ func returnEntryById(collectionName string, id string) {
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("De-Fi_Aggregator")
+	Database := client.Database("test2")
 	collection := Database.Collection(collectionName)
 
 	objID, _ := primitive.ObjectIDFromHex(id)

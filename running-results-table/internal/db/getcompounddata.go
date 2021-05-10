@@ -1,5 +1,6 @@
 package db
 
+/*
 import (
 	"context"
 	"log"
@@ -30,7 +31,7 @@ type CompoundMarket struct {
 	TotalSupply              	string `json:"totalSupply"`
 	UnderlyingAddress        	string `json:"underlyingAddress"`
 	ReserveFactor            string `json:"reserveFactor"`
-	UnderlyingPriceUSD       string `json:"underlyingPriceUSD"` */
+	UnderlyingPriceUSD       string `json:"underlyingPriceUSD"`
 }
 
 func getCompoundData(database *Database, compoundreqdata CompoundInputStruct) {
@@ -38,7 +39,7 @@ func getCompoundData(database *Database, compoundreqdata CompoundInputStruct) {
 
 	reqCompoundRates := graphql.NewRequest(`
 	query {
-		
+
 		markets(first: 12) {
 			borrowRate
 			supplyRate
@@ -80,11 +81,11 @@ func getCompoundData(database *Database, compoundreqdata CompoundInputStruct) {
 		CompoundTokenSupplyRate = append(CompoundTokenSupplyRate, respCompoundMarkets.Markets[i].SupplyRate)
 		CompoundTokenBlockTimestamp = append(CompoundTokenBlockTimestamp, respCompoundMarkets.Markets[i].BlockTimestamp)
 		CompoundTokenPrice = append(CompoundTokenPrice, respCompoundMarkets.Markets[i].CompoundTokenPrice)
-		
+
 		addToCompoundData(CompoundTokenSymbol[i], CompoundTokenName[i], CompoundTokenID[i],
-			CompoundTokenSupplyRate[i], CompoundTokenBorrowRate[i], 
+			CompoundTokenSupplyRate[i], CompoundTokenBorrowRate[i],
 			CompoundTokenExchangeRate[i], CompoundTokenPrice[i], CompoundTokenBlockTimestamp[i])
-		/*
+
 		var recordalreadyexists bool
 		recordalreadyexists = false
 
@@ -118,9 +119,9 @@ func getCompoundData(database *Database, compoundreqdata CompoundInputStruct) {
 	} // Uniswap pair loop closes
 	}
 
-	
-
-}*/
 
 
-func compoundReturnsDollars(exchangeRate float64, )
+}
+*/
+
+//func compoundReturnsDollars(exchangeRate float64, )

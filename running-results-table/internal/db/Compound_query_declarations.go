@@ -1,5 +1,6 @@
 package db
 
+/*
 // ---Compound---
 type CompoundQuery struct {
 	Markets []CompoundMarket `json:"markets"`
@@ -25,3 +26,4 @@ type CompoundMarket struct {
 	ReserveFactor            string `json:"reserveFactor"`
 	UnderlyingPriceUSD       string `json:"underlyingPriceUSD"`
 }
+*/

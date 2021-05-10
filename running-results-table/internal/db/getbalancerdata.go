@@ -1,11 +1,12 @@
 package db
 
 /*
-Check balance units
-Add database linkage
-Get historical balances
+Check balance units - ok
+Add database linkage - ok
 Check ROI result makes sense
 Add BAL token return component
+
+Get historical balances
 Volumes as floats
 Missing zeros - fix
 */
@@ -57,6 +58,7 @@ func estimate_future_balancer_volume_and_pool_sz(dates []int64, tradingvolumes [
 		sz := poolsizes[i]
 
 		future_volume_est += float64(tradingvolumes[i])
+		fmt.Print(poolsizes[i])
 		future_sz_est += float64(poolsizes[i]) // sz
 
 		if v != 0.0 {
@@ -126,7 +128,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 	// 2 - declare queries
 	reqBalancerListOfPools := graphql.NewRequest(`
 	query {
-		pools(first: 100, orderDirection: desc, orderBy: liquidity, where: {publicSwap: true}) {
+		pools(first: 25, orderDirection: desc, orderBy: liquidity, where: {publicSwap: true}) {
 		  id
 		  tokensList
 		  tokens {
@@ -194,7 +196,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 	var respBalancerPoolList BalancerPoolList
 	var respBalancerById BalancerById
-	var respBalancerHistVolume BalancerHistVolumeQuery
+	//	var respBalancerHistVolume BalancerHistVolumeQuery
 
 	var respUniswapTicker UniswapTickerQuery // Used in Balancer to look up Uniswap IDs of 'ETH' etc
 	var respUniswapHist UniswapHistQuery
@@ -208,16 +210,16 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 	if err := clientBalancer.Run(ctx, reqBalancerListOfPools, &respBalancerPoolList); err != nil {
 		log.Fatal(err)
 	}
-	/*
-		for i := 0; i < len(respBalancerPoolList.Pools); i++ {
-			fmt.Print("i: ")
-			fmt.Print(i)
-			fmt.Print(" | ")
-			fmt.Print(respBalancerPoolList.Pools[i].Tokens[0].Symbol)
-			fmt.Print(" | ")
-			fmt.Println(respBalancerPoolList.Pools[i].Tokens[1].Symbol)
-		}
-	*/
+
+	for i := 0; i < len(respBalancerPoolList.Pools); i++ {
+		fmt.Print("i: ")
+		fmt.Print(i)
+		fmt.Print(" | ")
+		fmt.Print(respBalancerPoolList.Pools[i].Tokens[0].Symbol)
+		fmt.Print(" | ")
+		fmt.Println(respBalancerPoolList.Pools[i].Tokens[1].Symbol)
+	}
+
 	// Process received list of pools (PAIRS)
 	for i := 0; i < len(respBalancerPoolList.Pools); i++ {
 		if len(respBalancerPoolList.Pools[i].Tokens) > 1 {
@@ -225,7 +227,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 			token1symbol := respBalancerPoolList.Pools[i].Tokens[1].Symbol
 
 			if isPoolPartOfFilter(token0symbol, token1symbol) {
-
+				fmt.Print("Pool at i: ")
+				fmt.Print(i)
 				fmt.Print("t0: ")
 				fmt.Print(token0symbol)
 				fmt.Print("| t1: ")
@@ -289,199 +292,232 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				currentVolume, _ := strconv.ParseFloat(respBalancerById.Pool.TotalSwapVolume, 32) // No historical for now
 
 				/*
-					fmt.Println("requesting data for id: ")
-					fmt.Print(respBalancerPoolList.Pools[i].ID)
+						fmt.Println("requesting data for id: ")
+						fmt.Print(respBalancerPoolList.Pools[i].ID)
 
-					reqBalancerHistVolume.Var("pairid", respBalancerPoolList.Pools[i].ID)
+						reqBalancerHistVolume.Var("pairid", respBalancerPoolList.Pools[i].ID)
 
-					if err := clientBalancer.Run(ctx, reqBalancerHistVolume, &respBalancerHistVolume); err != nil {
-						log.Fatal(err)
-					}
+						if err := clientBalancer.Run(ctx, reqBalancerHistVolume, &respBalancerHistVolume); err != nil {
+							log.Fatal(err)
+						}
+					//fmt.Print("Queried historical volume from BALANCER - number of items: ")
+					//fmt.Println(len(respBalancerHistVolume.Pool.Swaps))
+
 				*/
 
-				fmt.Print("Queried historical volume from BALANCER - number of items: ")
-				fmt.Println(len(respBalancerHistVolume.Pool.Swaps))
-
 				/////////////////////////////////////////////////////////////////////////
-
-				days_ago := 3
+				fmt.Print("checkpoint 0")
+				days_ago := 1
 				//oldest_available_record := time.Now() // XX - GET IT USING AARON's func
-				oldest_available_record := time.Unix(get_newest_timestamp_from_db(respBalancerById.Pool.ID, respBalancerById.Pool.Tokens[0].Address, respBalancerById.Pool.Tokens[1].Address), 0)
+				//fmt.Print("What is this the correct Pool ID: ")
+				oldest_available_record := time.Unix(get_newest_timestamp_from_db_hist_volume_and_sz("Balancer", respBalancerById.Pool.Tokens[0].Symbol, respBalancerById.Pool.Tokens[1].Symbol), 0) //time.Unix(sec, nano)
+				fmt.Print("NEWEST TIMESTAMP FROM DB:")
+				fmt.Print(oldest_available_record)
+				fmt.Print("checkpoint 1")
 				//oldest_available_record = oldest_available_record.AddDate(0, 0, -days_ago)
 				oldest_lookup_time := time.Now() //.Unix()
 
+				fmt.Print("time since oldest available record: ")
+				fmt.Print(time.Since(oldest_available_record).Hours())
+
+				data_is_old := false
+
 				if (time.Since(oldest_available_record).Hours()) > 24 {
-					//					fmt.Println("DATA IS OLD!!! NEED TO UPDATE!!!!!!!!!")
+					data_is_old = true
 					oldest_lookup_time = oldest_lookup_time.AddDate(0, 0, -days_ago) // oldest_available_record.Unix()
 					// math.Max(now.AddDate(0, 0, -days_ago)
 				}
-
-				fmt.Print(" Now: ")
-				fmt.Println(time.Now())
-				//fmt.Print("BoD for today: ")
-				//fmt.Println(BoD(time.Now()))
-				//fmt.Print("diff: ")
-				//t := (time.Since(oldest_available_record).Hours())
-				//fmt.Print(t)
-
-				// 1) If data is old and need to update it - Define pool specific parameters
-				fmt.Println(" The Pool Address  IS: ")
-				fmt.Print(respBalancerById.Pool.ID)
-				var BalancerpoolAddress = common.HexToAddress(respBalancerById.Pool.ID)
-				fmt.Println(" CONNECTED TO INFURA SUCCESSFULLY!!!!!!")
-
-				tokenAddress := common.HexToAddress(respBalancerById.Pool.Tokens[1].Address)
-				// common.HexToAddress("0x2260fac5e5542a773aa44fbcfedf7c193bc2c599")
-
-				instance, err := token.NewToken(tokenAddress, client)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				bal, err := instance.BalanceOf(&bind.CallOpts{}, BalancerpoolAddress)
-				if err != nil {
-					log.Fatal(err)
-				}
-				fmt.Printf("bal: %s\n", bal)
-				fbal := new(big.Float)
-				fbal.SetString(bal.String())
-				bal_float := new(big.Float).Quo(fbal, big.NewFloat(math.Pow10(int(decimals))))
-				fmt.Printf("balance: %f", bal_float) // "balance: 74605500.647409"
-
-				var current_block *big.Int
-				var oldest_block *big.Int
-				current_block = big.NewInt(0)
-
-				// Get current block
-				header, err := client.HeaderByNumber(context.Background(), nil)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				current_block = header.Number
-
-				fmt.Print("current block: ")
-				fmt.Print(current_block)
-
-				//2)  Find oldest block in our lookup date range
-				oldest_block = new(big.Int).Set(current_block)
-
-				j := int64(0) // compute block id [days_ago] days away from now
-				for {
-					j -= 2000
-					oldest_block.Add(oldest_block, big.NewInt(j))
-
-					block, err := client.BlockByNumber(context.Background(), oldest_block)
-					if err != nil {
-						log.Fatal(err)
-					}
-
-					if block.Time() <= uint64(oldest_lookup_time.Unix()) {
-						fmt.Print("oldest lkp block: ")
-						fmt.Println(oldest_block)
-						fmt.Print(" | t: ")
-						fmt.Print(block.Time())
-						fmt.Print("| curr blk - oldest blk: ")
-						diff := current_block.Sub(current_block, oldest_block)
-						fmt.Println(diff)
-						break
-					}
-				}
-
-				//3)  Query between oldest and current block for Balancer-specific addresses
-				query := ethereum.FilterQuery{
-					FromBlock: oldest_block,
-					ToBlock:   nil, // = latest block
-					Addresses: []common.Address{BalancerpoolAddress},
-				}
-
-				logsX, err := client.FilterLogs(context.Background(), query)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				fmt.Print("Number of block logs: ")
-				fmt.Print(len(logsX))
 
 				var dates []int64
 				var tradingvolumes []int64
 				var poolsizes []int64
 
-				cumulative_for_day := int64(0)
+				// if data is old - download it
+				if data_is_old {
+					fmt.Print("Data is old!! Downloading it!!")
+					fmt.Print(" Now: ")
+					fmt.Println(time.Now())
+					//fmt.Print("BoD for today: ")
+					//fmt.Println(BoD(time.Now()))
+					//fmt.Print("diff: ")
+					//t := (time.Since(oldest_available_record).Hours())
 
-				t_prev := uint64(0)
-				t_new := uint64(0)
+					// 1) If data is old and need to update it - Define pool specific parameters
+					fmt.Println(" The Pool Address  IS: ")
+					fmt.Print(respBalancerById.Pool.ID)
+					var BalancerpoolAddress = common.HexToAddress(respBalancerById.Pool.ID)
+					fmt.Println(" CONNECTED TO INFURA SUCCESSFULLY!!!!!!")
 
-				//4)  Loop through received data and filter it again
-				// For each transaction in logsX - check if it matches lookup criteria - add volume if does:
-				for i := 0; i < len(logsX); i++ {
-					if logsX[i].Topics[0] != common.HexToHash(balancertopic) {
-						continue
-					}
+					tokenAddress := common.HexToAddress(respBalancerById.Pool.Tokens[1].Address)
 
-					fmt.Print("i: ")
-					fmt.Print(i)
-					//fmt.Print(" | th: ")
-					//fmt.Print(logsX[i].TxHash)
-					//fmt.Print(" | blk#: ")
-					//fmt.Print(logsX[i].BlockNumber)
-					//fmt.Print(" | ")
-
-					// Get date from block number
-					block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(logsX[i].BlockNumber)))
+					instance, err := token.NewToken(tokenAddress, client)
 					if err != nil {
 						log.Fatal(err)
 					}
 
-					//fmt.Print(" | t: ")
-					//fmt.Print(block.Time())
+					bal, err := instance.BalanceOf(&bind.CallOpts{}, BalancerpoolAddress)
+					if err != nil {
+						log.Fatal(err)
+					}
+					fmt.Printf("bal: %s\n", bal)
+					fbal := new(big.Float)
+					fbal.SetString(bal.String())
+					bal_float := new(big.Float).Quo(fbal, big.NewFloat(math.Pow10(int(respBalancerById.Pool.Tokens[1].Decimals))))
+					Histrecord_2 := retrieveDataForTokensFromDatabase2(token0symbol, token1symbol)
+					//fmt.Print("Histrecord_2: ")
+					//fmt.Print(Histrecord_2)
+					//fmt.Print("found through maxintslice: ")
+					//fmt.Print(MaxIntSlice(Histrecord_2.Date))
+					//fmt.Print(" | Zeroth date: ")
+					//fmt.Print(Histrecord_2.Date[0])
+					//fmt.Print(" | Last indx date: ")
+					fmt.Print(Histrecord_2.Date[len(Histrecord_2.Date)-1])
+					fmt.Print(" | PX: ")
+					fmt.Print(Histrecord_2.Price[len(Histrecord_2.Price)-1])
+					fmt.Printf(" | balance: %f", bal_float) // "balance: 74605500.647409"
 
-					txlog, err := client.TransactionReceipt(context.Background(), logsX[i].TxHash)
+					var current_block *big.Int
+					var oldest_block *big.Int
+					current_block = big.NewInt(0)
+
+					// Get current block
+					header, err := client.HeaderByNumber(context.Background(), nil)
 					if err != nil {
 						log.Fatal(err)
 					}
 
-					t_prev = t_new       // uint
-					t_new = block.Time() // uint
+					current_block = header.Number
 
-					if t_prev == 0 || (t_new-uint64(math.Mod(float64(t_new), 86400)))/86400 != (t_prev-uint64(math.Mod(float64(t_prev), 86400)))/86400 { // 1 day
-						dates = append(dates, int64(BoD(time.Unix(int64(t_new), 0)).Unix()))
-						tradingvolumes = append(tradingvolumes, cumulative_for_day)
-						poolsizes = append(poolsizes, bal_float) // bal.Int64()
-						cumulative_for_day = 0
-						//fmt.Println(" t new:")
-						//fmt.Print(t_new)
-						//fmt.Print(" | prev: ")
-						//fmt.Print(t_prev)
-						//fmt.Print("day crossed: ")
-						//fmt.Print(int64(BoD(time.Unix(int64(t_new), 0)).Unix()))
-						//fmt.Print("..cumulative: ")
-						//fmt.Println(cumulative_for_day)
-					} else { //-------------
-						token0AD := respBalancerById.Pool.Tokens[0].Address //"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" // WETH
-						token1AD := respBalancerById.Pool.Tokens[1].Address
-						dec := respBalancerById.Pool.Tokens[1].Decimals // 18 // t1 decimals
-						tkn1 := getTradingVolumeFromTxLog2(txlog.Logs, balancertopic, token0AD, token1AD, dec)
-						// convert to usd
-						cumulative_for_day += tkn1
+					fmt.Print("current block: ")
+					fmt.Print(current_block)
+
+					//2)  Find oldest block in our lookup date range
+					oldest_block = new(big.Int).Set(current_block)
+
+					j := int64(0) // compute block id [days_ago] days away from now
+					for {
+						j -= 2000
+						oldest_block.Add(oldest_block, big.NewInt(j))
+
+						block, err := client.BlockByNumber(context.Background(), oldest_block)
+						if err != nil {
+							log.Fatal(err)
+						}
+
+						if block.Time() <= uint64(oldest_lookup_time.Unix()) {
+							fmt.Print("oldest lkp block: ")
+							fmt.Println(oldest_block)
+							fmt.Print(" | t: ")
+							fmt.Print(block.Time())
+							fmt.Print("| curr blk - oldest blk: ")
+							diff := current_block.Sub(current_block, oldest_block)
+							fmt.Println(diff)
+							break
+						}
 					}
-				} // loop through log finished
 
-				var recordID []string
+					//3)  Query between oldest and current block for Balancer-specific addresses
+					query := ethereum.FilterQuery{
+						FromBlock: oldest_block,
+						ToBlock:   nil, // = latest block
+						Addresses: []common.Address{BalancerpoolAddress},
+					}
 
-				fmt.Println("-----------------SUMMARY DAILY: -----------------------------------")
-				for i := 0; i < len(dates); i++ {
-					fmt.Print("i: ")
-					fmt.Print(i)
-					fmt.Print("| t: ")
-					fmt.Print(dates[i])
-					fmt.Print("| volumes: ")
-					fmt.Println(tradingvolumes[i])
-					//func append_record_to_database(pool string, token0 string, token1 string, date int64, trading_volume_usd int64, pool_sz_usd int64) string
-					recordID[i] = append_hist_volume_record_to_database(respBalancerById.Pool.ID, respBalancerById.Pool.Tokens[0].Address, respBalancerById.Pool.Tokens[1].Address, dates[i], tradingvolumes[i], poolsizes[i]) //-----implemented Function
+					logsX, err := client.FilterLogs(context.Background(), query)
+					if err != nil {
+						log.Fatal(err)
+					}
 
+					fmt.Print("Number of block logs: ")
+					fmt.Print(len(logsX))
+
+					cumulative_for_day := int64(0)
+
+					t_prev := uint64(0)
+					t_new := uint64(0)
+
+					//4)  Loop through received data and filter it again
+					// For each transaction in logsX - check if it matches lookup criteria - add volume if does:
+					for i := 0; i < len(logsX); i++ {
+						if logsX[i].Topics[0] != common.HexToHash(balancertopic) {
+							continue
+						}
+
+						fmt.Print("i: ")
+						fmt.Print(i)
+						//fmt.Print(" | th: ")
+						//fmt.Print(logsX[i].TxHash)
+						//fmt.Print(" | blk#: ")
+						//fmt.Print(logsX[i].BlockNumber)
+						//fmt.Print(" | ")
+
+						// Get date from block number
+						block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(logsX[i].BlockNumber)))
+						if err != nil {
+							log.Fatal(err)
+						}
+
+						//fmt.Print(" | t: ")
+						//fmt.Print(block.Time())
+
+						txlog, err := client.TransactionReceipt(context.Background(), logsX[i].TxHash)
+						if err != nil {
+							log.Fatal(err)
+						}
+
+						t_prev = t_new       // uint
+						t_new = block.Time() // uint
+
+						if t_prev == 0 || (t_new-uint64(math.Mod(float64(t_new), 86400)))/86400 != (t_prev-uint64(math.Mod(float64(t_prev), 86400)))/86400 { // 1 day
+							dates = append(dates, int64(BoD(time.Unix(int64(t_new), 0)).Unix()))
+							tradingvolumes = append(tradingvolumes, cumulative_for_day)
+							bal_int, _ := bal_float.Int64()
+							if len(Histrecord_2.Price) >= 1 {
+								bal_int = bal_int // * int64(Histrecord_2.Price[len(Histrecord_2.Price)-1])
+							} // convert to token1
+							poolsizes = append(poolsizes, bal_int) // bal.Int64()
+							cumulative_for_day = 0
+							//fmt.Println(" t new:")
+							//fmt.Print(t_new)
+							//fmt.Print(" | prev: ")
+							//fmt.Print(t_prev)
+							//fmt.Print("day crossed: ")
+							//fmt.Print(int64(BoD(time.Unix(int64(t_new), 0)).Unix()))
+							//fmt.Print("..cumulative: ")
+							//fmt.Println(cumulative_for_day)
+						} else { //-------------
+							token0AD := respBalancerById.Pool.Tokens[0].Address //"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" // WETH
+							token1AD := respBalancerById.Pool.Tokens[1].Address
+							dec := respBalancerById.Pool.Tokens[1].Decimals // 18 // t1 decimals
+							tkn1 := getTradingVolumeFromTxLog2(txlog.Logs, balancertopic, token0AD, token1AD, dec)
+							// convert to usd
+							cumulative_for_day += tkn1
+						}
+					} // loop through log finished
+
+					// otherwise get this array from db
+
+					fmt.Println("-----------------SUMMARY DAILY: -----------------------------------")
+					for i := 0; i < len(dates); i++ { //we should start at +1
+						fmt.Print("i: ")
+						fmt.Print(i)
+						fmt.Print("| t: ")
+						fmt.Print(dates[i])
+						fmt.Print("| volumes: ")
+						fmt.Println(tradingvolumes[i])
+						if tradingvolumes[i] > 0 {
+							recordID := append_hist_volume_record_to_database("Balancer", respBalancerById.Pool.Tokens[0].Symbol, respBalancerById.Pool.Tokens[1].Symbol, dates[i], tradingvolumes[i], poolsizes[i]) //-----implemented Function
+							if recordID == "x" {
+							}
+						} // respBalancerById.Pool.ID
+						// fmt.Print(" xx ")
+					}
+					/////////////////////////////////////////////////////////////////////////
+				} // if need to update data
+
+				if !data_is_old { // else: data is not old
+					dates, tradingvolumes, poolsizes = retrieve_hist_pool_sizes_volumes("Balancer", token0symbol, token1symbol)
 				}
-				/////////////////////////////////////////////////////////////////////////
 
 				future_daily_volume_est, future_pool_sz_est := estimate_future_balancer_volume_and_pool_sz(dates, tradingvolumes, poolsizes)
 				// future_daily_volume_est, future_pool_sz_est := estimate_future_balancer_volume_and_pool_sz(respBalancerHistVolume)
@@ -497,6 +533,13 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				ROI_raw_est := calculateROI_raw_est(currentInterestrate, float32(BalancerRewardPercentage), float32(future_pool_sz_est), float32(future_daily_volume_est), imp_loss_hist)      // + imp
 				ROI_vol_adj_est := calculateROI_vol_adj(ROI_raw_est, volatility)                                                                                                               // Sharpe ratio
 				ROI_hist := calculateROI_hist(currentInterestrate, float32(BalancerRewardPercentage), historical_pool_sz_avg, historical_pool_daily_volume_avg, imp_loss_hist, px_return_hist) // + imp + hist
+
+				//fmt.Print("| ROI_raw_est: ")
+				//fmt.Print(ROI_raw_est)
+				//fmt.Print("| ROI_vol_adj_est: ")
+				//fmt.Print(ROI_vol_adj_est)
+				//fmt.Print("| ROI_hist: ")
+				//fmt.Print(ROI_hist)
 				/*
 					fmt.Print("DECIMALS t0: ")
 					fmt.Print(respBalancerById.Pool.Tokens[0].Symbol)
