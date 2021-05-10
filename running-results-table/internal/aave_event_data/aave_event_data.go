@@ -7,15 +7,18 @@ import (
 	"math/big"
 	"strconv"
 	"time"
+
 	token "./erc20Interface"
+
 	//aaveDataProvider "./aave_protocol_data_provider"
+	"encoding/hex"
+	"strings"
+
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"encoding/hex"
-	"strings"
 )
 
 type AavePoolData struct {
@@ -423,4 +426,8 @@ func getFlashLoansVolumeFromTxLog(logs []*types.Log, pooltopics []string) (*big.
 	amount, deposit_rate := decodeFlashLoanBytes(firstLog)
 
 	return amount, deposit_rate, assetAddress
+}
+
+func convertToUSD(volumeAmount float64, exchangeRate float64) float64 {
+	return volumeAmount*exchangeRate 
 }
