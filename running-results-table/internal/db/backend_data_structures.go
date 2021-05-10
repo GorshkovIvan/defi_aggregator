@@ -15,23 +15,23 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func get_oldest_timestamp_from_db(pool string, token0 string, token1 string) int64 {
+func get_newest_timestamp_from_db(pool string, token0 string, token1 string) int64 {
 	s := []string{pool, token0, token1}
 	v := strings.Join(s, " ")
 	dates := returnDatesInCollection(v)
 
-	min := int64(0)
+	max := int64(0)
 	for _, v := range dates {
-		if v < min {
-			min = v
+		if v > max {
+			max = v
 		}
 	}
 
-	if min == 0 {
+	if max == 0 {
 		log.Fatal()
 	}
 
-	return min
+	return max
 }
 
 func create_new_hist_volume_poolsz_entry(pool string, token0 string, token1 string) string {
@@ -67,7 +67,7 @@ func create_new_hist_volume_poolsz_entry(pool string, token0 string, token1 stri
 	return hexID
 }
 
-func append_record_to_database(pool string, token0 string, token1 string, date int64, trading_volume_usd int64, pool_sz_usd int64) string {
+func append_hist_volume_record_to_database(pool string, token0 string, token1 string, date int64, trading_volume_usd int64, pool_sz_usd int64) string {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
