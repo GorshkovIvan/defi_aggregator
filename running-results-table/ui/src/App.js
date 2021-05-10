@@ -10,6 +10,7 @@ import Toggle from './toggle.js';
 import { keepTheme } from './themes.js';
 import './about.js';
 import './contact.js';
+import ConnectedMyPortfolioTable from './ConnectedMyPortfolioTable';
 
 function App() {
   
@@ -38,7 +39,12 @@ function App() {
       <div class="ui container">
         <div class="floatContainer">
           <div class="recommendedPortfolio">
-            <ConnectedResultsTable />
+            <div class="portfolio">
+              <ConnectedMyPortfolioTable />
+            </div>
+            <div class="portfolio">
+              <ConnectedResultsTable />
+            </div>
           </div>
           <div class="resultsForm">
             <NewResultsForm />

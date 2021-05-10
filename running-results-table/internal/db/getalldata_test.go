@@ -1,96 +1,69 @@
 package db
 
 import (
-	"testing"
+	"fmt"
+
+	"github.com/machinebox/graphql"
 )
 
-func TestGetAllData(t *testing.T) {
-	database := New()
+type UniswapInputStruct struct {
+	clientUniswap               *graphql.Client
+	reqUniswapIDFromTokenTicker *graphql.Request
+	reqUniswapHist              *graphql.Request
+}
 
-	database.AddRecordfromAPI()
+func (database *Database) AddRecordfromAPI() {
 
-	// Test 1
-	if len(database.historicalcurrencydata) == 0 {
-		t.Errorf("Unsufficient data downloaded!")
-	}
+	// 1 - create clients
+	clientUniswap := graphql.NewClient("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
+	//	clientCompound := graphql.NewClient("https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2")
+	//	clientCurve := graphql.NewClient("https://api.thegraph.com/subgraphs/name/protofire/curve")
+	//	clientBancor := graphql.NewClient("https://api.thegraph.com/subgraphs/name/blocklytics/bancor")
 
-	// Test 2
-	var teststringarray []string
-	var lengtharrayDates []int
-	var lengtharrayPrices []int
+	// 2 - declare queries
 
-	for i := 0; i < len(database.historicalcurrencydata); i++ {
+	reqUniswapHist := graphql.NewRequest(`
+				query ($tokenid:String!){
+						tokenDayDatas(first: 30 orderBy: date, orderDirection: desc,
+						 where: {
+						   token:$tokenid
+						 }
+						) {
+						   date
+						   priceUSD
+						   token{
+							   id
+							   symbol
+						   }
+						}
+				  }
+			`)
 
-		teststringarray = append(teststringarray, database.historicalcurrencydata[i].Ticker)
-		lengtharrayDates = append(lengtharrayDates, len(database.historicalcurrencydata[i].Date))
-		lengtharrayPrices = append(lengtharrayPrices, len(database.historicalcurrencydata[i].Price))
+	reqUniswapIDFromTokenTicker := graphql.NewRequest(`
+						query ($ticker:String!){
+							tokens(where:{symbol:$ticker})
+							{
+								id
+								symbol
+							}
+						}
+			`)
 
-		if len(database.historicalcurrencydata[i].Ticker) == 0 {
-			t.Errorf("No data pulled")
-		}
-		if len(database.historicalcurrencydata[i].Date) == 0 {
-			t.Errorf("No data pulled")
-		}
-		if len(database.historicalcurrencydata[i].Price) == 0 {
-			t.Errorf("No data pulled")
-		}
-		if len(database.historicalcurrencydata[i].Date) > 100 {
-			t.Errorf("Too much data pulled")
-		}
-		if len(database.historicalcurrencydata[i].Price) > 100 {
-			t.Errorf("Too much data pulled")
-		}
+	// 3 - set query headers
+	reqUniswapIDFromTokenTicker.Header.Set("Cache-Control", "no-cache")
+	reqUniswapHist.Header.Set("Cache-Control", "no-cache")
 
-	}
-
-	// Test 3
-	if !stringInSlice("ETH", teststringarray) && !stringInSlice("WETH", teststringarray) {
-		t.Errorf("ETH data missing!")
-	}
-	if !stringInSlice("DAI", teststringarray) {
-		t.Errorf("DAI data missing!")
-	}
-	if !stringInSlice("USDC", teststringarray) {
-		t.Errorf("USDC data missing!")
-	}
-	if !stringInSlice("USDT", teststringarray) {
-		t.Errorf("USDT data missing!")
-	}
-	if !stringInSlice("WBTC", teststringarray) {
-		t.Errorf("WBTC data missing!")
-		if len(database.historicalcurrencydata[0].Ticker) == 0 {
-			t.Errorf("Ticker ")
-		}
-	}
-
-	var countBalancerdatapoints int
-	var countUniswapdatapoints int
-	var countAavedatapoints int
-
-	for i := 0; i < len(database.currencyinputdata); i++ {
-		if database.currencyinputdata[i].Pool == "Uniswap" {
-			countUniswapdatapoints++
-		}
-
-		if database.currencyinputdata[i].Pool == "Aave" {
-			countAavedatapoints++
-		}
-
-		if database.currencyinputdata[i].Pool == "Balancer" {
-			countBalancerdatapoints++
-		}
-	}
-
-	if countUniswapdatapoints == 0 {
-		t.Errorf("Error: no data appended from Uniswap")
-	}
-
-	if countAavedatapoints == 0 {
-		t.Errorf("Error: no data appended from Aave")
-	}
-
-	if countBalancerdatapoints == 0 {
-		t.Errorf("Error: no data appended from Balancer")
-	}
-
+	// 4 - run data queries on each pool
+	U := UniswapInputStruct{clientUniswap, reqUniswapIDFromTokenTicker, reqUniswapHist}
+	getUniswapData(database, U)
+	//	getAaveData(database, U)     //
+	//getBalancerData(database, U) // 3
+	//getbalancerdata_from_blockchain()
+	//getBalancerData(database, U)
+	getAaveDataDaily()
+	/*
+		4) Curve
+		5thers
+	*/
+	fmt.Println("Ran all download functions and appended data")
 }

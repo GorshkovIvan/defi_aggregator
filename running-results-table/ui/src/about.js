@@ -10,7 +10,7 @@ function About() {
     return (
         <div class="About">
             <h1>High Yield 4 Me</h1>
-            <h4>About High Yield 4 Me</h4>
+            <div className="about-header">About High Yield 4 Me</div>
             <div class="paragraph">
                 <p>
                     While in CeFi, infrastructure for benchmarking returns from various investments is well developed, in DeFi it is unregulated, 

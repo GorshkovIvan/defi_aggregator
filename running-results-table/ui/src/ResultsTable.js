@@ -56,10 +56,7 @@ export default function ResultsTable({results}) {
     return (
         <div className="ui container">
             <Segment class="ui inverted segment">
-                <h4>Recommended Portfolio</h4>
-                <Form className="tableButton">
-                    <div class="ui button">Reset</div>
-                </Form>
+                <div className="recommended-header">Recommended Portfolio</div>
                 <div class="ui basic table">
                     <Table.Header>
                         <Table.Row>

@@ -67,7 +67,7 @@ func main(){
 		//pools = getCurveData(client, provider, pools, i, false)
 	//}
 
-	for i := 0; i < 4; i++{
+	for i := 0; i < 31; i++{
 
 	
 		fmt.Println("pool address:")				
@@ -93,9 +93,13 @@ func main(){
 		*/
 	}
 	
-	var normalsied_balances []*big.Float
-	for i := 0; i < 4; i++{
 
+
+	zero := big.NewFloat(0)
+
+	for i := 0; i < 4; i++{
+		var normalsied_fees []*big.Float
+		var normalsied_balances []*big.Float
 		current_coin_balances, err := provider.GetBalances(&bind.CallOpts{}, pools[i].poolAddress)
 
 		if err != nil {
@@ -108,16 +112,24 @@ func main(){
 			normalsied_balances = append(normalsied_balances, balance)
 		}
 
+		for j := 0; j < 8; j++ {
+			
+			fee := negPow(pools[i].fees[0][j], pools[i].assetDecimals[j].Int64())
+			normalsied_fees = append(normalsied_fees, fee)
+		}
+
 		pools[i].normalsiedBalances = normalsied_balances
 		
 		fmt.Println("Returns:")
 		for j := 0; j < 8; j++ {
-			returns := new(big.Float).Quo(pools[i].fees[0][j], pools[i].normalsiedBalances[j])
-			fmt.Println(returns)
+			if(pools[i].normalsiedBalances[j].Cmp(zero) > 0){
+				returns := new(big.Float).Quo(normalsied_fees[j], pools[i].normalsiedBalances[j])
+				fmt.Println(returns)	
+			}
+
 		}
 
 	}
-
 }
 
 func getCurveData(client *ethclient.Client, provider *curveRegistry.Main, pools []CurvePoolData, daysAgo int, first_turn bool) []CurvePoolData {
@@ -129,7 +141,7 @@ func getCurveData(client *ethclient.Client, provider *curveRegistry.Main, pools 
 	count_pools := 0
 	var one = big.NewInt(1)
 	start := big.NewInt(1)
-	end := big.NewInt(0).Sub(number_of_pools, big.NewInt(27))
+	end := big.NewInt(0).Sub(number_of_pools, big.NewInt(1))
 
 	if(first_turn){
 
