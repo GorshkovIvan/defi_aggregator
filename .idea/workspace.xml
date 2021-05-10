@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c036aa19-d8d1-4d49-8a04-c7c4702e411e" name="Default Changelist" comment="" />
+    <list default="true" id="c036aa19-d8d1-4d49-8a04-c7c4702e411e" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go" beforeDir="false" afterPath="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go" afterDir="false" />
+    </list>
     <list id="1fe45fa6-799e-42d0-b27f-251342343e34" name="Changes by Christopher_Stanford" comment="" />
     <list id="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" name="Changes by LiudmilaAfonina" comment="" />
     <list id="5a48f1ac-54cb-4cc3-b0d6-c65f612cd87b" name="Changes by Marcus" comment="" />
@@ -27,23 +30,6 @@
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="false" />
   </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/running-results-table/internal/db/getuniswapdata.go">
-      <ranges>
-        <range start1="271" end1="271" start2="271" end2="274" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
-        <range start1="354" end1="354" start2="357" end2="362" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
-        <range start1="355" end1="360" start2="363" end2="363" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
-      </ranges>
-    </file>
-    <file path="$PROJECT_DIR$/running-results-table/internal/db/ROI_Volatility.go">
-      <ranges>
-        <range start1="43" end1="43" start2="43" end2="155" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
-        <range start1="44" end1="155" start2="156" end2="156" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
-        <range start1="314" end1="314" start2="315" end2="351" changelist="24ee929f-6a38-414f-8a43-ae43ee8bd0a3" />
-        <range start1="315" end1="351" start2="352" end2="352" changelist="c036aa19-d8d1-4d49-8a04-c7c4702e411e" />
-      </ranges>
-    </file>
-  </component>
   <component name="ProjectId" id="1qWCCTdGhK3vgblU8D7cOjmV7ke" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -59,8 +45,11 @@
     <property name="go.sdk.automatically.set" value="true" />
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="go.vendoring.notification.had.been.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/running-results-table/internal/db" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs.jest.jest_package" value="$PROJECT_DIR$/running-results-table/ui/node_modules/react-scripts" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.build" />
+    <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -70,62 +59,77 @@
       <recent name="C:\Users\Aaron Lam\Documents\defi_aggregator\running-results-table\internal" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build main.go">
-    <configuration name="go build backend_data_structures.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="defi_aggregator" />
-      <working_directory value="$PROJECT_DIR$/running-results-table/internal/db" />
-      <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/running-results-table/internal/db/backend_data_structures.go" />
-      <directory value="$PROJECT_DIR$" />
+  <component name="RunManager">
+    <configuration name="App.test.js" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/running-results-table/ui/node_modules/react-scripts" />
+      <working-dir value="$PROJECT_DIR$/running-results-table/ui" />
+      <envs />
+      <scope-kind value="TEST_FILE" />
+      <test-file value="$PROJECT_DIR$/running-results-table/ui/src/__tests__/App.test.js" />
       <method v="2" />
     </configuration>
-    <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="defi_aggregator" />
-      <working_directory value="$PROJECT_DIR$/MongoDBtest" />
-      <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/MongoDBtest/main.go" />
-      <directory value="$PROJECT_DIR$" />
+    <configuration name="Full app renders without crashing" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/running-results-table/ui/node_modules/react-scripts" />
+      <working-dir value="$PROJECT_DIR$/running-results-table/ui" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/running-results-table/ui/src/__tests__/App.test.js" />
+      <test-names>
+        <test-name value="Full app renders without crashing" />
+      </test-names>
       <method v="2" />
     </configuration>
-    <configuration name="go build mysql.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="defi_aggregator" />
-      <working_directory value="$PROJECT_DIR$/MongoDBtest" />
-      <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/MongoDBtest/mysql.go" />
-      <directory value="$PROJECT_DIR$" />
+    <configuration name="LogoBox renders as expected" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/running-results-table/ui/node_modules/react-scripts" />
+      <working-dir value="$PROJECT_DIR$/running-results-table/ui" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/running-results-table/ui/src/__tests__/LogoBox.test.js" />
+      <test-names>
+        <test-name value="LogoBox renders as expected" />
+      </test-names>
       <method v="2" />
     </configuration>
-    <configuration name="go build quickstart" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="defi_aggregator" />
-      <working_directory value="$PROJECT_DIR$/MongoDBtest" />
-      <kind value="PACKAGE" />
-      <filePath value="$PROJECT_DIR$/MongoDBtest/main.go" />
-      <package value="quickstart" />
-      <directory value="$PROJECT_DIR$" />
+    <configuration name="LogoBox.test.js" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/running-results-table/ui/node_modules/react-scripts" />
+      <working-dir value="" />
+      <envs />
+      <scope-kind value="TEST_FILE" />
+      <test-file value="$PROJECT_DIR$/running-results-table/ui/src/__tests__/LogoBox.test.js" />
       <method v="2" />
     </configuration>
-    <configuration name="TestAddOptimisedPortfolioRecord in quickstart" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="defi_aggregator" />
-      <working_directory value="$PROJECT_DIR$/running-results-table/internal/db" />
-      <framework value="gotest" />
-      <kind value="PACKAGE" />
-      <package value="quickstart" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <pattern value="^\QTestAddOptimisedPortfolioRecord\E$" />
+    <configuration name="Slider.test.js" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/running-results-table/ui/node_modules/react-scripts" />
+      <working-dir value="$PROJECT_DIR$/running-results-table/ui" />
+      <envs />
+      <scope-kind value="TEST_FILE" />
+      <test-file value="$PROJECT_DIR$/running-results-table/ui/src/__tests__/Slider.test.js" />
       <method v="2" />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Go Build.go build main.go" />
-        <item itemvalue="Go Test.TestAddOptimisedPortfolioRecord in quickstart" />
-        <item itemvalue="Go Build.go build backend_data_structures.go" />
-        <item itemvalue="Go Build.go build mysql.go" />
-        <item itemvalue="Go Build.go build quickstart" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c036aa19-d8d1-4d49-8a04-c7c4702e411e" name="Default Changelist" comment="" />
+      <created>1620561120216</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1620561120216</updated>
+      <workItem from="1620561122631" duration="27000" />
+      <workItem from="1620561151496" duration="1825000" />
+    </task>
+    <servers />
+  </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>

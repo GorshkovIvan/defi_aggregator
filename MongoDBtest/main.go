@@ -23,6 +23,7 @@ func main() {
 	fmt.Println(get_oldest_timestamp_from_db("Uniswap", "ETH", "DAI"))
 
 
+
 	//var id = addOwnPortfolioRecord("DAI", 69)
 	//returnEntryById("Own Portfolio Record", id)
 	//fmt.Println(returnAttributeInCollection("Historical Currency Data", "Price"))
@@ -130,7 +131,45 @@ func addOwnPortfolioRecord(token string, amount float32) string {
 		log.Fatal(err)
 	}
 
-	newID := new_portfolio.InsertedID
+	
+
+func addToCompoundData(symbol string, name string, tokenID string, supplyRate float64,
+	borrowRate float64, exchangeRate float64, price float64, timestamp int) string {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("De-Fi_Aggregator")
+	compoundData := Database.Collection("Compound Data")
+
+	newCompoundData, err := compoundData.InsertOne(ctx, bson.D{
+		{Key: "Symbol", Value: symbol},
+		{Key: "Name", Value: name},
+		{Key: "TokenID", Value: tokenID},
+		{Key: "SupplyRate", Value: supplyRate},
+		{Key: "BorrowRate", Value: borrowRate},
+		{Key: "ExchangeRate", Value: exchangeRate},
+		{Key: "Price", Value: price},
+		{Key: "Timestamp", Value: timestamp},
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	newID := newCompoundData.InsertedID
+	hexID := newID.(primitive.ObjectID).Hex()
+
+	return hexID
+
+}newID := new_portfolio.InsertedID
 	hexID := newID.(primitive.ObjectID).Hex()
 
 	return hexID

@@ -15,18 +15,23 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func get_oldest_timestamp_from_db(pool string, token0 string, token1 string) int64 {
+func get_newest_timestamp_from_db(pool string, token0 string, token1 string) int64 {
 	s := []string{pool, token0, token1}
 	v := strings.Join(s, " ")
 	dates := returnDatesInCollection(v)
 
-	min := dates[0]
+	max := int64(0)
 	for _, v := range dates {
-		if (v < min) {
-			min = v
+		if v > max {
+			max = v
 		}
 	}
-	return min
+
+	if max == 0 {
+		log.Fatal()
+	}
+
+	return max
 }
 
 func create_new_hist_volume_poolsz_entry(pool string, token0 string, token1 string) string {
@@ -62,7 +67,7 @@ func create_new_hist_volume_poolsz_entry(pool string, token0 string, token1 stri
 	return hexID
 }
 
-func append_record_to_database(pool string, token0 string, token1 string, date int64, trading_volume_usd int64, pool_sz_usd int64) string {
+func append_hist_volume_record_to_database(pool string, token0 string, token1 string, date int64, trading_volume_usd int64, pool_sz_usd int64) string {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
@@ -176,7 +181,7 @@ func addHistoricalCurrencyData(date int64, price float32, CollectionOrTicker str
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("test2")
+	Database := client.Database("De-Fi_Aggregator")
 	historicaldata := Database.Collection(CollectionOrTicker)
 
 	// check if date exists in that collection - if yes return "already exists"
@@ -309,7 +314,7 @@ func returnDatesInCollection(collectionName string) []int64 {
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("test2")
+	Database := client.Database("De-Fi_Aggregator")
 	collection := Database.Collection(collectionName)
 
 	cursor, err := collection.Find(ctx, bson.M{})
@@ -327,7 +332,7 @@ func returnDatesInCollection(collectionName string) []int64 {
 	for _, record := range records {
 		//fmt.Println(record)
 		//fmt.Println(reflect.TypeOf(record["Date"]))
-		date := record["Date"]
+		date := record["date"]
 		//fmt.Println(date)
 		//fmt.Println(reflect.TypeOf(date))
 		//attributes = append(attributes, fmt.Sprint(attribute_value))
@@ -349,7 +354,7 @@ func returnPricesInCollection(collectionName string) []float64 {
 	}
 	defer client.Disconnect(ctx)
 
-	Database := client.Database("test2")
+	Database := client.Database("De-Fi_Aggregator")
 	collection := Database.Collection(collectionName)
 
 	cursor, err := collection.Find(ctx, bson.M{})

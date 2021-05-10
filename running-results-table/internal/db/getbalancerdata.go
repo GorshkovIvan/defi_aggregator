@@ -305,9 +305,9 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				/////////////////////////////////////////////////////////////////////////
 
 				days_ago := 3
-				oldest_available_record := time.Now() // XX - GET IT USING AARON's func
-				// func get_oldest_timestamp_from_db(pool string, token0 string, token1 string) uint64
-				oldest_available_record = oldest_available_record.AddDate(0, 0, -days_ago)
+				//oldest_available_record := time.Now() // XX - GET IT USING AARON's func
+				oldest_available_record := time.Unix(get_newest_timestamp_from_db(respBalancerById.Pool.ID, respBalancerById.Pool.Tokens[0].Address, respBalancerById.Pool.Tokens[1].Address), 0)
+				//oldest_available_record = oldest_available_record.AddDate(0, 0, -days_ago)
 				oldest_lookup_time := time.Now() //.Unix()
 
 				if (time.Since(oldest_available_record).Hours()) > 24 {
@@ -325,7 +325,9 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				//fmt.Print(t)
 
 				// 1) If data is old and need to update it - Define pool specific parameters
-				var BalancerpoolAddress = common.HexToAddress("0x1eff8af5d577060ba4ac8a29a13525bb0ee2a3d5") //pass in the pool id...
+				fmt.Println(" The Pool Address  IS: ")
+				fmt.Print(respBalancerById.Pool.ID)
+				var BalancerpoolAddress = common.HexToAddress(respBalancerById.Pool.ID)
 				fmt.Println(" CONNECTED TO INFURA SUCCESSFULLY!!!!!!")
 
 				tokenAddress := common.HexToAddress(respBalancerById.Pool.Tokens[1].Address)
@@ -465,6 +467,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 					}
 				} // loop through log finished
 
+				var recordID []string
+
 				fmt.Println("-----------------SUMMARY DAILY: -----------------------------------")
 				for i := 0; i < len(dates); i++ {
 					fmt.Print("i: ")
@@ -473,7 +477,9 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 					fmt.Print(dates[i])
 					fmt.Print("| volumes: ")
 					fmt.Println(tradingvolumes[i])
-					// XXX - append to db(dates[i],tradingvolumes[i],poolsizes[i])
+					//func append_record_to_database(pool string, token0 string, token1 string, date int64, trading_volume_usd int64, pool_sz_usd int64) string
+					recordID[i] = append_hist_volume_record_to_database(respBalancerById.Pool.ID, respBalancerById.Pool.Tokens[0].Address, respBalancerById.Pool.Tokens[1].Address, dates[i], tradingvolumes[i], poolsizes[i]) //-----implemented Function
+
 				}
 				/////////////////////////////////////////////////////////////////////////
 
