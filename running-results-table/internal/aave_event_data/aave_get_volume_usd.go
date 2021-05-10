@@ -1,4 +1,4 @@
-package main
+git package main
 
 type AavePoolData struct {
 
