@@ -1,7 +1,0 @@
-to connect to watson
-
-ssh -L 8888:localhost:19545 ivangorshkov@watson.lowland.fun
-
-launch ganache 
-
-ganache-cli -f --deterministic http://localhost:8888

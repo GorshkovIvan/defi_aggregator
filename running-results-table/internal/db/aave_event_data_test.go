@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
-
 
 func TestGetOldestBlock(t *testing.T) {
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
@@ -25,10 +24,10 @@ func TestGetOldestBlock(t *testing.T) {
 	}
 }
 
-func TestAaveGetPoolVolume(t *testing.T){
+func TestAaveGetPoolVolume(t *testing.T) {
 
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
-	
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,23 +71,22 @@ func TestGetTradingVolumeFromTxLog(t *testing.T) {
 
 	amount, rate_type, interest_rate, assetAddress := getTradingVolumeFromTxLog(txlog.Logs, poolTopics)
 
-	if(amount == nil) {
+	if amount == nil {
 		t.Errorf("Index of amount not retrieved!")
 	}
-	
+
 	// this fails, check functionality in aave_event_data line 219
-	if(rate_type == -1) {
+	if rate_type == -1 {
 		t.Errorf("Volume of rate_type not retrieved!")
 	}
 
-	if(interest_rate == nil) {
+	if interest_rate == nil {
 		t.Errorf("Index of interest_rate not retrieved!")
 	}
 
-	if(assetAddress == "") {
+	if assetAddress == "" {
 		t.Errorf("Volume of assetAddress not retrieved!")
 	}
-
 
 }
 
@@ -106,16 +104,15 @@ func TestAaveGetFlashLoansVolume(t *testing.T) {
 		log.Fatal(err)
 	}
 
-
 	volumes_data := aaveGetPoolVolume(pool_address, oldest_block, client)
 
-	volumes_data = aaveGetFlashLoansVolume(pool_address, oldest_block, 
+	volumes_data = aaveGetFlashLoansVolume(pool_address, oldest_block,
 		client, volumes_data)
 
-	if(volumes_data == nil) {
+	if volumes_data == nil {
 		t.Errorf("Flash Loans data not retrieved!")
 	}
-}  
+}
 
 func TestGetFlashLoansVolumeFromTxLog(t *testing.T) {
 	//client, err := ethclient.Dial("http://localhost:8888")
@@ -126,7 +123,6 @@ func TestGetFlashLoansVolumeFromTxLog(t *testing.T) {
 
 	oldest_block := getOldestBlock(client)
 	pool_address := common.HexToAddress("0x398ec7346dcd622edc5ae82352f02be94c62d119")
-	
 
 	if err != nil {
 		log.Fatal(err)
@@ -158,24 +154,24 @@ func TestGetFlashLoansVolumeFromTxLog(t *testing.T) {
 			log.Fatal(err)
 		}
 
-
 		assetAddress := ""
 
 		amount, deposit_fee, assetAddress := getFlashLoansVolumeFromTxLog(txlog.Logs, poolTopics)
 
-		if(amount == nil) {
+		if amount == nil {
 			t.Errorf("Index of amount not retrieved!")
 		}
-		
-		if(deposit_fee == nil) {
+
+		if deposit_fee == nil {
 			t.Errorf("Volume of deposit_fee not retrieved!")
 		}
 
-		if(assetAddress == "") {
+		if assetAddress == "" {
 			t.Errorf("Volume of assetAddress not retrieved!")
 		}
 	}
 }
+
 /*
 // =========== !!! TO DO !!! ==========
 // to do these tests from here
@@ -195,11 +191,11 @@ func HashToReserveAddress(hash common.Hash) string {
 	value = append(value, hex.EncodeToString(hash[12:32]))
 	valueStr := strings.Join(value, "")
 
-	
+
 	return valueStr
 }
 
 func TestDecodeFlashLoanBytes(t *testing.T) {
-	
-	
+
+
 }*/
