@@ -1,5 +1,17 @@
-package main
+package db
+import (
 
+	"log"
+	"math/big"
+	"context"
+	"time"
+	
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	
+)
 type AavePoolData struct {
 
 	assetAddress string 
@@ -82,7 +94,7 @@ func getUsdFromVolumeAave2(aavePoolData AavePoolData) {
 		assetName = ticker
 	}
 	
-	for (int i := 0; i < len(aavePoolData.volumes); i++) {
+	for i := 0; i < len(aavePoolData.volumes); i++ {
 		//usdVolume = append(usdVolume, aavePoolData.volumes[i] * exchangeRate)
 		volumeUSD := aavePoolData.volumes[i] * exchangeRate
 
@@ -92,7 +104,7 @@ func getUsdFromVolumeAave2(aavePoolData AavePoolData) {
 	}
 }
 
-func isCoinPeggedToUSD(coinName string) bool, string {
+func isCoinPeggedToUSD(coinName string) (bool, string) {
 	if (coinName == "Tether USD") {
 		return true, "USDT"
 	} else if (coinName == "Binance USD") {

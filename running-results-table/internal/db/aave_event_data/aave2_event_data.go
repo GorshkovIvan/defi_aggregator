@@ -28,95 +28,45 @@ type AavePoolData struct {
 	flashLoanVolumes []*big.Int
 	flashLoanFees []*big.Int
 	
-	
 
 }
 
-type AaveDailyData struct {
+func main() {
 
-	//assetAddress string 
-	assetName string
-	volumes []*big.Int 
-
-}
-
-
-func main(){
-
+	//client, err := ethclient.Dial("http://localhost:8888")
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var aave_daily_data []AavePoolData
+	oldest_block := getOldestBlock(client)
+	//pool_address := common.HexToAddress("0x398ec7346dcd622edc5ae82352f02be94c62d119")
+	pool_address := common.HexToAddress("0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9")
 
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	aave_daily_data = getAaveData(client, aave_daily_data, 3)
-	fmt.Println("Day 1 done")
-	aave_daily_data = getAaveData(client, aave_daily_data, 2)
-	fmt.Println("Day 2 done")
+	volumes_data := aaveGetPoolVolume(pool_address, oldest_block, client)
+	volumes_data = aaveGetFlashLoansVolume(pool_address, oldest_block, client, volumes_data)
 
-
-	for i := 0; i < len(aave_daily_data); i++ {
-		fmt.Println("Name")
-		fmt.Println(aave_daily_data[i].assetName)
+	for i := range volumes_data{ 
+		fmt.Println("Address")
+		fmt.Println(volumes_data[i].assetAddress)
+		fmt.Println("Interest rates")
+		fmt.Println(volumes_data[i].interest_rates)
 		fmt.Println("Volumes")
-		fmt.Println(aave_daily_data[i].volumes)
-
+		fmt.Println(volumes_data[i].volumes)
+		fmt.Println("Rate types")
+		fmt.Println(volumes_data[i].rate_types)
+		fmt.Println("Name")
+		fmt.Println(volumes_data[i].assetName)
+		fmt.Println("Flash Loan Volumes")
+		fmt.Println(volumes_data[i].flashLoanVolumes)
+		fmt.Println("Flash Loan Fees")
+		fmt.Println(volumes_data[i].flashLoanFees)
+		
 	}
-
-	getUsdFromVolumeAave1(aave_daily_data[0])
-
-}
-
-func sumVolumes(volumes []*big.Int) *big.Int {
-
-	sum := big.NewInt(0)
-	for i := 0; i < len(volumes); i++{
-		sum.Add(sum, volumes[i])
-	}
-
-	return sum
-}
-
-func getAaveData(client *ethclient.Client, aave_daily_data []AavePoolData, daysAgo int) []AavePoolData {
-
-	oldest_block := getOldestBlock(client, daysAgo)
-	latest_block := getOldestBlock(client, daysAgo - 1)
-	pool_address := common.HexToAddress("0x398ec7346dcd622edc5ae82352f02be94c62d119")
-
-
-	volumes_data := aaveGetPoolVolume(pool_address, oldest_block, latest_block, client)
-	
-	for i := 0; i < len(volumes_data); i++ {
-		pool_added := false
-		for j := 0; j < len(aave_daily_data); j++ {
-			if(volumes_data[i].assetName == aave_daily_data[j].assetName){
-				pool_added = true
-			}
-		}
-		if(!pool_added){
-			newPool := AavePoolData{assetName : volumes_data[i].assetName}
-			for j := 0; j < 31; j++ {
-				newPool.volumes = append(newPool.volumes, big.NewInt(0))
-			}
-			aave_daily_data = append(aave_daily_data, newPool)
-		}
-	}
-
-	for i := 0; i < len(aave_daily_data); i++ {
-
-		for j := 0; j < len(volumes_data); j++{
-			if(volumes_data[j].assetName == aave_daily_data[i].assetName){
-				
-				total_volumes := sumVolumes(volumes_data[j].volumes)
-				aave_daily_data[i].volumes[3 - daysAgo] = total_volumes
-			}
-		}
-
-	}
-	//volumes_data = aaveGetFlashLoansVolume(pool_address, oldest_block, client, volumes_data)
-
 	/*
 	// Adding decimal spaces 
 	for i := range volumes_data{ 
@@ -145,11 +95,11 @@ func getAaveData(client *ethclient.Client, aave_daily_data []AavePoolData, daysA
 	
 	}
 	*/
-	return aave_daily_data
+
 
 }
 
-func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
+func getOldestBlock(client *ethclient.Client) *big.Int {
 
 	var current_block *big.Int
 	var oldest_block *big.Int
@@ -167,16 +117,16 @@ func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
 	oldest_block = new(big.Int).Set(current_block)
 
 	now := time.Now()
-
 	//timeonehourago := uint64(now.Add(-2*time.Hour).Unix())
-	//timeonemonthago := uint64((now.AddDate(0, 0, -1)).Unix())
-	timeonemonthago := uint64(now.Unix()) - 24 * 60 * 60 * uint64(daysAgo)
-	
+	//timeonemonthago := uint64((now.AddDate(0, 0, -1).Unix())
+	// Time 10 days ago
+	timeonemonthago := uint64(now.Unix()) - 24 * 60 * 60 * 1
+
 	var j int64
 	j = 0
 
 	for {
-		j -= 500
+		j -= 10
 		oldest_block.Add(oldest_block, big.NewInt(j))
 
 		block, err := client.BlockByNumber(context.Background(), oldest_block)
@@ -196,17 +146,17 @@ func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
 
 
 
-func aaveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, latest_block *big.Int, client *ethclient.Client) []AavePoolData {
+func aaveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, client *ethclient.Client) []AavePoolData {
 
 	var pools []AavePoolData
 
-	poolTopics := []string{"0x1e77446728e5558aa1b7e81e0cdab9cc1b075ba893b740600c76a315c2caa553"}
-	
+	//poolTopics := []string{"0x1e77446728e5558aa1b7e81e0cdab9cc1b075ba893b740600c76a315c2caa553"}
+	poolTopics := []string{"0xc6a898309e823ee50bac64e45ca8adba6690e99e7841c45d754e2a38e9019d9b"}
 
 	query := ethereum.FilterQuery{
 
 		FromBlock: oldest_block,
-		ToBlock:   latest_block, // = latest block
+		ToBlock:   nil, // = latest block
 		Addresses: []common.Address{pool_address},
 	}
 
@@ -291,11 +241,11 @@ func decodeBytes(log *types.Log) (*big.Int, int, *big.Int) {
 
 
 	amount := new(big.Int).SetBytes(log.Data[0:32])
-	rate_type, _ := strconv.Atoi((new(big.Int).SetBytes(log.Data[32:64])).String())
-	interest_rate := new(big.Int).SetBytes(log.Data[64:96])
+	rate_type, _ := strconv.Atoi((new(big.Int).SetBytes(log.Data[64:96])).String())
+	interest_rate := new(big.Int).SetBytes(log.Data[32:64])
 
 	return amount, rate_type, interest_rate
-
+	
 }
 /*
 func decodeBytes(log *types.Log) (*big.Int, int, *big.Int) {
@@ -474,5 +424,3 @@ func getFlashLoansVolumeFromTxLog(logs []*types.Log, pooltopics []string) (*big.
 
 	return amount, deposit_rate, assetAddress
 }
-
-
