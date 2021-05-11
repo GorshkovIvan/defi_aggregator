@@ -61,10 +61,10 @@ export default function ResultsTable2({currencyoutputtable}) {
             <Table.Row key={ index }>
                 <td><Label class="ui horizontal label" color={color}>{ index + 1 }</Label></td>
                 <td>{ result.backend_pair }</td>
+                <td>{ result.pool_source }</td>
                 <td class="right aligned">{ result.backend_poolsize }</td>
                 <td class="right aligned">{ result.backend_volume }</td>
                 <td class="right aligned">{ result.backend_yield }</td>
-                <td>{ result.pool_source }</td>
                 <td class="right aligned">{ result.volatility }</td>
                 <td class="right aligned">{ result.ROIestimate }</td>
                 <td class="right aligned">{ result.ROIvoladjest}</td>
@@ -94,15 +94,15 @@ export default function ResultsTable2({currencyoutputtable}) {
                     <Table.Header>
                         <Table.Row>
                             <Table.HeaderCell><h3 className="headerTitle">Ranking</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">Currency Pair</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">Pool Size</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">Pool Trading Volume</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">Interest Rate</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Currency</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Pool</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">Historical Volatility</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">ROI Est Raw</h3><Popup header="Title" content="Explanation goes here" position="top center" trigger={<i class="info circle icon"></i>} /></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">ROI Est Vol-Adj (Sharpe Ratio)</h3><Popup header="Title" content="Explanation goes here" position="top center" trigger={<i class="info circle icon"></i>} /></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">ROI Hist</h3><Popup header="Title" content="Explanation goes here" position="top center" trigger={<i class="info circle icon"></i>} /></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Pool Size</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Pool Vol. <Popup header="Pool Volume" content="Average daily trading volume over the last 30 days." position="top center" trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Interest Rate</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Historical Volatility <Popup header="Historical Volatility" content="Standard deviation of returns of assets in a pool over the last 30 days." position="top center" trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Raw ROI Est. <Popup header="Raw Return On Investment Estimate" content="Interest rate (if applicable) + impermanent loss (to arbitrageurs) + returns from share of pool commissions + native token rewards. In USD terms. Prices of tokens assumed to stay constant compared to current prices." position="top center" trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">Sharpe Ratio <Popup header="Sharpe Ratio" content="Historical returns divided by volatility of returns (a standardised metric for evaluating risk-adjusted pool returns). Higher Sharpe = better risk-adjusted returns. Historical returns estimated over the last 30 days. In USD terms. Includes components used in calculation of ROI estimate + historical changes in token values in USD terms." position="top center" trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">ROI <Popup header="Return On Investment" content="Return On Investment over the last 30 days." position="top center" trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>

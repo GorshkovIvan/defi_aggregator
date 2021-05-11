@@ -12,14 +12,11 @@ function About() {
             <h1>High Yield 4 Me</h1>
             <div className="about-header">About High Yield 4 Me</div>
             <div class="paragraph">
-                <p>
-                    While in CeFi, infrastructure for benchmarking returns from various investments is well developed, in DeFi it is unregulated, 
-                    and few marketplaces exist for comparing returns from available investments. Moreover, DeFi products work differently from their 
-                    classic equivalents, and require alternative ways for calculating return on investment (ROI) and for quantifying risks. The 
-                    engineering part of the problem is to develop a platform which aggregates and displays data on various pools, ranking them by ROI. 
-                    The analytical part of the problem is to develop a standardised ROI formula, which will process data from pools into a single, 
-                    reliable metric allowing investors to optimise their portfolio.
-                </p>
+                <p>Decentralised finance offers a new way to manage your finances: without banks or other intermediaries.</p>
+                <p>The function of banks is performed by 'Liquidity Pools' where you can deposit your cryptocurrencies and earn a yield, similar to a traditional bank deposit.</p>
+                <p>But how should you choose which pools to invest in? Many factors must be considered: how secure the pool is, how volatile the returns are, and how stable the tokens are.
+                    These metrics are less readily available currently in decentralised finance as opposed to traditional finance, and our objective with this project is to make the process of choosing Liquidity Pools easier, more transparent, and help users to choose the best pool for their deposits.</p>
+                <p>Feel free to browse our report and GitLab repository for more information!</p>
             </div>
             
             <div class="Links">

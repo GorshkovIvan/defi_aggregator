@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Segment, Button } from 'semantic-ui-react'
+import { Form, Segment, Button, Popup } from 'semantic-ui-react'
 import styled from 'styled-components';
 
 /*
@@ -56,7 +56,6 @@ const Styles = styled.div`
   display: flex;
   align-items: center;
   color: #888;
-  margin-top: 2rem;
   .value {
     flex: 1;
     font-size: 2rem;
@@ -96,10 +95,11 @@ export default class Slider2 extends React.Component {
           <Segment>
             <div className="ui container">
               <Form onSubmit={this.onSubmit}>
-                <h3>Enter Your Risk Tolerance:</h3>
+                <h3>Enter Risk Tolerance <Popup content="Please enter your risk aversion level on a scale of 0 to 10. 0: very risk averse; 10: very risk on." position="top center" trigger={<i class="info circle icon portfolio-popup"></i>} /></h3>
+                <div className="inputLabel risk">0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 10</div>
                 <Styles opacity={this.state.risk_setting > 10 ? (this.state.risk_setting / 10) : .1} color={this.props.color}>
-                  <input type="range" min={0} max={10} value={this.state.risk_setting} className="slider" onChange={this.handleOnChange}/> 
-                  <Button type='submit'>Submit</Button>                 
+                  <input type="range" min={0} max={10} value={this.state.risk_setting} className="slider" onChange={this.handleOnChange}/>
+                  <Button type='submit'>Submit</Button>
                 </Styles>
               </Form>
             </div>
