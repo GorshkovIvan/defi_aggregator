@@ -152,6 +152,26 @@ func getUsdFromVolumeAave2(aavePoolData AavePoolData) {
 	}
 }
 
+func isTokenStableCoin(coinName string) bool {
+	if coinName == "USDT" {
+		return true
+	} else if coinName == "USDC" {
+		return true
+	} else if coinName == "USD" {
+		return true
+	} else if coinName == "TUSD" {
+		return true
+	} else if coinName == "DAI" {
+		return true
+	} else if coinName == "GUSD" {
+		return true
+	} else if coinName == "BUSD" {
+		return true
+	} else {
+		return false
+	}
+}
+
 func isCoinPeggedToUSD(coinName string) (bool, string) {
 	if coinName == "Tether USD" {
 		return true, "USDT"
