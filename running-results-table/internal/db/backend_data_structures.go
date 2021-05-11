@@ -150,10 +150,6 @@ func get_newest_timestamp_from_db(pool string, tokens []string) int64 {
 		}
 	}
 
-	if max == 0 {
-		log.Fatal()
-	}
-
 	return max
 }
 

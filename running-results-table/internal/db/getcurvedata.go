@@ -262,7 +262,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			days_ago := 1
 			fmt.Print("getting oldest record: ")
 			oldest_available_record := time.Unix(get_newest_timestamp_from_db("Curve", tokenqueue), 0)
-			fmt.Print("oldest_available_record: ")
+			fmt.Print(" OLDEST RECORD IS AT: ")
 			fmt.Print(oldest_available_record)
 			oldest_lookup_time := time.Now()
 			data_is_old := false

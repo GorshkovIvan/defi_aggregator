@@ -110,7 +110,7 @@ func nrm_pool_wgts(pool_weights_raw []float64, pool_tkn0s []string, pool_tkn1s [
 			violation_count++
 		}
 	}
-	fmt.Print("..994..")
+	// fmt.Print("..994..")
 	for violation_count > 0 { // make sure they sum to individual token balances
 		//fmt.Print("..violations BEFORE change: ")
 		//fmt.Print(violation_count)
@@ -145,7 +145,7 @@ func nrm_pool_wgts(pool_weights_raw []float64, pool_tkn0s []string, pool_tkn1s [
 				weights_optimised[j] = weights_optimised[j] * rat
 			} // if rat
 		} // for len pool weights raw
-		fmt.Print("..995..")
+		// fmt.Print("..995..")
 		token_balances_resulting_from_entered_weights = recalculate_balances_from_weights(weights_optimised, total, pool_tkn0s, pool_tkn1s, pool_ratios, own_pf)
 		violation_count = 0
 
