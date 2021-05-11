@@ -27,13 +27,13 @@ func estimate_future_uniswap_volume_and_pool_sz(histvolume UniswapHistVolumeQuer
 	count_sz = 0
 
 	for i := 0; i < len(histvolume.DailyTimeSeries); i++ {
-/*
-		fmt.Print("daily volume usd: ")
-		fmt.Print(histvolume.DailyTimeSeries[i].DailyVolumeUSD)
-		fmt.Print(" | ")
-		fmt.Print("Reserve USD: ")
-		fmt.Println(histvolume.DailyTimeSeries[i].ReserveUSD)
-*/
+		/*
+			fmt.Print("daily volume usd: ")
+			fmt.Print(histvolume.DailyTimeSeries[i].DailyVolumeUSD)
+			fmt.Print(" | ")
+			fmt.Print("Reserve USD: ")
+			fmt.Println(histvolume.DailyTimeSeries[i].ReserveUSD)
+		*/
 		v, _ := strconv.ParseFloat(histvolume.DailyTimeSeries[i].DailyVolumeUSD, 64)
 		sz, _ := strconv.ParseFloat(histvolume.DailyTimeSeries[i].ReserveUSD, 64)
 
@@ -98,7 +98,7 @@ func getUniswapData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 	reqUniswapListOfPools := graphql.NewRequest(`
 	query{
-		pairs(first: 50, orderBy: volumeUSD, orderDirection: desc) {
+		pairs(first: 200, orderBy: volumeUSD, orderDirection: desc) {
 			id
 			untrackedVolumeUSD
 			volumeUSD
@@ -221,7 +221,15 @@ query{
 		log.Fatal(err)
 	}
 
-	// Process received list of pools (PAIRS)
+	for i := 0; i < len(respUniswapPoolList.Pools); i++ {
+		fmt.Print("i: ")
+		fmt.Print(i)
+		fmt.Print(" | ")
+		fmt.Print(respUniswapPoolList.Pools[i].Token0.Symbol)
+		fmt.Print(" | ")
+		fmt.Println(respUniswapPoolList.Pools[i].Token1.Symbol)
+	}
+
 	for i := 0; i < len(respUniswapPoolList.Pools); i++ {
 		// if len(respUniswapPoolList.Pools[i].Token0) > 1 {
 		token0symbol := respUniswapPoolList.Pools[i].Token0.Symbol
@@ -378,10 +386,10 @@ query{
 			ROI_vol_adj_est := calculateROI_vol_adj(ROI_raw_est, volatility)                                                                                                     // Sharpe ratio
 			ROI_hist := calculateROI_hist(currentInterestrate, UniswapRewardPercentage, historical_pool_sz_avg, historical_pool_daily_volume_avg, imp_loss_hist, px_return_hist) // + imp + hist
 			/*
-			fmt.Println("CHECKING FOR INF ERRORS: ")
-			fmt.Println(ROI_raw_est)
-			fmt.Println(ROI_vol_adj_est)
-			fmt.Println(ROI_hist)
+				fmt.Println("CHECKING FOR INF ERRORS: ")
+					fmt.Println(ROI_raw_est)
+					fmt.Println(ROI_vol_adj_est)
+					fmt.Println(ROI_hist)
 			*/
 			var recordalreadyexists bool
 			recordalreadyexists = false

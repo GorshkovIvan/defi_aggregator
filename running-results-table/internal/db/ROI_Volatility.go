@@ -578,7 +578,7 @@ func isPoolPartOfFilter(token0 string, token1 string) bool {
 	t2 := "USDT"
 	t3 := "WETH"
 	t4 := "WBTC"
-	t5 := "BAL"
+	t5 := "DAI" // placeholder
 
 	var t0ok bool
 	var t1ok bool

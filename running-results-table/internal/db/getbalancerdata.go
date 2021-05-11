@@ -222,7 +222,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 	// Process received list of pools (PAIRS)
 	for i := 0; i < len(respBalancerPoolList.Pools); i++ {
-		if len(respBalancerPoolList.Pools[i].Tokens) > 1 {
+		if len(respBalancerPoolList.Pools[i].Tokens) > 1 && len(respBalancerPoolList.Pools[i].Tokens) < 3 {
 			token0symbol := respBalancerPoolList.Pools[i].Tokens[0].Symbol
 			token1symbol := respBalancerPoolList.Pools[i].Tokens[1].Symbol
 
@@ -317,10 +317,12 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				//oldest_available_record = oldest_available_record.AddDate(0, 0, -days_ago)
 				oldest_lookup_time := time.Now() //.Unix()
 
-				fmt.Print("time since oldest available record: ")
+				fmt.Print("TIME SINCE UPDATE: ")
 				fmt.Print(time.Since(oldest_available_record).Hours())
 
 				data_is_old := false
+
+				fmt.Print("Checking if data is old")
 
 				if (time.Since(oldest_available_record).Hours()) > 24 {
 					data_is_old = true
@@ -331,6 +333,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				var dates []int64
 				var tradingvolumes []int64
 				var poolsizes []int64
+
+				fmt.Print(data_is_old)
 
 				// if data is old - download it
 				if data_is_old {
@@ -348,9 +352,20 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 					var BalancerpoolAddress = common.HexToAddress(respBalancerById.Pool.ID)
 					fmt.Println(" CONNECTED TO INFURA SUCCESSFULLY!!!!!!")
 
+					tokenAddress0 := common.HexToAddress(respBalancerById.Pool.Tokens[0].Address)
 					tokenAddress := common.HexToAddress(respBalancerById.Pool.Tokens[1].Address)
 
 					instance, err := token.NewToken(tokenAddress, client)
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					instance0, err := token.NewToken(tokenAddress0, client)
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					bal0, err := instance0.BalanceOf(&bind.CallOpts{}, BalancerpoolAddress)
 					if err != nil {
 						log.Fatal(err)
 					}
@@ -362,7 +377,14 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 					fmt.Printf("bal: %s\n", bal)
 					fbal := new(big.Float)
 					fbal.SetString(bal.String())
+
+					fmt.Printf("BAL0: %s\n", bal0)
+					fbal0 := new(big.Float)
+					fbal0.SetString(bal0.String())
+
 					bal_float := new(big.Float).Quo(fbal, big.NewFloat(math.Pow10(int(respBalancerById.Pool.Tokens[1].Decimals))))
+					bal_floatT2 := new(big.Float).Quo(fbal0, big.NewFloat(math.Pow10(int(respBalancerById.Pool.Tokens[0].Decimals)))) //---------------------------------------------------
+
 					Histrecord_2 := retrieveDataForTokensFromDatabase2(token0symbol, token1symbol)
 					//fmt.Print("Histrecord_2: ")
 					//fmt.Print(Histrecord_2)
@@ -374,7 +396,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 					fmt.Print(Histrecord_2.Date[len(Histrecord_2.Date)-1])
 					fmt.Print(" | PX: ")
 					fmt.Print(Histrecord_2.Price[len(Histrecord_2.Price)-1])
-					fmt.Printf(" | balance: %f", bal_float) // "balance: 74605500.647409"
+					fmt.Printf(" | balance: %f", bal_float)    // "balance: 74605500.647409"
+					fmt.Printf(" | balance2: %f", bal_floatT2) //------------------------------------------------------------------
 
 					var current_block *big.Int
 					var oldest_block *big.Int
@@ -472,10 +495,13 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 							dates = append(dates, int64(BoD(time.Unix(int64(t_new), 0)).Unix()))
 							tradingvolumes = append(tradingvolumes, cumulative_for_day)
 							bal_int, _ := bal_float.Int64()
+							bal_intT2, _ := bal_floatT2.Int64()
 							if len(Histrecord_2.Price) >= 1 {
-								bal_int = bal_int // * int64(Histrecord_2.Price[len(Histrecord_2.Price)-1])
+								bal_int = bal_int                                                            //
+								bal_intT2 = bal_intT2 * int64(Histrecord_2.Price[len(Histrecord_2.Price)-1]) //--------------------------------------------
 							} // convert to token1
-							poolsizes = append(poolsizes, bal_int) // bal.Int64()
+							//poolsizes = append(poolsizes, bal_int) // bal.Int64()
+							poolsizes = append(poolsizes, bal_int+bal_intT2) // bal.Int64()
 							cumulative_for_day = 0
 							//fmt.Println(" t new:")
 							//fmt.Print(t_new)
@@ -586,7 +612,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 			} // if pool is within pre filtered list ends
 		} // if pool has some tokens ends
 	} // balancer pair loop closes
-
+	// if pool len is == 2
 	fmt.Println("BALANCER COMPLETED!!!!!")
 
 } // balancer get data close
