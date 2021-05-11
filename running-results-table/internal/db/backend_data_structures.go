@@ -45,7 +45,6 @@ func getCollectionNames(database string) []string {
 		log.Fatal(err)
 	}
 
-
 	var collectionNames []bson.M
 	err = collection.All(ctx, &collectionNames)
 	if err != nil {
@@ -103,6 +102,11 @@ func retrieve_hist_pool_sizes_volumes(pool string, token0 string, token1 string)
 	tradingvolumes = returnAttributeInCollectionAsInt64(v, "trading_Volume_USD")
 	poolsizes = returnAttributeInCollectionAsInt64(v, "pool_sz_USD")
 	return dates, tradingvolumes, poolsizes
+}
+
+func get_newest_timestamp_from_db_hist_volume_and_sz_curve(tokenqueue []string) int64 {
+	// v similar to get newest timestamp - except multi token = Curve is fixed
+	return int64(0)
 }
 
 func get_newest_timestamp_from_db_hist_volume_and_sz(pool string, token0 string, token1 string) int64 {

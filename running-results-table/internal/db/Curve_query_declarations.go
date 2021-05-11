@@ -1,5 +1,22 @@
 package db
 
+import (
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/common"
+)
+
+type CurvePoolData struct {
+	poolAddress common.Address
+	//poolCurrentBalances [8]*big.Int
+	assetAddresses     [8]common.Address
+	assetDecimals      [8]*big.Int
+	volumes            []*[8]*big.Int
+	fees               []*[8]*big.Float
+	balances           []*[8]*big.Int
+	normalsiedBalances []*big.Float
+}
+
 // ---Curve---
 type CurveQuery struct {
 	Pools []CurvePool `json:"pools"`

@@ -598,6 +598,24 @@ func isPoolPartOfFilter(token0 string, token1 string) bool {
 
 }
 
+func isCoinPartOfFilter(token0 string) bool {
+	t0 := "DAI"
+	t1 := "USDC"
+	t2 := "USDT"
+	t3 := "WETH"
+	t4 := "WBTC"
+	t5 := "DAI" // placeholder
+
+	//	var t0ok bool
+	//	var t1ok bool
+
+	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 || token0 == t5 {
+		return true
+	}
+
+	return false
+}
+
 // ROI Ranking Function
 func (database *Database) RankBestCurrencies() {
 

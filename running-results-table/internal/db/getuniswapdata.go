@@ -278,9 +278,9 @@ query{
 					if len(respUniswapHist.DailyTimeSeries) > 0 {
 						Histrecord = NewHistoricalCurrencyDataFromRaw(tokenqueue[j], respUniswapHist.DailyTimeSeries)
 						//database.historicalcurrencydata = append(database.historicalcurrencydata, Histrecord)
-						fmt.Println("-------ABOUT TO RUN NEW APPEND FUNCTION")
+						//fmt.Println("-------ABOUT TO RUN NEW APPEND FUNCTION")
 						appendDataForTokensFromDatabase(Histrecord)
-						fmt.Println("-------RAN NEW APPEND FUNCTION")
+						//fmt.Println("-------RAN NEW APPEND FUNCTION")
 					}
 				} // if historical data needs updating
 			} // tokenqueue loop ends
@@ -357,20 +357,22 @@ query{
 			currentVolume, _ := strconv.ParseFloat(respUniswapById.Pair.VolumeUSD, 32)
 			fmt.Println(currentVolume)
 
-			fmt.Print("NOW PRINTING HISTORICAL VOLUME: ")
-			fmt.Print(respUniswapHistVolume.DailyTimeSeries[0].Token0.Symbol)
-			fmt.Print(" | ")
-			fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].Token1.Symbol)
+			if len(respUniswapHistVolume.DailyTimeSeries) > 0 {
+				fmt.Print("NOW PRINTING HISTORICAL VOLUME: ")
+				fmt.Print(respUniswapHistVolume.DailyTimeSeries[0].Token0.Symbol)
+				fmt.Print(" | ")
+				fmt.Println(respUniswapHistVolume.DailyTimeSeries[0].Token1.Symbol)
+			}
 
 			future_daily_volume_est, future_pool_sz_est := estimate_future_uniswap_volume_and_pool_sz(respUniswapHistVolume)
 			historical_pool_sz_avg, historical_pool_daily_volume_avg := future_pool_sz_est, future_daily_volume_est
 
-			fmt.Println("-----------ABOUT TO RUN NEW DATABASE RETRIEVAL FUNC---------------------------")
+			//fmt.Println("-----------ABOUT TO RUN NEW DATABASE RETRIEVAL FUNC---------------------------")
 			//			xxx := retrieveDataForTokensFromDatabase2(token0symbol, token1symbol)
 			//			fmt.Println(xxx)
 			//			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase(token0symbol, token1symbol, database), 30)
 			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(token0symbol, token1symbol), 30)
-			fmt.Println("-----------RAN NEW DATABASE RETRIEVAL FUNC---------------------------")
+			//fmt.Println("-----------RAN NEW DATABASE RETRIEVAL FUNC---------------------------")
 
 			fmt.Print("volatility hist for: ")
 			fmt.Print(token0symbol)
