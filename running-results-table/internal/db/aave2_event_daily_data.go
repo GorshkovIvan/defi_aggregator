@@ -73,7 +73,7 @@ func getAave2Data(){
 	}
 
 	var aave_daily_data []AavePoolData
-	days_needed := 3
+	days_needed := 1
 
 	for i := 31; i > (31 - days_needed); i-- {
 
