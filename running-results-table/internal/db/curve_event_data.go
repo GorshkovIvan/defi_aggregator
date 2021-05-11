@@ -4,20 +4,18 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math"
 	"math/big"
 	"strconv"
-	"math"
 	"time"
 
-	"pusher/defi_aggregator/running-results-table/internal/db/curveRegistry"
-
 	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+/*
 func getCurveData0() {
 
 	// Connecting to client
@@ -36,7 +34,7 @@ func getCurveData0() {
 
 	var pools []CurvePoolData
 
-	pools = getCurveDataI(client, provider, pools, 3, true)
+	//pools = getCurveDataI(client, provider, pools, 3, true)
 	fmt.Print("chk998")
 	fmt.Println("Got day one")
 
@@ -61,7 +59,7 @@ func getCurveData0() {
 				normalisedVolume = negPow(normalisedVolume, pools[i].assetDecimals[j].Int64())
 
 			}
-		*/
+
 	}
 
 	zero := big.NewFloat(0)
@@ -100,7 +98,8 @@ func getCurveData0() {
 
 	}
 }
-
+*/
+/*
 func getCurveDataI(client *ethclient.Client, provider *curveRegistry.Main, pools []CurvePoolData, daysAgo int, first_turn bool) []CurvePoolData {
 	fmt.Print("In CurvedataI")
 	number_of_pools := big.NewInt(32)
@@ -134,7 +133,7 @@ func getCurveDataI(client *ethclient.Client, provider *curveRegistry.Main, pools
 		// Getting current pool balances
 
 		// Getting swap volumes and fees and balances
-		volumes, fees := curveGetPoolVolume(pool_address, oldest_block, latest_block, client)
+		volumes, fees := curveGetPoolVolume(pool_address, client)
 		var volumes_array []*[8]*big.Int
 		volumes_array = append(volumes_array, volumes)
 		var fees_array []*[8]*big.Float
@@ -154,7 +153,7 @@ func getCurveDataI(client *ethclient.Client, provider *curveRegistry.Main, pools
 			fmt.Println(pools[count_pools].assetAddresses)
 			fmt.Println("Decimals for coins in the pool:")
 			fmt.Println(pools[count_pools].assetDecimals)
-		*/
+
 
 		// Getting data for the rest of the pools
 
@@ -222,7 +221,7 @@ func getCurveDataI(client *ethclient.Client, provider *curveRegistry.Main, pools
 				log.Fatal(err)
 			}
 
-			volumes, fees := curveGetPoolVolume(pool_address, oldest_block, latest_block, client)
+			volumes, fees := curveGetPoolVolume(pool_address, client)
 			pools[count_pools].volumes = append(pools[count_pools].volumes, volumes)
 			pools[count_pools].fees = append(pools[count_pools].fees, fees)
 			count_pools++
@@ -233,7 +232,7 @@ func getCurveDataI(client *ethclient.Client, provider *curveRegistry.Main, pools
 
 	return pools
 }
-
+*/
 /*
 func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
 
@@ -280,16 +279,55 @@ func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
 }
 */
 
-func curveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, latest_block *big.Int, client *ethclient.Client) ([]int64, *[8]*big.Int, *[8]*big.Float, []int64) {
+func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, balances []int64, tokenqueue []string) ([]int64, []int64, []int64, []int64, []float64) {
 
 	poolTopics := []string{"0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140" /* "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"*/}
+
+	// block calcs - YA
+	var current_block *big.Int
+	var oldest_block *big.Int
+	current_block = big.NewInt(0)
+
+	header, err := client.HeaderByNumber(context.Background(), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	current_block = header.Number
+
+	fmt.Print("current block: ")
+	fmt.Print(current_block)
+
+	oldest_block = new(big.Int).Set(current_block)
+	j := int64(0) // compute block id [days_ago] days away from now
+	for {
+		j -= 2000
+		oldest_block.Add(oldest_block, big.NewInt(j))
+
+		block, err := client.BlockByNumber(context.Background(), oldest_block)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		oldest_lookup_time := time.Now() //.Unix()
+
+		if block.Time() <= uint64(oldest_lookup_time.Unix()) {
+			fmt.Print("oldest lkp block: ")
+			fmt.Println(oldest_block)
+			fmt.Print(" | t: ")
+			fmt.Print(block.Time())
+			fmt.Print("| curr blk - oldest blk: ")
+			diff := current_block.Sub(current_block, oldest_block)
+			fmt.Println(diff)
+			break
+		}
+	}
 
 	//3)  Query between oldest and current block for Curve-specific addresses
 
 	query := ethereum.FilterQuery{
-
 		FromBlock: oldest_block,
-		ToBlock:   latest_block, // = latest block
+		ToBlock:   current_block, // = latest block
 		Addresses: []common.Address{pool_address},
 	}
 
@@ -300,24 +338,29 @@ func curveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, late
 
 	//4)  Loop through received data and filter it again
 	// For each transaction in logsX - check if it matches lookup criteria - add volume if does:
-	var fees = new([8]*big.Float)
-	var swap_volumes = new([8]*big.Int)
+	var fees []int64
 	var tradingvolumes []int64
 	var dates []int64
 	var poolsizes []int64
+	var interest []float64
+	cumulative_for_day_fees := int64(0)
+	cumulative_for_day_volume := int64(0)
+	t_prev := uint64(0)
+	t_new := uint64(0)
 
-	for i := range swap_volumes {
-		swap_volumes[i] = big.NewInt(0)
-	}
+	// which symbols do we need to get here??
+	Histrecord_2 := retrieveDataForTokensFromDatabase2(tokenqueue[0], tokenqueue[1])
 
-	for i := range fees {
-		fees[i] = big.NewFloat(0.0)
-	}
-
+	// loop through whole log
 	for i := 0; i < len(logsX); i++ {
-
 		if logsX[i].Topics[0] != common.HexToHash(poolTopics[0]) /*&& logsX[i].Topics[0] != common.HexToHash(poolTopics[1])*/ {
 			continue
+		}
+
+		// Get date from block number
+		block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(logsX[i].BlockNumber)))
+		if err != nil {
+			log.Fatal(err)
 		}
 
 		txlog, err := client.TransactionReceipt(context.Background(), logsX[i].TxHash)
@@ -327,55 +370,80 @@ func curveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, late
 		}
 
 		// Here we have to add summing them up by day - not just total
-
-		t_prev := uint64(0)
-		t_new := uint64(0)
-
 		t_prev = t_new       // uint
 		t_new = block.Time() // uint
-		
-		cumulative_for_day := int64(0)
 
-		if t_prev == 0 || (t_new-uint64(math.Mod(float64(t_new), 86400)))/86400 != 
-		(t_prev-uint64(math.Mod(float64(t_prev), 86400)))/86400 { // 1 day
+		if t_prev == 0 || (t_new-uint64(math.Mod(float64(t_new), 86400)))/86400 !=
+			(t_prev-uint64(math.Mod(float64(t_prev), 86400)))/86400 { // 1 day
 			dates = append(dates, int64(BoD(time.Unix(int64(t_new), 0)).Unix()))
-			tradingvolumes = append(tradingvolumes, cumulative_for_day)
-			bal_int, _ := bal_float.Int64()
-			bal_intT2, _ := bal_floatT2.Int64()
+			fees = append(fees, cumulative_for_day_fees)
+			tradingvolumes = append(tradingvolumes, cumulative_for_day_volume)
+
+			// Get balances of each token
+			//			bal_int, _ := bal_float.Int64()
+			//			bal_intT2, _ := bal_floatT2.Int64()
 			if len(Histrecord_2.Price) >= 1 {
-				bal_int = bal_int                                                            //
-				bal_intT2 = bal_intT2 * int64(Histrecord_2.Price[len(Histrecord_2.Price)-1]) //--------------------------------------------
+				//				bal_int = bal_int                                                            //
+				//				bal_intT2 = bal_intT2 * int64(Histrecord_2.Price[len(Histrecord_2.Price)-1]) //--------------------------------------------
 			} // convert to token1
-			//poolsizes = append(poolsizes, bal_int) // bal.Int64()
-			poolsizes = append(poolsizes, bal_int+bal_intT2) // bal.Int64()
-			cumulative_for_day = 0
-			//fmt.Println(" t new:")
-			//fmt.Print(t_new)
-			//fmt.Print(" | prev: ")
-			//fmt.Print(t_prev)
-			//fmt.Print("day crossed: ")
-			//fmt.Print(int64(BoD(time.Unix(int64(t_new), 0)).Unix()))
-			//fmt.Print("..cumulative: ")
-			//fmt.Println(cumulative_for_day)
+
+			var totalBal = 0
+			for balLen := 0; balLen < len(balances); balLen++ {
+				totalBal += int(balances[balLen])
+			}
+
+			poolsizes = append(poolsizes, int64(totalBal)) // bal.Int64()
+			cumulative_for_day_fees = 0
+			cumulative_for_day_volume = 0 // reset days tally if day threshold crossed
 		} else { //-------------
-			token0AD := respBalancerById.Pool.Tokens[0].Address //"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" // WETH
-			token1AD := respBalancerById.Pool.Tokens[1].Address
-			dec := respBalancerById.Pool.Tokens[1].Decimals // 18 // t1 decimals
-			tkn1 := getTradingVolumeFromTxLog2(txlog.Logs, balancertopic, token0AD, token1AD, dec)
 			// convert to usd
-			cumulative_for_day += tkn1
+			// Get the data
+			asset0_index, asset0_volume, asset1_index, asset1_volume := getTradingVolumeFromTxLogCurve(txlog.Logs, poolTopics)
+
+			fmt.Print(asset0_index)
+			fmt.Print(asset1_index)
+
+			// which tickers?
+			exch0 := float64(1.0)
+			exch1 := float64(1.0)
+
+			sz_0 := int64(float64(asset0_volume) * exch0)
+			sz_1 := int64(float64(asset1_volume) * exch1)
+
+			pool_fee := 0.02
+			f0 := int64(float64(sz_0) * pool_fee)
+			f1 := int64(float64(sz_1) * pool_fee)
+
+			// Add it to tally for that day
+			cumulative_for_day_fees += (f0 + f1)
+			cumulative_for_day_volume += (sz_0 + sz_1)
 		}
 		// add to volume
-		asset0_index, asset0_volume, asset1_index, asset1_volume := getTradingVolumeFromTxLogCurve(txlog.Logs, poolTopics)
-		swap_volumes[asset0_index].Add(swap_volumes[asset0_index], asset0_volume)
-		swap_volumes[asset1_index].Add(swap_volumes[asset1_index], asset1_volume)
-		volume_float := new(big.Float).SetInt(asset1_volume)
-		fees[asset1_index].Add(fees[asset1_index], volume_float.Mul(volume_float, big.NewFloat(0.02)))
 
-	}
+	} // loop through logs ends
 
-	return dates, swap_volumes, fees, poolsizes
+	return dates, tradingvolumes, poolsizes, fees, interest
 }
+
+//Function to convert a big Float to a BigInt
+/*
+func FloatToBigInt(val float64) *big.Int {
+	bigval := new(big.Float)
+	bigval.SetFloat64(val)
+	// Set precision if required.
+	// bigval.SetPrec(64)
+
+	coin := new(big.Float)
+	coin.SetInt(big.NewInt(1000000000000000000))
+
+	bigval.Mul(bigval, coin)
+
+	result := new(big.Int)
+	bigval.Int(result) // store converted number in result
+
+	return result
+}
+*/
 
 func decodeBytesCurve(log *types.Log) (int, *big.Int, int, *big.Int) {
 
@@ -388,7 +456,7 @@ func decodeBytesCurve(log *types.Log) (int, *big.Int, int, *big.Int) {
 	return asset0_index, asset0_volume, asset1_index, asset1_volume
 }
 
-func getTradingVolumeFromTxLogCurve(logs []*types.Log, pooltopics []string) (int, *big.Int, int, *big.Int) {
+func getTradingVolumeFromTxLogCurve(logs []*types.Log, pooltopics []string) (int64, int64, int64, int64) { //Should return an int not big int
 
 	var firstLog *types.Log
 	//var lastLog *types.Log
@@ -404,11 +472,11 @@ func getTradingVolumeFromTxLogCurve(logs []*types.Log, pooltopics []string) (int
 	}
 
 	if firstLog == nil { // could not find any valid swaps, thus the transaction failed
-		return -1, common.Big0, -1, common.Big0
+		return -1, 0, -1, 0
 	}
 	asset0_index, asset0_volume, asset1_index, asset1_volume := decodeBytesCurve(firstLog)
 
-	return asset0_index, asset0_volume, asset1_index, asset1_volume
+	return int64(asset0_index), asset0_volume.Int64(), int64(asset1_index), asset1_volume.Int64()
 }
 
 func negPow(a *big.Float, e int64) *big.Float {

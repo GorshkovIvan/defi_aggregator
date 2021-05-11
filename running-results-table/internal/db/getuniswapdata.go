@@ -398,7 +398,7 @@ query{
 
 			for k := 0; k < len(database.currencyinputdata); k++ {
 				// Means record already exists - UPDATE IT, DO NOT APPEND
-				if database.currencyinputdata[k].Pair == token0symbol+"/"+token1symbol && database.currencyinputdata[k].Pool == "Balancer" {
+				if database.currencyinputdata[k].Pair == token0symbol+"/"+token1symbol && database.currencyinputdata[k].Pool == "Uniswap" {
 					recordalreadyexists = true
 					database.currencyinputdata[k].PoolSize = float32(future_pool_sz_est)
 					database.currencyinputdata[k].PoolVolume = float32(future_daily_volume_est)

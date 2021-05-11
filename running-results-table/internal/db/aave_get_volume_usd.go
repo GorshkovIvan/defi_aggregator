@@ -111,7 +111,11 @@ func getUsdFromVolumeAave1(aavePoolData AavePoolData) {
 		// Add fees
 		days_ago := 30
 		pool_sz_usd := int64(0.0)
-		xx := append_hist_volume_record_to_database("Aave1", assetName, assetName, BoD(time.Now()).Unix()-int64(86400*days_ago)+int64(i*86400), int64(volumeUSD), pool_sz_usd)
+		var tokenqueue []string
+		tokenqueue = append(tokenqueue, assetName)
+		tokenqueue = append(tokenqueue, assetName)
+		interest := float64(0.0)
+		xx := append_record_to_database("Aave1", tokenqueue, BoD(time.Now()).Unix()-int64(86400*days_ago)+int64(i*86400), int64(volumeUSD), pool_sz_usd, 0, interest)
 		if xx == " " {
 		}
 	}

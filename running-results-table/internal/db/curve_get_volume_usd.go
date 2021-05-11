@@ -1,41 +1,6 @@
 package db
 
-import (
-	"context"
-	"fmt"
-	"log"
-	"pusher/defi_aggregator/running-results-table/internal/db/token"
-	"time"
-
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-)
-
-func convCurveToken(token string) string {
-	assetName := " "
-
-	if token == "Eth" {
-		assetName = "ETH"
-	} else if token == "Republic Token" {
-		assetName = "REN"
-	} else if token == "Synthetix Network Token" {
-		assetName = "SNX"
-	} else if token == "yearn.finance" {
-		assetName = "YFI"
-	} else if token == "Wrapped BTC" {
-		assetName = "WBTC"
-	} else if token == "Wrapped Ether" {
-		assetName = "WETH"
-	} else if token == "Uniswap" {
-		assetName = "UNI"
-	}
-	return assetName
-}
-
+/*
 func getUsdFromVolumeCurve(curvePoolData CurvePoolData) {
 	// more tokens
 
@@ -87,7 +52,7 @@ func getUsdFromVolumeCurve(curvePoolData CurvePoolData) {
 			ex = 1.0
 			assetName1 = ticker
 		}
-	*/
+
 	for i := 0; i < len(curvePoolData.volumes); i++ {
 		fmt.Print(curvePoolData.volumes[i][0])
 		v := 0 // float32((curvePoolData.volumes[i][0]).Int64())]
@@ -106,6 +71,7 @@ func getUsdFromVolumeCurve(curvePoolData CurvePoolData) {
 	//	var Date []int64    // `default0:"10099999999999" json:"date"` // `default0:"Mon Jan 2 15:04:05 MST 2006" json:"date"`
 	//	var Price []float32 // `default0:"420.69" json:"price"`
 }
+*/
 
 /*
 func isCoinPeggedToUSD(coinName string) bool, string {
@@ -130,6 +96,7 @@ func isCoinPeggedToUSD(coinName string) bool, string {
 */
 
 // database add function
+/*
 func addCurvePoolDataToCurveDatabase(assetName string, volume float32,
 	currentBalance float32, timestamp int64) string {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
@@ -163,3 +130,4 @@ func addCurvePoolDataToCurveDatabase(assetName string, volume float32,
 	return hexID
 
 }
+*/

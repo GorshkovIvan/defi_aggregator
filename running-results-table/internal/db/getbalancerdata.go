@@ -310,7 +310,10 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				days_ago := 1
 				//oldest_available_record := time.Now() // XX - GET IT USING AARON's func
 				//fmt.Print("What is this the correct Pool ID: ")
-				oldest_available_record := time.Unix(get_newest_timestamp_from_db_hist_volume_and_sz("Balancer", respBalancerById.Pool.Tokens[0].Symbol, respBalancerById.Pool.Tokens[1].Symbol), 0) //time.Unix(sec, nano)
+				var tokens []string
+				tokens = append(tokens, respBalancerById.Pool.Tokens[0].Symbol)
+				tokens = append(tokens, respBalancerById.Pool.Tokens[1].Symbol)
+				oldest_available_record := time.Unix(get_newest_timestamp_from_db("Balancer", tokens), 0) //time.Unix(sec, nano)
 				fmt.Print("NEWEST TIMESTAMP FROM DB:")
 				fmt.Print(oldest_available_record)
 				fmt.Print("checkpoint 1")
@@ -333,6 +336,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				var dates []int64
 				var tradingvolumes []int64
 				var poolsizes []int64
+				var fees []int64
+				var interest []float64
 
 				fmt.Print(data_is_old)
 
@@ -527,12 +532,14 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 					for i := 0; i < len(dates); i++ { //we should start at +1
 						fmt.Print("i: ")
 						fmt.Print(i)
+						interest = append(interest, 0.0)
 						fmt.Print("| t: ")
 						fmt.Print(dates[i])
 						fmt.Print("| volumes: ")
 						fmt.Println(tradingvolumes[i])
 						if tradingvolumes[i] > 0 {
-							recordID := append_hist_volume_record_to_database("Balancer", respBalancerById.Pool.Tokens[0].Symbol, respBalancerById.Pool.Tokens[1].Symbol, dates[i], tradingvolumes[i], poolsizes[i]) //-----implemented Function
+							// respBalancerById.Pool.Tokens[0].Symbol, respBalancerById.Pool.Tokens[1].Symbol
+							recordID := append_record_to_database("Balancer", tokens, dates[i], tradingvolumes[i], poolsizes[i], fees[i], interest[i]) //-----implemented Function
 							if recordID == "x" {
 							}
 						} // respBalancerById.Pool.ID
@@ -542,7 +549,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				} // if need to update data
 
 				if !data_is_old { // else: data is not old
-					dates, tradingvolumes, poolsizes = retrieve_hist_pool_sizes_volumes("Balancer", token0symbol, token1symbol)
+					dates, tradingvolumes, poolsizes, fees, interest = retrieve_hist_pool_sizes_volumes_fees_ir("Balancer", tokens)
 				}
 
 				future_daily_volume_est, future_pool_sz_est := estimate_future_balancer_volume_and_pool_sz(dates, tradingvolumes, poolsizes)

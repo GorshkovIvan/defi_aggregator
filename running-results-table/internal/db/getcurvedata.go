@@ -17,11 +17,33 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+func convCurveToken(token string) string {
+	assetName := " "
+
+	if token == "Eth" {
+		assetName = "ETH"
+	} else if token == "Republic Token" {
+		assetName = "REN"
+	} else if token == "Synthetix Network Token" {
+		assetName = "SNX"
+	} else if token == "yearn.finance" {
+		assetName = "YFI"
+	} else if token == "Wrapped BTC" {
+		assetName = "WBTC"
+	} else if token == "Wrapped Ether" {
+		assetName = "WETH"
+	} else if token == "Uniswap" {
+		assetName = "UNI"
+	}
+	return assetName
+}
+
+/*
 func estimate_future_curve_volume_and_pool_sz(dates []int64, tradingvolumes []int64, poolsizes []int64) (float32, float32) {
 
 	return 0.0, 0.0
 }
-
+*/
 func conv_curve_token_to_uniswap(curve_token string) string {
 	assetName := curve_token
 
@@ -128,6 +150,14 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 		//	fmt.Print("Coin Addresses: ")
 		//	fmt.Print(coin_addresses)
 		var tokenqueue []string
+		var decimals []int64
+		var balances []int64
+
+		var dates []int64
+		var tradingvolumes []int64
+		var fees []int64
+		var poolsizes []int64
+		var interest []float64
 
 		//skips pool if token not in filter.
 		skip_pool := false
@@ -169,6 +199,18 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			tokenqueue = append(tokenqueue, name)
 			fmt.Print("sz of tokenqueue is now: ")
 			fmt.Print(len(tokenqueue))
+
+			current_coin_balances, err := provider.GetBalances(&bind.CallOpts{}, pool_address)
+
+			for j := 0; j < len(decimals); j++ {
+				balance := new(big.Float).SetInt(current_coin_balances[j])
+				fmt.Print("balance: ")
+				fmt.Print(balance)
+				balance = negPow(balance, decimals[j])
+				b, _ := balance.Int64()
+				balances = append(balances, b)
+			}
+
 			// uniswap check
 			if !isHistDataAlreadyDownloadedDatabase(tokenqueue[j]) {
 				fmt.Print("In Uniswap hist data check..")
@@ -204,9 +246,10 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 		for jj := 0; jj < len(tokenqueue); jj++ {
 			fmt.Print(tokenqueue[jj])
+			fmt.Print(" | ")
 		}
 
-		fmt.Print("number of tokenqueue items: ")
+		fmt.Print(" | number of tokenqueue items: ")
 		fmt.Print(len(tokenqueue))
 
 		// if the next pool flag is true, go on to the next pool
@@ -217,8 +260,10 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 		if len(tokenqueue) > 1 && len(tokenqueue) < 5 {
 			days_ago := 1
-			// adapt func to take > 2 tokens
-			oldest_available_record := time.Unix(get_newest_timestamp_from_db_hist_volume_and_sz_curve(tokenqueue), 0)
+			fmt.Print("getting oldest record: ")
+			oldest_available_record := time.Unix(get_newest_timestamp_from_db("Curve", tokenqueue), 0)
+			fmt.Print("oldest_available_record: ")
+			fmt.Print(oldest_available_record)
 			oldest_lookup_time := time.Now()
 			data_is_old := false
 
@@ -232,6 +277,13 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			if data_is_old { // download it
 				// Getting the number of decimal spaces for underlying coins in the pool
 				coin_decimals, err := provider.GetDecimals(&bind.CallOpts{}, pool_address)
+
+				// copy decimals
+
+				for jz := 0; jz < len(decimals); jz++ {
+					decimals = append(decimals, coin_decimals[jz].Int64())
+				}
+
 				fmt.Print(len(coin_decimals))
 				if err != nil {
 					log.Fatal(err)
@@ -241,70 +293,33 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 				// get balance of each of the [x] tokens
 				// convert into normal values - init64
 
-				// block calcs - YA
-				var current_block *big.Int
-				var oldest_block *big.Int
-				current_block = big.NewInt(0)
-
-				header, err := client.HeaderByNumber(context.Background(), nil)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				current_block = header.Number
-
-				fmt.Print("current block: ")
-				fmt.Print(current_block)
-
-				oldest_block = new(big.Int).Set(current_block)
-				j := int64(0) // compute block id [days_ago] days away from now
-				for {
-					j -= 2000
-					oldest_block.Add(oldest_block, big.NewInt(j))
-
-					block, err := client.BlockByNumber(context.Background(), oldest_block)
-					if err != nil {
-						log.Fatal(err)
-					}
-
-					if block.Time() <= uint64(oldest_lookup_time.Unix()) {
-						fmt.Print("oldest lkp block: ")
-						fmt.Println(oldest_block)
-						fmt.Print(" | t: ")
-						fmt.Print(block.Time())
-						fmt.Print("| curr blk - oldest blk: ")
-						diff := current_block.Sub(current_block, oldest_block)
-						fmt.Println(diff)
-						break
-					}
-				}
-
 				//3)  Query between oldest and current block for Curve-specific addresses
-				// var
-				var dates []int64
-				var tradingvolumes []int64
-				var fees []int64
-				var poolsizes []int64
 
-				dates, volumes, fees, poolsizes = curveGetPoolVolume(pool_address, oldest_block, current_block, client)
-				for jjj := 0; j < len(dates); jjj++ {
-					recordID := append_hist_volume_fees_record_to_database_Curve("Curve", tokenqueue, dates[jjj], tradingvolumes[jjj], fees[jjj], poolsizes[jjj])
+				dates, tradingvolumes, poolsizes, fees, interest = curveGetPoolVolume(pool_address, client, balances, tokenqueue)
+				for jjj := 0; jjj < len(dates); jjj++ {
+					recordID := append_record_to_database("Curve", tokenqueue, dates[jjj], tradingvolumes[jjj], fees[jjj], poolsizes[jjj], interest[jjj])
+					if len(recordID) == 0 {
+						fmt.Print(recordID)
+					}
 				}
 
 			} // if data is old
 
 			if !data_is_old { // else: data is not old
 				// also query fees?
-				dates, tradingvolumes, poolsizes = retrieve_hist_pool_sizes_fees_volumes_Curve("Curve", tokenqueue)
+				dates, tradingvolumes, poolsizes, fees, interest = retrieve_hist_pool_sizes_volumes_fees_ir("Curve", tokenqueue)
 			}
 
 			// ROI stuff goes here
-			future_daily_volume_est, future_pool_sz_est := estimate_future_curve_volume_and_pool_sz(dates, tradingvolumes, poolsizes)
+			currentSize := 0.0
+			currentVolume := 0.0
+
+			future_daily_volume_est, future_pool_sz_est := estimate_future_balancer_volume_and_pool_sz(dates, tradingvolumes, poolsizes)
 			historical_pool_sz_avg, historical_pool_daily_volume_avg := future_pool_sz_est, future_daily_volume_est
 			currentInterestrate := float32(0.00) // POPULATE
 
-			CurveRewardPercentage, _ := 0.0 // strconv.ParseFloat(respBalancerById.Pool.SwapFee, 32)
-			//	volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(token0symbol, token1symbol), 30)
+			CurveRewardPercentage := 0.0 // strconv.ParseFloat(respBalancerById.Pool.SwapFee, 32)
+			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(tokenqueue[0], tokenqueue[1]), 30)
 
 			imp_loss_hist := estimate_impermanent_loss_hist(volatility, 1, "Curve")
 			px_return_hist := calculate_price_return_x_days(Histrecord, 30)
@@ -312,37 +327,45 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			ROI_raw_est := calculateROI_raw_est(currentInterestrate, float32(CurveRewardPercentage), float32(future_pool_sz_est), float32(future_daily_volume_est), imp_loss_hist)      // + imp
 			ROI_vol_adj_est := calculateROI_vol_adj(ROI_raw_est, volatility)                                                                                                            // Sharpe ratio
 			ROI_hist := calculateROI_hist(currentInterestrate, float32(CurveRewardPercentage), historical_pool_sz_avg, historical_pool_daily_volume_avg, imp_loss_hist, px_return_hist) // + imp + hist
+			/*
+				fmt.Print("| ROI_raw_est: ")
+				fmt.Print(ROI_raw_est)
+				fmt.Print("| ROI_vol_adj_est: ")
+				fmt.Print(ROI_vol_adj_est)
+				fmt.Print("| ROI_hist: ")
+				fmt.Print(ROI_hist)
 
-			fmt.Print("| ROI_raw_est: ")
-			fmt.Print(ROI_raw_est)
-			fmt.Print("| ROI_vol_adj_est: ")
-			fmt.Print(ROI_vol_adj_est)
-			fmt.Print("| ROI_hist: ")
-			fmt.Print(ROI_hist)
-
-			fmt.Print("DECIMALS t0: ")
-			fmt.Print(respBalancerById.Pool.Tokens[0].Symbol)
-			fmt.Print(respBalancerById.Pool.Tokens[0].ID)
-			fmt.Print(" | ")
-			fmt.Print(respBalancerById.Pool.Tokens[0].Address)
-			fmt.Print(" | ")
-			fmt.Print(respBalancerById.Pool.Tokens[0].Decimals)
-			fmt.Print(" | t1: ")
-			fmt.Print(respBalancerById.Pool.Tokens[1].Symbol)
-			fmt.Print(respBalancerById.Pool.Tokens[1].ID)
-			fmt.Print(" | ")
-			fmt.Print(respBalancerById.Pool.Tokens[1].Address)
-			fmt.Print(" | ")
-			fmt.Print(respBalancerById.Pool.Tokens[1].Decimals)
-			fmt.Print(" | ")
-
+				fmt.Print("DECIMALS t0: ")
+				fmt.Print(respBalancerById.Pool.Tokens[0].Symbol)
+				fmt.Print(respBalancerById.Pool.Tokens[0].ID)
+				fmt.Print(" | ")
+				fmt.Print(respBalancerById.Pool.Tokens[0].Address)
+				fmt.Print(" | ")
+				fmt.Print(respBalancerById.Pool.Tokens[0].Decimals)
+				fmt.Print(" | t1: ")
+				fmt.Print(respBalancerById.Pool.Tokens[1].Symbol)
+				fmt.Print(respBalancerById.Pool.Tokens[1].ID)
+				fmt.Print(" | ")
+				fmt.Print(respBalancerById.Pool.Tokens[1].Address)
+				fmt.Print(" | ")
+				fmt.Print(respBalancerById.Pool.Tokens[1].Decimals)
+				fmt.Print(" | ")
+			*/
 			var recordalreadyexists bool
 			recordalreadyexists = false
+
+			str := tokenqueue[0] + "/" + tokenqueue[1]
+			if len(tokenqueue) == 3 {
+				str = str + "/" + tokenqueue[2]
+			}
+			if len(tokenqueue) == 4 {
+				str = str + "/" + tokenqueue[3]
+			}
 
 			// CHECK IF NOT DUPLICATING RECORD - IF ALREADY EXISTS - UPDATE NOT APPEND
 			for k := 0; k < len(database.currencyinputdata); k++ {
 				// Means record already exists - UPDATE IT, DO NOT APPEND
-				if database.currencyinputdata[k].Pair == token0symbol+"/"+token1symbol && database.currencyinputdata[k].Pool == "Balancer" {
+				if database.currencyinputdata[k].Pair == str && database.currencyinputdata[k].Pool == "Curve" {
 					recordalreadyexists = true
 					database.currencyinputdata[k].PoolSize = float32(currentSize)
 					database.currencyinputdata[k].PoolVolume = float32(currentVolume)
@@ -358,7 +381,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 			// APPEND IF NEW
 			if !recordalreadyexists {
-				database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(currentSize),
+				database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{str, float32(currentSize),
 					float32(currentVolume), currentInterestrate, "Curve", volatility, ROI_raw_est, 0.0, 0.0})
 			}
 			fmt.Println("APPENDED CURVE DATA ITERATION")
