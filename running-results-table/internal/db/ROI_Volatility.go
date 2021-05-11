@@ -238,12 +238,12 @@ func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 		}
 	}
 
-	fmt.Print("total: ")
+	fmt.Print("vol calc - total deviation: ")
 	fmt.Println(total)
 
 	mean := total / float32(actual_vol_period) // actual days?
 
-	fmt.Print("mean: ")
+	fmt.Print("vol calc - mean: ")
 	fmt.Println(mean)
 
 	for i := 1; i < int(vol_period); i++ {
@@ -578,7 +578,7 @@ func isPoolPartOfFilter(token0 string, token1 string) bool {
 	t2 := "USDT"
 	t3 := "WETH"
 	t4 := "WBTC"
-	t5 := "DAI" // placeholder
+	t5 := "DOGE"
 
 	var t0ok bool
 	var t1ok bool
@@ -604,7 +604,7 @@ func isCoinPartOfFilter(token0 string) bool {
 	t2 := "USDT"
 	t3 := "WETH"
 	t4 := "WBTC"
-	t5 := "DAI" // placeholder
+	t5 := "DOGE"
 
 	//	var t0ok bool
 	//	var t1ok bool

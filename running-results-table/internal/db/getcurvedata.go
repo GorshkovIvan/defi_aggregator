@@ -39,22 +39,22 @@ func conv_curve_token_to_uniswap(curve_token string) string {
 		assetName = "DAI"
 	} else if curve_token == "ycDAI" {
 		assetName = "DAI"
-	} else if curve_token == "oBTC" {
-		assetName = "WBTC"
-	} else if curve_token == "HBTC" {
-		assetName = "WBTC"
-	} else if curve_token == "oBTC" {
-		assetName = "WBTC"
-	} else if curve_token == "TBTC" {
-		assetName = "WBTC"
-	} else if curve_token == "BBTC" {
-		assetName = "WBTC"
+		//	} else if curve_token == "oBTC" {
+		//		assetName = "WBTC"
+		//	} else if curve_token == "HBTC" {
+		//		assetName = "WBTC"
+		//	} else if curve_token == "oBTC" {
+		//		assetName = "WBTC"
+		//	} else if curve_token == "TBTC" {
+		//		assetName = "WBTC"
+		//	} else if curve_token == "BBTC" {
+		//		assetName = "WBTC"
 	} else if curve_token == "pBTC" {
 		assetName = "WBTC"
 	} else if curve_token == "oBTC" {
 		assetName = "WBTC"
-	} else if curve_token == "renBTC" {
-		assetName = "WBTC"
+		//	} else if curve_token == "renBTC" {
+		//		assetName = "WBTC"
 	} else if curve_token == "GUSD" {
 		assetName = "USDC"
 	} else if curve_token == "HUSD" {
@@ -152,23 +152,12 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			if !isCoinPartOfFilter(name) {
 				// coin not part of our filter - skip this whole pool
 				skip_pool = true
-				fmt.Print("..not part of filter..breaking out of loop..")
+				fmt.Print("Token: ")
+				fmt.Print(name)
+				fmt.Print(" --- not part of filter..SKIPPING POOL..")
 				break
 			}
 			tokenqueue = append(tokenqueue, name)
-
-			current_coin_balances, err := provider.GetBalances(&bind.CallOpts{}, pool_address)
-
-			for j := 0; j < len(decimals); j++ {
-				balance := new(big.Float).SetInt(current_coin_balances[j])
-				fmt.Print("i: ")
-				fmt.Print(i)
-				fmt.Print("balance: ")
-				fmt.Print(balance)
-				balance = negPow(balance, decimals[j])
-				b, _ := balance.Int64()
-				balances = append(balances, b)
-			}
 
 			// uniswap check
 			if !isHistDataAlreadyDownloadedDatabase(tokenqueue[j]) {
@@ -201,7 +190,38 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 		} // j loop through coins
 
-		fmt.Print("Loop thru coins done!! ")
+		coin_decimals, err := provider.GetDecimals(&bind.CallOpts{}, pool_address)
+		// fmt.Print(len(coin_decimals))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// copy decimals to a regular int format
+		for jz := 0; jz < len(tokenqueue); jz++ {
+			decimals = append(decimals, coin_decimals[jz].Int64())
+		}
+
+		current_coin_balances, err := provider.GetBalances(&bind.CallOpts{}, pool_address)
+
+		fmt.Print("len of decimals: ")
+		fmt.Print(len(decimals))
+		fmt.Print("len of curr coin balances: ")
+		fmt.Print(len(current_coin_balances))
+
+		for jx := 0; jx < len(decimals); jx++ {
+			balance := new(big.Float).SetInt(current_coin_balances[jx])
+			fmt.Print("jx: ")
+			fmt.Print(jx)
+			fmt.Print("balance: ")
+			fmt.Print(balance)
+			balance = negPow(balance, decimals[jx])
+			b, _ := balance.Int64()
+			balances = append(balances, b)
+		}
+
+		fmt.Print("len of balances: ")
+		fmt.Print(len(balances))
+
 		fmt.Print("sz of tokenqueue: ")
 		fmt.Print(len(tokenqueue))
 
@@ -220,37 +240,36 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 		}
 
 		if len(tokenqueue) > 1 && len(tokenqueue) < 5 {
-			days_ago := 3
 			fmt.Print("getting oldest record: ")
 			oldest_available_record := time.Unix(get_newest_timestamp_from_db("Curve", tokenqueue), 0)
 			fmt.Print(" OLDEST RECORD IS AT: ")
 			fmt.Print(oldest_available_record)
-			oldest_lookup_time := time.Now()
+
 			data_is_old := false
 
 			if (time.Since(oldest_available_record).Hours()) > 24 {
 				data_is_old = true
-				oldest_lookup_time = oldest_lookup_time.AddDate(0, 0, -days_ago)
 			}
 			fmt.Print("is data old: ")
 			fmt.Print(data_is_old)
 
 			if data_is_old { // download it
 				// Getting the number of decimal spaces for underlying coins in the pool
-				coin_decimals, err := provider.GetDecimals(&bind.CallOpts{}, pool_address)
-
-				// copy decimals
-				for jz := 0; jz < len(decimals); jz++ {
-					decimals = append(decimals, coin_decimals[jz].Int64())
-				}
-
-				fmt.Print(len(coin_decimals))
-				if err != nil {
-					log.Fatal(err)
-				}
 
 				//3)  Query between oldest and current block for Curve-specific addresses
 				dates, tradingvolumes, poolsizes, fees, interest = curveGetPoolVolume(pool_address, client, balances, tokenqueue)
+
+				fmt.Print("dates retrieved from curveGetPoolVolume: ")
+				fmt.Print(len(dates))
+				fmt.Print(" | tradingvolumes : ")
+				fmt.Print(len(tradingvolumes))
+				fmt.Print(" | poolsizes: ")
+				fmt.Print(len(poolsizes))
+				fmt.Print(" | fees: ")
+				fmt.Print(len(fees))
+				fmt.Print(" | interest: ")
+				fmt.Print(len(interest))
+
 				for jjj := 0; jjj < len(dates); jjj++ {
 					recordID := append_record_to_database("Curve", tokenqueue, dates[jjj], tradingvolumes[jjj], fees[jjj], poolsizes[jjj], interest[jjj])
 					if len(recordID) == 0 {
@@ -280,8 +299,32 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			historical_pool_sz_avg, historical_pool_daily_volume_avg := future_pool_sz_est, future_daily_volume_est
 			currentInterestrate := float32(0.00) // POPULATE
 
-			CurveRewardPercentage := 0.0
+			CurveRewardPercentage := 0.02 // 2% standard across curve pools
 			volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(tokenqueue[0], tokenqueue[1]), 30)
+			volatility1 := float32(0.0)
+			volatility2 := float32(0.0)
+
+			if len(tokenqueue) >= 3 {
+				volatility1 = calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(tokenqueue[1], tokenqueue[2]), 30)
+			}
+			if len(tokenqueue) >= 4 {
+				volatility2 = calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(tokenqueue[2], tokenqueue[3]), 30)
+			}
+
+			totl := volatility
+			vol_count := float32(1.0)
+			if volatility1 > 0 {
+				totl += volatility1
+				vol_count++
+			}
+
+			if volatility2 > 0 {
+				totl += volatility2
+				vol_count++
+			}
+
+			//AVG volatility
+			volatility = totl / vol_count
 
 			imp_loss_hist := estimate_impermanent_loss_hist(volatility, 1, "Curve")
 			px_return_hist := calculate_price_return_x_days(Histrecord, 30)
@@ -395,10 +438,8 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 */
 
 func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, balances []int64, tokenqueue []string) ([]int64, []int64, []int64, []int64, []float64) {
-
 	poolTopics := []string{"0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140" /* "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"*/}
 
-	// block calcs - YA
 	var current_block *big.Int
 	var oldest_block *big.Int
 	current_block = big.NewInt(0)
@@ -414,6 +455,12 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 	fmt.Print(current_block)
 
 	oldest_block = new(big.Int).Set(current_block)
+	days_ago := 3
+	oldest_lookup_time := time.Now()
+	oldest_lookup_time = oldest_lookup_time.AddDate(0, 0, -days_ago)
+	fmt.Print("oldest_lookup_time: ")
+	fmt.Print(oldest_lookup_time)
+
 	j := int64(0) // compute block id [days_ago] days away from now
 	for {
 		j -= 2000
@@ -423,8 +470,6 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		oldest_lookup_time := time.Now() //.Unix()
 
 		if block.Time() <= uint64(oldest_lookup_time.Unix()) {
 			fmt.Print("oldest lkp block: ")
@@ -439,10 +484,12 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 	}
 
 	//3)  Query between oldest and current block for Curve-specific addresses
+	fmt.Print("Querying pool address: ")
+	fmt.Println(pool_address)
 
 	query := ethereum.FilterQuery{
 		FromBlock: oldest_block,
-		ToBlock:   current_block, // = latest block
+		ToBlock:   nil, // = latest block
 		Addresses: []common.Address{pool_address},
 	}
 
@@ -451,6 +498,8 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 		log.Fatal(err)
 	}
 
+	fmt.Print("DOWNLOADED logsX: ")
+	fmt.Print(len(logsX))
 	//4)  Loop through received data and filter it again
 	// For each transaction in logsX - check if it matches lookup criteria - add volume if does:
 	var fees []int64
@@ -465,6 +514,9 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 
 	// which symbols do we need to get here??
 	Histrecord_2 := retrieveDataForTokensFromDatabase2(tokenqueue[0], tokenqueue[1])
+
+	fmt.Print(" len(logsX): ")
+	fmt.Print(len(logsX))
 
 	// loop through whole log
 	for i := 0; i < len(logsX); i++ {
@@ -503,40 +555,53 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 			} // convert to token1
 
 			var totalBal = 0
+			fmt.Print("in ballen: ")
+			fmt.Print(len(balances))
 			for balLen := 0; balLen < len(balances); balLen++ {
+				//fmt.Print("tokenqueue[balLen]: ")
+				//fmt.Print(tokenqueue[balLen])
+				//fmt.Print("balances[balLen]: ")
+				//fmt.Print(balances[balLen])
 				totalBal += int(balances[balLen])
 			}
+			fmt.Print("total bal: ")
+			fmt.Print(totalBal)
 
 			poolsizes = append(poolsizes, int64(totalBal)) // bal.Int64()
+			fmt.Print("appended to poolsizes..")
+			//fmt.Print(poolsizes[len(poolsizes)-1])
 			cumulative_for_day_fees = 0
 			cumulative_for_day_volume = 0 // reset days tally if day threshold crossed
 		} else { //-------------
-			// convert to usd
-			// Get the data
 			asset0_index, asset0_volume, asset1_index, asset1_volume := getTradingVolumeFromTxLogCurve(txlog.Logs, poolTopics)
-
+			fmt.Print("asset idx: ")
 			fmt.Print(asset0_index)
+			fmt.Print(" | ")
 			fmt.Print(asset1_index)
 
-			// which tickers?
-			exch0 := float64(1.0)
-			exch1 := float64(1.0)
-
-			// if isTokenStableCoin(xxx) {exch0 = float64(1.0)}
-			// if isTokenStableCoin(xxx) {exch1 = float64(1.0)}
+			exch0 := float64(1.0) // assumed to be stablecoin
+			exch1 := float64(1.0) // assumed to be stablecoin
+			if (asset0_index) < int64(len(tokenqueue)) && (asset1_index) < int64(len(tokenqueue)) {
+				if isTokenStableCoin(tokenqueue[asset0_index]) {
+					exch0 = float64(1.0)
+				}
+				if isTokenStableCoin(tokenqueue[asset1_index]) {
+					exch1 = float64(1.0)
+				}
+			}
+			// convert to usd if not stablecoins
 
 			sz_0 := int64(float64(asset0_volume) * exch0)
 			sz_1 := int64(float64(asset1_volume) * exch1)
 
-			pool_fee := 0.02
-			// get actual fee
+			pool_fee := 0.02 // Standard curve fee
 
 			f0 := int64(float64(sz_0) * pool_fee)
 			f1 := int64(float64(sz_1) * pool_fee)
 
 			// Add it to tally for that day
 			cumulative_for_day_fees += (f0 + f1)
-			cumulative_for_day_volume += (sz_0 + sz_1)
+			cumulative_for_day_volume += (sz_1) // sz_0
 		}
 		// add to volume
 
