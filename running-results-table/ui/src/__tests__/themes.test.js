@@ -1,7 +1,7 @@
 import React from 'react';
 import {act} from 'react-dom/test-utils'
 import {render, unmountComponentAtNode} from 'react-dom';
-import Themes from '../themes';
+import themes from '../themes';
 
 
 beforeEach( ()=> { //before each test create a div element
@@ -19,7 +19,7 @@ afterEach( ()=> { //remove div element so next test has clean <body>
 test( 'Full themes renders without crashing', () => {
     const elem = document.getElementById('themes');
     act( () => {
-        render(<Themes/>, elem);
+        render(<themes/>, elem);
     });
     //console.log('HTML ->', document.body.innerHTML);
     //const h3Elem = elem.querySelector('h3');

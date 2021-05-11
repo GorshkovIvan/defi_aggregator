@@ -1,7 +1,7 @@
 import React from 'react';
 import {act} from 'react-dom/test-utils'
 import {render, unmountComponentAtNode} from 'react-dom';
-import Toggle from '../toggle';
+import toggle from '../toggle';
 
 
 beforeEach( ()=> { //before each test create a div element
@@ -19,7 +19,7 @@ afterEach( ()=> { //remove div element so next test has clean <body>
 test( 'Toggle renders without crashing', () => {
     const elem = document.getElementById('toggle');
     act( () => {
-        render(<Toggle/>, elem);
+        render(<toggle/>, elem);
     });
     //console.log('HTML ->', document.body.innerHTML);
     //const h3Elem = elem.querySelector('h3');
