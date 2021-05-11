@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link, BrowserRouter as Router } from 'react-router-dom';
 import ConnectedResultsTable from './ConnectedResultsTable';
 import NewResultsForm from './NewResultsForm';

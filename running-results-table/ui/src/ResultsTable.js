@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Table, Segment, Label } from 'semantic-ui-react'
+import { Table, Segment, Label } from 'semantic-ui-react'
 
 // results needed for testing, DONT delete
 /*
