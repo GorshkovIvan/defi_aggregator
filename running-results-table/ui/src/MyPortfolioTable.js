@@ -1,6 +1,36 @@
 import React from 'react';
 import { Form, Table, Segment, Label } from 'semantic-ui-react'
 
+// results needed for testing, DONT delete
+/*
+var results = [
+    {
+        tokenorpair: "ETH",
+        amount: 69,
+        percentageofportfolio: 420,
+        risk_setting: 420,
+    },
+    {
+        tokenorpair: "BTC",
+        amount: 69,
+        percentageofportfolio: 420,
+        risk_setting: 420,
+    },
+    {
+        tokenorpair: "BTC",
+        amount: 420,
+        percentageofportfolio: 420,
+        risk_setting: 1,
+    },
+    {
+        tokenorpair: "wETH",
+        amount: 123,
+        percentageofportfolio: 10,
+        risk_setting: 100,
+    }
+]
+*/
+//export default function MyPortfolioTable() {
 export default function MyPortfolioTable({results}) {
     const rows = results.map(((result, index) => {
         let color='grey';
