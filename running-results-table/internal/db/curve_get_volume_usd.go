@@ -1,6 +1,29 @@
 package db
 
 /*
+func convCurveToken(token string) string {
+	assetName := " "
+
+	if token == "Eth" {
+		assetName = "ETH"
+	} else if token == "Republic Token" {
+		assetName = "REN"
+	} else if token == "Synthetix Network Token" {
+		assetName = "SNX"
+	} else if token == "yearn.finance" {
+		assetName = "YFI"
+	} else if token == "Wrapped BTC" {
+		assetName = "WBTC"
+	} else if token == "Wrapped Ether" {
+		assetName = "WETH"
+	} else if token == "Uniswap" {
+		assetName = "UNI"
+	}
+	return assetName
+}
+*/
+
+/*
 func getUsdFromVolumeCurve(curvePoolData CurvePoolData) {
 	// more tokens
 
@@ -70,28 +93,6 @@ func getUsdFromVolumeCurve(curvePoolData CurvePoolData) {
 
 	//	var Date []int64    // `default0:"10099999999999" json:"date"` // `default0:"Mon Jan 2 15:04:05 MST 2006" json:"date"`
 	//	var Price []float32 // `default0:"420.69" json:"price"`
-}
-*/
-
-/*
-func isCoinPeggedToUSD(coinName string) bool, string {
-	if (coinName == "Tether USD") {
-		return true, "USDT"
-	} else if (coinName == "Binance USD") {
-		return true, "BUSD"
-	} else if (coinName == "Synth sUSD") {
-		return true, "SUSD"
-	} else if (coinName == "TrueUSD") {
-		return true, "TUSD"
-	} else if (coinName == "USD Coin") {
-		return true, "USDC"
-	} else if (coinName == "Dai Stablecoin") {
-		return true, "DAI"
-	} else if (coinName == "Gemini dollar") {
-		return true, "GUSD"
-	} else {
-		return false, nil
-	}
 }
 */
 
