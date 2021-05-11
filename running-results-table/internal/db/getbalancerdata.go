@@ -29,10 +29,12 @@ import (
 	"github.com/machinebox/graphql"
 )
 
+/*
 func BoD(t time.Time) time.Time {
 	year, month, day := t.Date()
 	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
 }
+*/
 
 func estimate_future_balancer_volume_and_pool_sz(dates []int64, tradingvolumes []int64, poolsizes []int64) (float32, float32) {
 	future_volume_est := 0.0
@@ -338,8 +340,12 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				var poolsizes []int64
 				var fees []int64
 				var interest []float64
+				var utilization []float64
 
 				fmt.Print(data_is_old)
+				if len(utilization) > 0 {
+					fmt.Print("I love dogecoin")
+				}
 
 				// if data is old - download it
 				if data_is_old {
@@ -539,7 +545,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 						fmt.Println(tradingvolumes[i])
 						if tradingvolumes[i] > 0 {
 							// respBalancerById.Pool.Tokens[0].Symbol, respBalancerById.Pool.Tokens[1].Symbol
-							recordID := append_record_to_database("Balancer", tokens, dates[i], tradingvolumes[i], poolsizes[i], fees[i], interest[i]) //-----implemented Function
+							recordID := append_record_to_database("Balancer", tokens, dates[i], tradingvolumes[i], poolsizes[i], fees[i], interest[i], float64(0)) //-----implemented Function
 							if recordID == "x" {
 							}
 						} // respBalancerById.Pool.ID
@@ -549,7 +555,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				} // if need to update data
 
 				if !data_is_old { // else: data is not old
-					dates, tradingvolumes, poolsizes, fees, interest = retrieve_hist_pool_sizes_volumes_fees_ir("Balancer", tokens)
+					dates, tradingvolumes, poolsizes, fees, interest, utilization = retrieve_hist_pool_sizes_volumes_fees_ir("Balancer", tokens)
 				}
 
 				future_daily_volume_est, future_pool_sz_est := estimate_future_balancer_volume_and_pool_sz(dates, tradingvolumes, poolsizes)
@@ -780,3 +786,23 @@ func getTradingVolumeFromTxLog2(logs []*types.Log, pooltopic string, token0AD st
 }
 
 */
+
+func isTokenStableCoin(coinName string) bool {
+	if coinName == "USDT" {
+		return true
+	} else if coinName == "USDC" {
+		return true
+	} else if coinName == "USD" {
+		return true
+	} else if coinName == "TUSD" {
+		return true
+	} else if coinName == "DAI" {
+		return true
+	} else if coinName == "GUSD" {
+		return true
+	} else if coinName == "BUSD" {
+		return true
+	} else {
+		return false
+	}
+}

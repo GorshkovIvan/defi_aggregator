@@ -159,7 +159,7 @@ func nrm_pool_wgts(pool_weights_raw []float64, pool_tkn0s []string, pool_tkn1s [
 		//fmt.Print(violation_count)
 
 	} // violation count loop ends
-	fmt.Print("..996..")
+	//	fmt.Print("..996..")
 	return weights_optimised
 }
 

@@ -121,7 +121,10 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 		var fees []int64
 		var poolsizes []int64
 		var interest []float64
-
+		var utilization []float64
+		if len(utilization) > 0 {
+			fmt.Print("I love dogecoin")
+		}
 		//skips pool if token not in filter.
 		skip_pool := false
 		// get actual token names goes here (Getting the token name) //--------------------
@@ -271,7 +274,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 				fmt.Print(len(interest))
 
 				for jjj := 0; jjj < len(dates); jjj++ {
-					recordID := append_record_to_database("Curve", tokenqueue, dates[jjj], tradingvolumes[jjj], fees[jjj], poolsizes[jjj], interest[jjj])
+					recordID := append_record_to_database("Curve", tokenqueue, dates[jjj], tradingvolumes[jjj], fees[jjj], poolsizes[jjj], interest[jjj], float64(0))
 					if len(recordID) == 0 {
 						fmt.Print(recordID)
 					}
@@ -280,7 +283,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			} // if data is old
 
 			if !data_is_old { // else: data is not old
-				dates, tradingvolumes, poolsizes, fees, interest = retrieve_hist_pool_sizes_volumes_fees_ir("Curve", tokenqueue)
+				dates, tradingvolumes, poolsizes, fees, interest, utilization = retrieve_hist_pool_sizes_volumes_fees_ir("Curve", tokenqueue)
 			}
 
 			// ROI calculation
@@ -574,10 +577,10 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 			cumulative_for_day_volume = 0 // reset days tally if day threshold crossed
 		} else { //-------------
 			asset0_index, asset0_volume, asset1_index, asset1_volume := getTradingVolumeFromTxLogCurve(txlog.Logs, poolTopics)
-			fmt.Print("asset idx: ")
-			fmt.Print(asset0_index)
-			fmt.Print(" | ")
-			fmt.Print(asset1_index)
+			//	fmt.Print("asset idx: ")
+			//	fmt.Print(asset0_index)
+			//	fmt.Print(" | ")
+			//	fmt.Print(asset1_index)
 
 			exch0 := float64(1.0) // assumed to be stablecoin
 			exch1 := float64(1.0) // assumed to be stablecoin
@@ -644,6 +647,7 @@ func getTradingVolumeFromTxLogCurve(logs []*types.Log, pooltopics []string) (int
 	return int64(asset0_index), asset0_volume.Int64(), int64(asset1_index), asset1_volume.Int64()
 }
 
+/*
 func negPow(a *big.Float, e int64) *big.Float {
 	result := Zero().Copy(a)
 	divTen := big.NewFloat(0.1)
@@ -652,13 +656,14 @@ func negPow(a *big.Float, e int64) *big.Float {
 	}
 	return result
 }
-
+*/
+/*
 func Zero() *big.Float {
 	r := big.NewFloat(0.0)
 	r.SetPrec(256)
 	return r
 }
-
+*/
 func Mul(a, b *big.Float) *big.Float {
 	return Zero().Mul(a, b)
 }

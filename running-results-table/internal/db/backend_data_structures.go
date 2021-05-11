@@ -15,7 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func append_record_to_database(pool string, tokens []string, date int64, trading_volume_usd int64, pool_sz_usd int64, fees int64, weighted_av_ir float64) string {
+func append_record_to_database(pool string, tokens []string, date int64, trading_volume_usd int64, pool_sz_usd int64, fees int64, weighted_av_ir float64, util_rate float64) string {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
@@ -153,7 +153,7 @@ func get_newest_timestamp_from_db(pool string, tokens []string) int64 {
 	return max
 }
 
-func retrieve_hist_pool_sizes_volumes_fees_ir(pool string, tokens []string) (dates []int64, tradingvolumes []int64, poolsizes []int64, fees []int64, ir []float64) {
+func retrieve_hist_pool_sizes_volumes_fees_ir(pool string, tokens []string) (dates []int64, tradingvolumes []int64, poolsizes []int64, fees []int64, ir []float64, util_rate []float64) {
 	var name []string
 	name = append(name, pool)
 	for i := 0; i < len(tokens); i++ {
@@ -174,7 +174,8 @@ func retrieve_hist_pool_sizes_volumes_fees_ir(pool string, tokens []string) (dat
 	poolsizes = returnAttributeInCollectionAsInt64(v, "pool_sz_USD")
 	fees = returnAttributeInCollectionAsInt64(v, "fees")
 	ir = returnAttributeInCollectionAsFloat64(v, "weighted_av_IR")
-	return dates, tradingvolumes, poolsizes, fees, ir
+	util_rate = returnAttributeInCollectionAsFloat64(v, "weighted_av_IR")
+	return dates, tradingvolumes, poolsizes, fees, ir, util_rate
 }
 
 func isAave1RecordsInDb() bool {

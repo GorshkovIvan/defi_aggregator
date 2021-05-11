@@ -221,14 +221,16 @@ query{
 		log.Fatal(err)
 	}
 
-	for i := 0; i < len(respUniswapPoolList.Pools); i++ {
-		fmt.Print("i: ")
-		fmt.Print(i)
-		fmt.Print(" | ")
-		fmt.Print(respUniswapPoolList.Pools[i].Token0.Symbol)
-		fmt.Print(" | ")
-		fmt.Println(respUniswapPoolList.Pools[i].Token1.Symbol)
-	}
+	/*
+		for i := 0; i < len(respUniswapPoolList.Pools); i++ {
+			fmt.Print("i: ")
+			fmt.Print(i)
+			fmt.Print(" | ")
+			fmt.Print(respUniswapPoolList.Pools[i].Token0.Symbol)
+			fmt.Print(" | ")
+			fmt.Println(respUniswapPoolList.Pools[i].Token1.Symbol)
+		}
+	*/
 
 	for i := 0; i < len(respUniswapPoolList.Pools); i++ {
 		// if len(respUniswapPoolList.Pools[i].Token0) > 1 {
