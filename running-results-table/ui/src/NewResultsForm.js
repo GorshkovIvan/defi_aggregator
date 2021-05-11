@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Segment, Button } from 'semantic-ui-react'
+import { Form, Segment, Button, Popup } from 'semantic-ui-react'
 
 // does not do any validation
 export default class NewResultsForm extends React.Component {
@@ -16,7 +16,7 @@ export default class NewResultsForm extends React.Component {
         return (
             <div className="ui container">
                 <Segment>
-                    <h3>Enter Your Portfolio:</h3>
+                    <h3>Enter Your Portfolio <Popup content="Our engine will suggest the best-yielding allocation to available pools based on your current cryptocurrency portfolio." position="top center" trigger={<i class="info circle icon portfolio-popup"></i>} /></h3>
                     <Form onSubmit={this.onSubmit}>
                         <Form.Field>
                             <label><div className="inputLabel">Token</div></label>

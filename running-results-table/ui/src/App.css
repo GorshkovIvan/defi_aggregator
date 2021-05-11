@@ -125,10 +125,22 @@ h3 {
   padding: 10px;
 }
 
-.column {
+.column-left {
   float: left;
   width: 50%;
   text-align: center;
+  padding-bottom: 50px;
+}
+
+.column-right {
+  float: right;
+  width: 50%;
+  text-align: center;
+  padding-bottom: 50px;
+}
+
+.contact-container {
+  padding-top: 75px;
 }
 
 /* Clear floats after the columns */
@@ -267,4 +279,12 @@ button:focus {
 .popup, .popup:before {
   background-color: var(--theme-color-segment) !important;
   border-color: var(--theme-color-segment-border) !important;
+}
+
+.portfolio-popup {
+  color: var(--theme-page-text) !important;
+}
+
+.risk {
+  padding: 0px;
 }

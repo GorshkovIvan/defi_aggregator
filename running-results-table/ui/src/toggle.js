@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { setTheme } from './themes';
 import { Button } from 'semantic-ui-react';
 import './App.css';
