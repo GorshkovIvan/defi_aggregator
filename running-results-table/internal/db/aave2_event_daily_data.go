@@ -45,7 +45,7 @@ type AaveDailyData struct {
 	volumes []*big.Int
 }
 
-func getAave2Data() {
+func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 
 	var token_check []string
 	token_check = append(token_check, "DAI")
@@ -54,8 +54,10 @@ func getAave2Data() {
 	fmt.Print("XXX: ")
 	fmt.Print(time.Since(oldest_available_record).Hours())
 
+	data_is_old := true
+
 	if time.Since(oldest_available_record).Hours() < 35 {
-		return
+		data_is_old = false
 	}
 
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
@@ -75,7 +77,7 @@ func getAave2Data() {
 
 	days_needed := 1
 
-	for i := 31; i > (31 - days_needed); i-- {
+	for i := 31; i > (31-days_needed) && data_is_old; i-- {
 
 		fmt.Print("Day: ")
 		fmt.Println(i)
@@ -83,21 +85,7 @@ func getAave2Data() {
 
 	}
 
-	//aave_daily_data = getAave2DataDaily(client, aave_daily_data, 2, aave2_data_provider)
-	//fmt.Println("Day 2 done")
-
-	/*
-		for i := 0; i < len(aave_daily_data); i++ {
-			fmt.Println("Name")
-			fmt.Println(aave_daily_data[i].assetName)
-			fmt.Println("Volumes")
-			fmt.Println(aave_daily_data[i].volumes)
-			fmt.Println("Fees")
-			fmt.Println(aave_daily_data[i].fees)
-
-		}*/
-
-	// Getting current blanances for aave2
+	// Getting current balances for aave2
 	fmt.Print("len(aave_daily_data): ")
 	fmt.Print(len(aave_daily_data))
 
@@ -111,6 +99,8 @@ func getAave2Data() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		returnsSum := big.NewFloat(0)
 
 		for j := 0; j < days_needed; j++ {
 			fmt.Println("Day: ")
@@ -139,10 +129,6 @@ func getAave2Data() {
 			fmt.Print(aave_daily_data[i].fees[j].Cmp(zero) == 0)
 			if aave_daily_data[i].fees[j].Cmp(zero) == 0 {
 
-				fmt.Print("Returns iteration ")
-				fmt.Print(j)
-				fmt.Println(" : ")
-
 				fmt.Println(0.0)
 
 				var token_ []string
@@ -151,7 +137,10 @@ func getAave2Data() {
 				fmt.Print("Appending TOKEN TO AAVE: ")
 				fmt.Print(token_[0])
 				append_record_to_database("Aave2", token_, timestamp, int64(0), int64(0), int64(0), float64(0), float64(0))
-				// append_record_to_database(pool string, tokens []string, date int64, trading_volume_usd int64, pool_sz_usd int64, fees int64, weighted_av_ir float64, util_rate float64)
+
+				zeroInt := big.NewInt(0)
+				zeroFloat := new(big.Float).SetInt(zeroInt)
+				returnsSum.Add(returnsSum, zeroFloat)
 
 				continue
 			}
@@ -165,7 +154,7 @@ func getAave2Data() {
 			totalBorrowedFloat := negPow(new(big.Float).SetInt(totalBorrowed), aave_daily_data[i].decimals)
 			utilisationRate := Div(totalBorrowedFloat, balanceFloat)
 			returns := Mul(utilisationRate, weightedAverageInterest)
-
+			returnsSum.Add(returnsSum, returns)
 			timestamp := aave_daily_data[i].timestamp[j]
 			fmt.Print("Timestamp: ")
 			fmt.Println(timestamp)
@@ -182,9 +171,87 @@ func getAave2Data() {
 			fmt.Print(token_[0])
 
 			append_record_to_database("Aave2", token_, timestamp, int64(0), int64(0), int64(0), w_int, uti)
+		} // daily record -- finished 1 pool
+		// roi stuff goes here
+
+		currentInterestrate := float32(0)
+		if !data_is_old { // else: data is not old
+			var tokens []string
+			tokens = append(tokens, aave_daily_data[i].assetName)
+			//tokens = append(tokens, "USD")
+			//dates, tradingvolumes, poolsizes, fees, interest, utilization := retrieve_hist_pool_sizes_volumes_fees_ir("Aave2", tokens)
+			_, _, _, _, interest, utilization := retrieve_hist_pool_sizes_volumes_fees_ir("Aave2", tokens)
+
+			for i := 0; i < len(interest); i++ {
+				currentInterestrate += float32(interest[i]) * float32(utilization[i])
+			}
+
+		} else {
+
+			returnsSumFloat32, _ := returnsSum.Float32()
+			currentInterestrate = returnsSumFloat32 / float32(days_needed) // XXX Interest rate w avg * utilization - AVG L30D
 		}
 
-	}
+		future_daily_volume_est, future_pool_sz_est := 0, 1
+		historical_pool_sz_avg, historical_pool_daily_volume_avg := future_pool_sz_est, future_daily_volume_est
+		AaveRewardPercentage := 0.0 // , _ := strconv.ParseFloat(respBalancerById.Pool.SwapFee, 32)
+		// if token data in database - get actual volatility
+		// if not available - set volatility to 0
+
+		volatility := float32(0.0)
+		px_return_hist := float32(0.0)
+		Histrecord := retrieveDataForTokensFromDatabase2(aave_daily_data[i].assetName, "USD") // returns blank object if no hist record
+		fmt.Print("aave_daily_data[i].assetName: ")
+		fmt.Print(aave_daily_data[i].assetName)
+		fmt.Print(len(Histrecord.Date))
+		if len(Histrecord.Date) > 0 {
+
+			volatility = calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(aave_daily_data[i].assetName, "USD"), 30)
+			px_return_hist = calculate_price_return_x_days(Histrecord, 30)
+		}
+
+		imp_loss_hist := 0.0
+
+		ROI_raw_est := calculateROI_raw_est(currentInterestrate, float32(AaveRewardPercentage), float32(future_pool_sz_est), float32(future_daily_volume_est), float32(imp_loss_hist))                        // + imp
+		ROI_vol_adj_est := calculateROI_vol_adj(ROI_raw_est, volatility)                                                                                                                                      // Sharpe ratio
+		ROI_hist := calculateROI_hist(currentInterestrate, float32(AaveRewardPercentage), float32(historical_pool_sz_avg), float32(historical_pool_daily_volume_avg), float32(imp_loss_hist), px_return_hist) // + imp + hist
+
+		fmt.Print("| ROI_raw_est: ")
+		fmt.Print(ROI_raw_est)
+		fmt.Print("| ROI_vol_adj_est: ")
+		fmt.Print(ROI_vol_adj_est)
+		fmt.Print("| ROI_hist: ")
+		fmt.Print(ROI_hist)
+
+		var recordalreadyexists bool
+		recordalreadyexists = false
+		token0symbol := aave_daily_data[i].assetName
+		token1symbol := aave_daily_data[i].assetName
+		// CHECK IF NOT DUPLICATING RECORD - IF ALREADY EXISTS - UPDATE NOT APPEND
+		for k := 0; k < len(database.currencyinputdata); k++ {
+			// Means record already exists - UPDATE IT, DO NOT APPEND
+			if database.currencyinputdata[k].Pair == token0symbol+"/"+token1symbol && database.currencyinputdata[k].Pool == "Aave2" {
+				recordalreadyexists = true
+				database.currencyinputdata[k].PoolSize = float32(0.0)
+				database.currencyinputdata[k].PoolVolume = float32(0.0)
+
+				database.currencyinputdata[k].ROI_raw_est = ROI_raw_est
+				database.currencyinputdata[k].ROI_vol_adj_est = ROI_vol_adj_est
+				database.currencyinputdata[k].ROI_hist = ROI_hist
+
+				database.currencyinputdata[k].Volatility = volatility
+				database.currencyinputdata[k].Yield = currentInterestrate
+			}
+		}
+
+		// APPEND IF NEW
+		if !recordalreadyexists {
+			database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(0.0),
+				float32(0.0), currentInterestrate, "Aave2", volatility, ROI_raw_est, 0.0, 0.0})
+
+		}
+
+	} // done all pools
 
 }
 
@@ -210,8 +277,7 @@ func sumFees(fees []*big.Float) *big.Float {
 
 func getAave2DataDaily(client *ethclient.Client, aave_daily_data []AavePoolData, daysAgo int, data_provider *aaveDataProvider.Store) []AavePoolData {
 	fmt.Println("getAave2DataDaily")
-	oldest_block := getOldestBlock(client, daysAgo)
-	latest_block := getOldestBlock(client, daysAgo-1)
+	oldest_block, latest_block := getOldestBlock(client, daysAgo)
 
 	old_block, err := client.BlockByNumber(context.Background(), oldest_block)
 	if err != nil {
@@ -282,40 +348,12 @@ func BoD(t time.Time) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
 }
 
-/*
-func addDecimals(amount *big.Int, assetAddress string, client *ethclient.Client) *big.Float {
+func getOldestBlock(client *ethclient.Client, daysAgo int) (*big.Int, *big.Int) {
 
-	var decimals64 int64
-
-	if(assetAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"){
-
-		tokenAddress := common.HexToAddress(assetAddress)
-		instance, err := token.NewToken(tokenAddress, client)
-		if err != nil {
-			log.Fatal(err)
-		}
-		decimals, err = instance.Decimals(&bind.CallOpts{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		decimals64 = int64(decimals)
-
-	}else{
-		decimals = big.NewInt(18)
-		decimals64 = int64(decimals)
-	}
-
-	amountFloat := Big.NewFloat(amount)
-
-	return negPow(amountFloat, decimals64)
-
-
-}*/
-
-func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
 	fmt.Println("Getting oldest block")
 	var current_block *big.Int
 	var oldest_block *big.Int
+	var latest_block *big.Int
 	current_block = big.NewInt(0)
 
 	// Get current block
@@ -328,23 +366,33 @@ func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
 
 	//2)  Find oldest block in our lookup date range
 	oldest_block = new(big.Int).Set(current_block)
+	latest_block = new(big.Int).Set(current_block)
 
 	now := time.Now()
 
 	//timeonehourago := uint64(now.Add(-2*time.Hour).Unix())
 	//timeonemonthago := uint64((now.AddDate(0, 0, -1)).Unix())
 	time_needed := uint64(now.Unix()) - 24*60*60*uint64(daysAgo)
+	time_for_latest_block := uint64(now.Unix()) - 24*60*60*uint64(daysAgo-1)
 
 	var j int64
 	j = 0
-
+	latest_block_found := false
 	for {
 		j -= 50
 		oldest_block.Add(oldest_block, big.NewInt(j))
 
+		if !latest_block_found {
+			latest_block.Add(latest_block, big.NewInt(j))
+		}
+
 		block, err := client.BlockByNumber(context.Background(), oldest_block)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		if block.Time() < time_for_latest_block {
+			latest_block_found = true
 		}
 
 		if block.Time() < time_needed {
@@ -353,7 +401,7 @@ func getOldestBlock(client *ethclient.Client, daysAgo int) *big.Int {
 		}
 	}
 	fmt.Println("Got to the end of the oldest block")
-	return oldest_block
+	return oldest_block, latest_block
 }
 
 func aaveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, latest_block *big.Int, client *ethclient.Client, aaveDataProvider *aaveDataProvider.Store) []AavePoolData {

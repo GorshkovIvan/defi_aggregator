@@ -93,7 +93,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 		log.Fatal(err)
 	}
 
-	pools_to_pull := int64(32)
+	pools_to_pull := int64(8)
 	var pool_addresses []common.Address
 	var i int64
 
@@ -122,9 +122,10 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 		var poolsizes []int64
 		var interest []float64
 		var utilization []float64
-		if len(utilization) > 0 {
+		if len(utilization) > 0 || len(interest) > 0 {
 			fmt.Print("I love dogecoin")
 		}
+
 		//skips pool if token not in filter.
 		skip_pool := false
 		// get actual token names goes here (Getting the token name) //--------------------
@@ -257,24 +258,23 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			fmt.Print(data_is_old)
 
 			if data_is_old { // download it
-				// Getting the number of decimal spaces for underlying coins in the pool
-
 				//3)  Query between oldest and current block for Curve-specific addresses
 				dates, tradingvolumes, poolsizes, fees, interest = curveGetPoolVolume(pool_address, client, balances, tokenqueue)
-
-				fmt.Print("dates retrieved from curveGetPoolVolume: ")
-				fmt.Print(len(dates))
-				fmt.Print(" | tradingvolumes : ")
-				fmt.Print(len(tradingvolumes))
-				fmt.Print(" | poolsizes: ")
-				fmt.Print(len(poolsizes))
-				fmt.Print(" | fees: ")
-				fmt.Print(len(fees))
-				fmt.Print(" | interest: ")
-				fmt.Print(len(interest))
-
+				/*
+					fmt.Print("dates retrieved from curveGetPoolVolume: ")
+					fmt.Print(len(dates))
+					fmt.Print(" | tradingvolumes : ")
+					fmt.Print(len(tradingvolumes))
+					fmt.Print(" | poolsizes: ")
+					fmt.Print(len(poolsizes))
+					fmt.Print(" | fees: ")
+					fmt.Print(len(fees))
+					fmt.Print(" | interest: ")
+					fmt.Print(len(interest))
+				*/
 				for jjj := 0; jjj < len(dates); jjj++ {
-					recordID := append_record_to_database("Curve", tokenqueue, dates[jjj], tradingvolumes[jjj], fees[jjj], poolsizes[jjj], interest[jjj], float64(0))
+					// interest[jjj]
+					recordID := append_record_to_database("Curve", tokenqueue, dates[jjj], tradingvolumes[jjj], fees[jjj], poolsizes[jjj], 0.0, float64(0))
 					if len(recordID) == 0 {
 						fmt.Print(recordID)
 					}
@@ -383,63 +383,6 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 	fmt.Println("CURVE COMPLETED!!!!!")
 } // Get Curve Data closes
 
-/*
-			// Debugging print
-	for i = 0; i < int64(len(pool_addresses)); i++ {
-
-		//	fmt.Print("pool address:")
-		//	fmt.Print(pool_addresses[i])
-		//	fmt.Print(" | Fees collected:")
-		//		for j := 0; j < 2; j++ {
-		//			fmt.Println(pools[i].fees[j])
-		//		}
-		//		fmt.Println("Addresses of coins in the pool:")
-		//		fmt.Println(pools[i].assetAddresses)
-		//		fmt.Println("Decimals for coins in the pool:")
-		//		fmt.Println(pools[i].assetDecimals)
-	}
-
-	//	pools := getCurveDataI(client, provider, pools, 3, true)
-	//	zero := big.NewFloat(0)
-	/*
-		for i := 0; i < 4; i++ {
-			var normalsied_fees []*big.Float
-			var normalsied_balances []*big.Float
-			current_coin_balances, err := provider.GetBalances(&bind.CallOpts{}, pools[i].poolAddress)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			for j := 0; j < 8; j++ {
-				balance := new(big.Float).SetInt(current_coin_balances[j])
-				balance = negPow(balance, pools[i].assetDecimals[j].Int64())
-				normalsied_balances = append(normalsied_balances, balance)
-			}
-
-			for j := 0; j < 8; j++ {
-
-				fee := negPow(pools[i].fees[0][j], pools[i].assetDecimals[j].Int64())
-				normalsied_fees = append(normalsied_fees, fee)
-			}
-
-			pools[i].normalsiedBalances = normalsied_balances
-
-			fmt.Println("Returns:")
-			for j := 0; j < 8; j++ {
-				if pools[i].normalsiedBalances[j].Cmp(zero) > 0 {
-					returns := new(big.Float).Quo(normalsied_fees[j], pools[i].normalsiedBalances[j])
-					fmt.Println(returns)
-				}
-
-			}
-
-		} // loop 4
-
-}
-}
-*/
-
 func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, balances []int64, tokenqueue []string) ([]int64, []int64, []int64, []int64, []float64) {
 	poolTopics := []string{"0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140" /* "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"*/}
 
@@ -458,7 +401,7 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 	fmt.Print(current_block)
 
 	oldest_block = new(big.Int).Set(current_block)
-	days_ago := 3
+	days_ago := 2
 	oldest_lookup_time := time.Now()
 	oldest_lookup_time = oldest_lookup_time.AddDate(0, 0, -days_ago)
 	fmt.Print("oldest_lookup_time: ")
@@ -527,6 +470,8 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 			continue
 		}
 
+		fmt.Print(i)
+		fmt.Print("..")
 		// Get date from block number
 		block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(logsX[i].BlockNumber)))
 		if err != nil {
@@ -543,23 +488,22 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 		t_prev = t_new       // uint
 		t_new = block.Time() // uint
 
+		//fmt.Print(t_new)
+		//fmt.Print("..")
+
 		if t_prev == 0 || (t_new-uint64(math.Mod(float64(t_new), 86400)))/86400 !=
 			(t_prev-uint64(math.Mod(float64(t_prev), 86400)))/86400 { // 1 day
+
 			dates = append(dates, int64(BoD(time.Unix(int64(t_new), 0)).Unix()))
 			fees = append(fees, cumulative_for_day_fees)
 			tradingvolumes = append(tradingvolumes, cumulative_for_day_volume)
 
-			// Get balances of each token
-			//			bal_int, _ := bal_float.Int64()
-			//			bal_intT2, _ := bal_floatT2.Int64()
 			if len(Histrecord_2.Price) >= 1 {
-				//				bal_int = bal_int                                                            //
-				//				bal_intT2 = bal_intT2 * int64(Histrecord_2.Price[len(Histrecord_2.Price)-1]) //--------------------------------------------
 			} // convert to token1
 
 			var totalBal = 0
-			fmt.Print("in ballen: ")
-			fmt.Print(len(balances))
+			//fmt.Print("in ballen: ")
+			//fmt.Print(len(balances))
 			for balLen := 0; balLen < len(balances); balLen++ {
 				//fmt.Print("tokenqueue[balLen]: ")
 				//fmt.Print(tokenqueue[balLen])
@@ -567,11 +511,11 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 				//fmt.Print(balances[balLen])
 				totalBal += int(balances[balLen])
 			}
-			fmt.Print("total bal: ")
-			fmt.Print(totalBal)
+			//fmt.Print("total bal: ")
+			//fmt.Print(totalBal)
 
 			poolsizes = append(poolsizes, int64(totalBal)) // bal.Int64()
-			fmt.Print("appended to poolsizes..")
+			//fmt.Print("appended to poolsizes..")
 			//fmt.Print(poolsizes[len(poolsizes)-1])
 			cumulative_for_day_fees = 0
 			cumulative_for_day_volume = 0 // reset days tally if day threshold crossed
@@ -584,7 +528,7 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 
 			exch0 := float64(1.0) // assumed to be stablecoin
 			exch1 := float64(1.0) // assumed to be stablecoin
-			if (asset0_index) < int64(len(tokenqueue)) && (asset1_index) < int64(len(tokenqueue)) {
+			if asset0_index < int64(len(tokenqueue)) && asset1_index < int64(len(tokenqueue)) {
 				if isTokenStableCoin(tokenqueue[asset0_index]) {
 					exch0 = float64(1.0)
 				}
@@ -592,7 +536,6 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 					exch1 = float64(1.0)
 				}
 			}
-			// convert to usd if not stablecoins
 
 			sz_0 := int64(float64(asset0_volume) * exch0)
 			sz_1 := int64(float64(asset1_volume) * exch1)
@@ -604,10 +547,8 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 
 			// Add it to tally for that day
 			cumulative_for_day_fees += (f0 + f1)
-			cumulative_for_day_volume += (sz_1) // sz_0
-		}
-		// add to volume
-
+			cumulative_for_day_volume += sz_1 // sz_0
+		} // else - if not a new day
 	} // loop through logs ends
 
 	return dates, tradingvolumes, poolsizes, fees, interest
@@ -647,23 +588,6 @@ func getTradingVolumeFromTxLogCurve(logs []*types.Log, pooltopics []string) (int
 	return int64(asset0_index), asset0_volume.Int64(), int64(asset1_index), asset1_volume.Int64()
 }
 
-/*
-func negPow(a *big.Float, e int64) *big.Float {
-	result := Zero().Copy(a)
-	divTen := big.NewFloat(0.1)
-	for i := int64(0); i < e-1; i++ {
-		result = Mul(result, divTen)
-	}
-	return result
-}
-*/
-/*
-func Zero() *big.Float {
-	r := big.NewFloat(0.0)
-	r.SetPrec(256)
-	return r
-}
-*/
 func Mul(a, b *big.Float) *big.Float {
 	return Zero().Mul(a, b)
 }

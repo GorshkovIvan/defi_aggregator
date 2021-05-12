@@ -278,7 +278,8 @@ func TestZero(t *testing.T) {
 		t.Errorf("Zero is not returned")
 	}
 }
-
+/*
 func TestMul(t.*testing.T) {
 	//to test: don't know what the function is doing lol
 }
+*/
