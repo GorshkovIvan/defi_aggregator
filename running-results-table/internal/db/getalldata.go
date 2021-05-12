@@ -57,9 +57,9 @@ func (database *Database) AddRecordfromAPI() {
 	U := UniswapInputStruct{clientUniswap, reqUniswapIDFromTokenTicker, reqUniswapHist}
 
 	getUniswapData(database, U)
-	//getCurveData(database, U)
-	//getAave2Data(database, U)
-	//getBalancerData(database, U)
+	getCurveData(database, U)
+	getAave2Data(database, U)
+	getBalancerData(database, U)
 
 	fmt.Println("Ran all download functions and appended data")
 }
