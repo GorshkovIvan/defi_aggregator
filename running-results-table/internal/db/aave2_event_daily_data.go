@@ -8,14 +8,11 @@ import (
 	"strconv"
 	"time"
 
-	// token "./token"
 	"encoding/hex"
-	//	"pusher/defi_aggregator/running-results-table/internal/db/token"
 	aaveDataProvider "pusher/defi_aggregator/running-results-table/internal/db/aave_protocol_data_provider"
 	"pusher/defi_aggregator/running-results-table/internal/db/token"
 	"strings"
 
-	// aaveDataProvider "./aave_protocol_data_provider"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -75,7 +72,7 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 
 	var aave_daily_data []AavePoolData
 
-	days_needed := 4
+	days_needed := 2
 
 	for i := days_needed; i > 1 && data_is_old; i-- {
 
@@ -85,16 +82,6 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 
 	}
 
-	/*
-		days_needed := 2
-
-		for i := 31; i > (31-days_needed) && data_is_old; i-- {
-
-			fmt.Print("Day: ")
-			fmt.Println(i)
-			aave_daily_data = getAave2DataDaily(client, aave_daily_data, i, aave2_data_provider)
-
-		}*/
 
 	// Getting current balances for aave2
 	fmt.Print("len(aave_daily_data): ")
@@ -113,7 +100,7 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 
 		returnsSum := big.NewFloat(0)
 
-		for j := 31; j > 31 - (days_needed - 1); j-- {
+		for j := 29; j > 29-(days_needed-1); j-- {
 			fmt.Println("Day: ")
 			fmt.Print(j)
 
@@ -125,22 +112,17 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 			sum.Add(sum, totalStableDebt)
 			sum.Add(sum, totalVariableDebt)
 			aave_daily_data[i].currentBalance = sum
-			/*
-				fmt.Println("Decimals")
-				fmt.Println(aave_daily_data[i].decimals)
-				fmt.Println("currentBalance")
-				fmt.Println(aave_daily_data[i].currentBalance)
-				fmt.Println("currentBalance float")
-				totalBalanceFloat := negPow(new(big.Float).SetInt(aave_daily_data[i].currentBalance), aave_daily_data[i].decimals)
-				fmt.Println(totalBalanceFloat)
-			*/
 
 			zero := Zero()
 			fmt.Print("COMP ====== ")
-			fmt.Print(aave_daily_data[i].fees[j].Cmp(zero) == 0)
-			if aave_daily_data[i].fees[j].Cmp(zero) == 0 {
+			cmp := 0
+			if len(aave_daily_data[i].fees) >= i { // ok
+				cmp = aave_daily_data[i].fees[j].Cmp(zero)
+			}
+			fmt.Print(cmp)
 
-				fmt.Println(0.0)
+			if cmp == 0 {
+				
 
 				var token_ []string
 				token_ = append(token_, aave_daily_data[i].assetName)
@@ -189,8 +171,7 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 		if !data_is_old { // else: data is not old
 			var tokens []string
 			tokens = append(tokens, aave_daily_data[i].assetName)
-			//tokens = append(tokens, "USD")
-			//dates, tradingvolumes, poolsizes, fees, interest, utilization := retrieve_hist_pool_sizes_volumes_fees_ir("Aave2", tokens)
+			
 			_, _, _, _, interest, utilization := retrieve_hist_pool_sizes_volumes_fees_ir("Aave2", tokens)
 
 			for i := 0; i < len(interest); i++ {
@@ -205,7 +186,7 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 
 		future_daily_volume_est, future_pool_sz_est := 0, 1
 		historical_pool_sz_avg, historical_pool_daily_volume_avg := future_pool_sz_est, future_daily_volume_est
-		AaveRewardPercentage := 0.0 // , _ := strconv.ParseFloat(respBalancerById.Pool.SwapFee, 32)
+		AaveRewardPercentage := 0.0 
 		// if token data in database - get actual volatility
 		// if not available - set volatility to 0
 
@@ -299,17 +280,6 @@ func getAave2DataDaily(client *ethclient.Client, aave_daily_data []AavePoolData,
 
 	latest_time := int64(BoD(time.Unix(int64(old_block.Time()), 0)).Unix())
 
-	/*
-		late_block, err := client.BlockByNumber(context.Background(), latest_block)
-		if err != nil {
-		log.Fatal(err)
-		}
-
-		fmt.Println("Latest block:")
-		fmt.Println(late_block.Time())
-		latest_time := late_block.Time()
-	*/
-
 	pool_address := common.HexToAddress("0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9")
 
 	volumes_data := aaveGetPoolVolume(pool_address, oldest_block, latest_block, client, data_provider)
@@ -380,8 +350,6 @@ func getOldestBlock(client *ethclient.Client, daysAgo int) (*big.Int, *big.Int) 
 
 	now := time.Now()
 
-	//timeonehourago := uint64(now.Add(-2*time.Hour).Unix())
-	//timeonemonthago := uint64((now.AddDate(0, 0, -1)).Unix())
 	time_needed := uint64(now.Unix()) - 24*60*60*uint64(daysAgo)
 	time_for_latest_block := uint64(now.Unix()) - 24*60*60*uint64(daysAgo-1)
 
@@ -454,7 +422,7 @@ func aaveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, lates
 			if pools[i].assetAddress == assetAddress {
 
 				allocated = true
-				//fmt.Println("Appended %s", assetAddress)
+				
 				pools[i].volumes = append(pools[i].volumes, amount)
 				pools[i].interest_rates = append(pools[i].interest_rates, interest_rate)
 				pools[i].rate_types = append(pools[i].rate_types, rate_type)
@@ -476,7 +444,7 @@ func aaveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, lates
 
 				if err != nil {
 					name = "Unknown"
-					//log.Fatal(err)
+					
 				}
 			} else {
 				name = "Eth"
@@ -487,9 +455,6 @@ func aaveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, lates
 			rate_types := []int{rate_type}
 			// Calculating decimals
 
-			//aave_pool_address := common.HexToAddress("0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9")
-
-			//aave2_data_provider, err := aaveDataProvider.NewStore(aave_pool_address, client)
 
 			if err != nil {
 				log.Fatal(err)
@@ -509,14 +474,7 @@ func aaveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, lates
 				assetName: name, fees: fees, decimals: decimals})
 
 		}
-		/*
-			fmt.Println("amount:")
-			fmt.Println(amount)
-			fmt.Println("rate_type:")
-			fmt.Println(rate_type)
-			fmt.Println("interest_rate:")
-			fmt.Println(interest_rate)
-		*/
+
 	}
 	return pools
 }
@@ -531,16 +489,6 @@ func decodeBytes(log *types.Log) (*big.Int, int, *big.Int) {
 
 }
 
-/*
-func decodeBytes(log *types.Log) (*big.Int, int, *big.Int) {
-
-
-	amount := new(big.Int).SetBytes(log.Data[0:32])
-	rate_type, _ := strconv.Atoi((new(big.Int).SetBytes(log.Data[32:64])).String())
-	interest_rate := new(big.Int).SetBytes(log.Data[64:96])
-
-	return amount, rate_type, interest_rate
-}*/
 
 func HashToReserveAddress(hash common.Hash) string {
 	var value []string
@@ -555,7 +503,7 @@ func getTradingVolumeFromTxLog(logs []*types.Log, pooltopics []string) (*big.Int
 
 	var firstLog *types.Log
 	var assetAddress string
-	//var lastLog *types.Log
+	
 
 	for _, log := range logs {
 		if log.Topics[0] != common.HexToHash(pooltopics[0]) {
@@ -568,7 +516,7 @@ func getTradingVolumeFromTxLog(logs []*types.Log, pooltopics []string) (*big.Int
 			assetAddress = HashToReserveAddress(address)
 
 		}
-		//lastLog = log
+		
 	}
 
 	if firstLog == nil { // could not find any valid swaps, thus the transaction failed
@@ -680,7 +628,7 @@ func getFlashLoansVolumeFromTxLog(logs []*types.Log, pooltopics []string) (*big.
 
 	var firstLog *types.Log
 	var assetAddress string
-	//var lastLog *types.Log
+	
 
 	for _, log := range logs {
 		if log.Topics[0] != common.HexToHash(pooltopics[0]) {
@@ -693,7 +641,7 @@ func getFlashLoansVolumeFromTxLog(logs []*types.Log, pooltopics []string) (*big.
 			assetAddress = HashToReserveAddress(address)
 
 		}
-		//lastLog = log
+		
 	}
 
 	if firstLog == nil { // could not find any valid swaps, thus the transaction failed
@@ -705,14 +653,10 @@ func getFlashLoansVolumeFromTxLog(logs []*types.Log, pooltopics []string) (*big.
 }
 
 func calculateFee(volume *big.Int, interest *big.Int, decimal int64) *big.Float {
-	//fmt.Println("volume_float and volume_interest BEFORE: ")
-	//fmt.Println(volume)
-	//fmt.Println(interest)
+
 	volume_float := negPow(new(big.Float).SetInt(volume), decimal)
 	volume_interest := negPow(new(big.Float).SetInt(interest), 27)
-	//fmt.Println("volume_float and volume_interest AFTER: ")
-	//fmt.Println(volume_float)
-	//fmt.Println(volume_interest)
+
 	return Mul(volume_float, volume_interest)
 }
 
@@ -731,11 +675,6 @@ func Zero() *big.Float {
 	return r
 }
 
-/*
-func Mul(a, b *big.Float) *big.Float {
-	return Zero().Mul(a, b)
-}
-*/
 
 func Div(a, b *big.Float) *big.Float {
 	return Zero().Quo(a, b)

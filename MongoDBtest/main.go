@@ -117,6 +117,8 @@ func addOwnPortfolioRecord(token string, amount float32) string {
 		log.Fatal(err)
 	}
 	defer client.Disconnect(ctx)
+	
+	fmt.Print("CALLING ADD OWN PORTFOLIO RECORD")
 
 	Database := client.Database("De-Fi_Aggregator")
 	ownstartingportfolio := Database.Collection("Test")

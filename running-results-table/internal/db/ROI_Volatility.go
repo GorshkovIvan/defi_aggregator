@@ -199,8 +199,8 @@ func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 	vol = 0.05
 
 	if len(H.Price) == 0 {
-		fmt.Print("Error: no historical data found..returning -1: ")
-		return -1
+		fmt.Print("Error: no historical data found..returning 0: ")
+		return 0
 	}
 
 	var vol_period int32

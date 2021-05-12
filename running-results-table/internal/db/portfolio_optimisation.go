@@ -362,13 +362,10 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 
 	// Pack results into output struct array
 	for i := 0; i < len(result_norm); i++ {
-		// Add amount - 420
-		// Add return - 0.069
 		optimised_pf = append(optimised_pf, OptimisedPortfolioRecord{pool_tkn0s[i] + "/" + pool_tkn1s[i], pool_name_array[i], 420, float32(result_norm[i]), 0.069, database.Risksetting})
 	}
 
 	return optimised_pf
-	//return NewOptimisedPortfolio(database)
 }
 
 /*
