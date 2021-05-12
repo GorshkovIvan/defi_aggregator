@@ -75,15 +75,26 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 
 	var aave_daily_data []AavePoolData
 
-	days_needed := 1
+	days_needed := 4
 
-	for i := 31; i > (31-days_needed) && data_is_old; i-- {
+	for i := days_needed; i > 1 && data_is_old; i-- {
 
 		fmt.Print("Day: ")
 		fmt.Println(i)
 		aave_daily_data = getAave2DataDaily(client, aave_daily_data, i, aave2_data_provider)
 
 	}
+
+	/*
+		days_needed := 2
+
+		for i := 31; i > (31-days_needed) && data_is_old; i-- {
+
+			fmt.Print("Day: ")
+			fmt.Println(i)
+			aave_daily_data = getAave2DataDaily(client, aave_daily_data, i, aave2_data_provider)
+
+		}*/
 
 	// Getting current balances for aave2
 	fmt.Print("len(aave_daily_data): ")
@@ -102,7 +113,7 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 
 		returnsSum := big.NewFloat(0)
 
-		for j := 0; j < days_needed; j++ {
+		for j := 31; j > 31 - (days_needed - 1); j-- {
 			fmt.Println("Day: ")
 			fmt.Print(j)
 
@@ -205,7 +216,6 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 		fmt.Print(aave_daily_data[i].assetName)
 		fmt.Print(len(Histrecord.Date))
 		if len(Histrecord.Date) > 0 {
-
 			volatility = calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(aave_daily_data[i].assetName, "USD"), 30)
 			px_return_hist = calculate_price_return_x_days(Histrecord, 30)
 		}
@@ -247,7 +257,7 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 		// APPEND IF NEW
 		if !recordalreadyexists {
 			database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(0.0),
-				float32(0.0), currentInterestrate, "Aave2", volatility, ROI_raw_est, 0.0, 0.0})
+				float32(0.0), currentInterestrate, "Aave2", volatility, ROI_raw_est, ROI_vol_adj_est, ROI_hist})
 
 		}
 

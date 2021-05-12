@@ -259,7 +259,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 			if data_is_old { // download it
 				//3)  Query between oldest and current block for Curve-specific addresses
-				dates, tradingvolumes, poolsizes, fees, interest = curveGetPoolVolume(pool_address, client, balances, tokenqueue)
+				dates, tradingvolumes, poolsizes, fees, interest = curveGetPoolVolume(pool_address, client, balances, tokenqueue, decimals)
 				/*
 					fmt.Print("dates retrieved from curveGetPoolVolume: ")
 					fmt.Print(len(dates))
@@ -298,6 +298,10 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			}
 
 			// Use balancer function - also applicable for curve
+			fmt.Print("volumes: ")
+			fmt.Print(tradingvolumes[0])
+			fmt.Print("poolsizes: ")
+			fmt.Print(poolsizes[0])
 			future_daily_volume_est, future_pool_sz_est := estimate_future_balancer_volume_and_pool_sz(dates, tradingvolumes, poolsizes)
 			historical_pool_sz_avg, historical_pool_daily_volume_avg := future_pool_sz_est, future_daily_volume_est
 			currentInterestrate := float32(0.00) // POPULATE
@@ -383,7 +387,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 	fmt.Println("CURVE COMPLETED!!!!!")
 } // Get Curve Data closes
 
-func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, balances []int64, tokenqueue []string) ([]int64, []int64, []int64, []int64, []float64) {
+func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, balances []int64, tokenqueue []string, decimals []int64) ([]int64, []int64, []int64, []int64, []float64) {
 	poolTopics := []string{"0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140" /* "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"*/}
 
 	var current_block *big.Int
@@ -401,7 +405,7 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 	fmt.Print(current_block)
 
 	oldest_block = new(big.Int).Set(current_block)
-	days_ago := 2
+	days_ago := 1
 	oldest_lookup_time := time.Now()
 	oldest_lookup_time = oldest_lookup_time.AddDate(0, 0, -days_ago)
 	fmt.Print("oldest_lookup_time: ")
@@ -537,8 +541,11 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 				}
 			}
 
-			sz_0 := int64(float64(asset0_volume) * exch0)
-			sz_1 := int64(float64(asset1_volume) * exch1)
+			// sz_0 := int64(float64(asset0_volume) * exch0)
+			// sz_1 := int64(float64(asset1_volume) * exch1)
+
+			sz_0 := negPowF(float64(asset0_volume), decimals[asset0_index]) * exch0
+			sz_1 := negPowF(float64(asset1_volume), decimals[asset1_index]) * exch1
 
 			pool_fee := 0.02 // Standard curve fee
 
@@ -547,7 +554,7 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 
 			// Add it to tally for that day
 			cumulative_for_day_fees += (f0 + f1)
-			cumulative_for_day_volume += sz_1 // sz_0
+			cumulative_for_day_volume += int64(sz_1) // sz_0
 		} // else - if not a new day
 	} // loop through logs ends
 
@@ -590,4 +597,12 @@ func getTradingVolumeFromTxLogCurve(logs []*types.Log, pooltopics []string) (int
 
 func Mul(a, b *big.Float) *big.Float {
 	return Zero().Mul(a, b)
+}
+
+func negPowF(a float64, e int64) float64 {
+	result := a
+	for i := int64(0); i < e; i++ {
+		result = a / float64(10)
+	}
+	return result
 }
