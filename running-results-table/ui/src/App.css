@@ -31,10 +31,15 @@
   color: var(--theme-page-text);
 }
 
+.logobox {
+  padding-top: 50px;
+  text-align: center;
+}
+
 h1 {
   color: var(--theme-page-text);
   text-align: center;
-  padding-top: 50px;
+  padding-top: 25px;
   font-family: LemonMilkBoldItalic;
 }
 
