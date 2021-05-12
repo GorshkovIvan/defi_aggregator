@@ -712,7 +712,18 @@ func New() Database {
 
 // Add OWN PORTFOLIO data
 func (database *Database) AddRecord(r OwnPortfolioRecord) {
+	fmt.Print("APPENDING OWN PORTFOLIO ITEM!!!!!!!!!!!!!!!!!!")
 	database.ownstartingportfolio = append(database.ownstartingportfolio, r)
+	fmt.Print(r.Token)
+	fmt.Print(r.Amount)
+	fmt.Print(" !!!!!!!!!! 999991 ")
+	fmt.Print("..At this point, len of own starting portfolio is: ")
+	fmt.Print(len(database.ownstartingportfolio))
+	for i := 0; i < len(database.ownstartingportfolio);i++ {
+		fmt.Print(database.ownstartingportfolio[i].Token)
+		fmt.Print(" | ")
+		fmt.Println(database.ownstartingportfolio[i].Amount)
+	}
 }
 
 func (database *Database) AddRiskRecord(risk RiskWrapper) {
@@ -721,7 +732,16 @@ func (database *Database) AddRiskRecord(risk RiskWrapper) {
 
 // Retrieve Data
 func (database *Database) GetOptimisedPortfolio() []OptimisedPortfolioRecord {
+	fmt.Print("CHECKPOINT len of db being returned: ")
+	fmt.Print(len(database.ownstartingportfolio))
 	return OptimisePortfolio(database)
+}
+
+// Retrieve Data
+func (database *Database) GetRawPortfolio() []OwnPortfolioRecord {
+	fmt.Print("CHECKPOINT len of db being returned: ")
+	fmt.Print(len(database.ownstartingportfolio))
+	return database.ownstartingportfolio
 }
 
 func (database *Database) GetCurrencyInputData() []CurrencyInputData {

@@ -344,7 +344,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 				fmt.Print(data_is_old)
 				if len(utilization) > 0 {
-					fmt.Print("I love dogecoin")
+					fmt.Print("placeholder")
 				}
 
 				// if data is old - download it
@@ -484,13 +484,15 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 						//fmt.Print(" | blk#: ")
 						//fmt.Print(logsX[i].BlockNumber)
 						//fmt.Print(" | ")
-
+						if math.Mod(float64(i), 20) == 0 {
 						// Get date from block number
 						block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(logsX[i].BlockNumber)))
 						if err != nil {
 							log.Fatal(err)
 						}
-
+						t_prev = t_new       // uint
+						t_new = block.Time() // uint
+						} // if float 20
 						//fmt.Print(" | t: ")
 						//fmt.Print(block.Time())
 
@@ -499,8 +501,6 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 							log.Fatal(err)
 						}
 
-						t_prev = t_new       // uint
-						t_new = block.Time() // uint
 
 						if t_prev == 0 || (t_new-uint64(math.Mod(float64(t_new), 86400)))/86400 != (t_prev-uint64(math.Mod(float64(t_prev), 86400)))/86400 { // 1 day
 							dates = append(dates, int64(BoD(time.Unix(int64(t_new), 0)).Unix()))

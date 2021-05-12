@@ -26,17 +26,18 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 		})
 	})
 
-	// Optimised portfolio table
-	r.GET("/results", func(c *gin.Context) {
-		results := database.GetOptimisedPortfolio() //results := database.GetRecords()
+	//Returns currency for table2
+	r.GET("/results_original", func(c *gin.Context) {
+		data2 := database.GetRawPortfolio()
 		c.JSON(http.StatusOK, gin.H{
-			"results": results,
+			"results_original": data2,
 		})
 	})
 
 	// Ranked by ROI table - download data and rank currencies
 	r.POST("/results", func(c *gin.Context) {
 		var json db.OwnPortfolioRecord //		var json db.Record
+		// fmt.Print("RUNNING ")
 		if err := c.BindJSON(&json); err == nil {
 			database.AddRecord(json)
 			c.JSON(http.StatusCreated, json)

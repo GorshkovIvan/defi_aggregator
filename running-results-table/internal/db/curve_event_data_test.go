@@ -2,16 +2,13 @@ package db // curve_event_data
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math/big"
 	"testing"
 
 	//curveRegistry "./curveRegistry"
-	"github.com/ethereum/go-ethereum"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -32,10 +29,10 @@ func TestGetOldestBlock(t *testing.T) {
 
 }
 */
-func TestCurveGetPoolVolume(t *testing.T){
+func TestCurveGetPoolVolume(t *testing.T) {
 
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
-	
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,18 +49,19 @@ func TestCurveGetPoolVolume(t *testing.T){
 	if fees == nil {
 		t.Errorf("No fees retrieved")
 	}
-	
+
 }
+
 /*
 func TestDecodeBytesCurve(t *testing.T) {
-	// Connecting to client 
+	// Connecting to client
 	client, err := ethclient.Dial("https://mainnet.infura.io/v3/e009cbb4a2bd4c28a3174ac7884f4b42")
 	//client, err := ethclient.Dial("http://localhost:8888")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Creaitng a contract instance 
+	// Creaitng a contract instance
 	var curveRegistryAddress = common.HexToAddress("0x7D86446dDb609eD0F5f8684AcF30380a356b2B4c")
 	provider, err := curveRegistry.NewMain(curveRegistryAddress, client)
 
@@ -80,7 +78,7 @@ func TestDecodeBytesCurve(t *testing.T) {
 	end := big.NewInt(0).Sub(number_of_pools, big.NewInt(1))
 	oldest_block := getOldestBlock(client)
 
-	// Getting data from pools 
+	// Getting data from pools
 
 	var pools []CurvePoolData
 	count_pools := 0
@@ -107,7 +105,7 @@ func TestDecodeBytesCurve(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	// Getting current pool balances 
+	// Getting current pool balances
 
 
 	poolTopics := []string{/*"0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140", "0xd013ca23e77a65003c2c659c5442c00c805371b7fc1ebd4c206c41d1536bd90b"}
@@ -170,7 +168,7 @@ func TestDecodeBytesCurve(t *testing.T) {
 			return -1, common.Big0, -1, common.Big0
 		}
 		asset0_index, asset0_volume, asset1_index, asset1_volume := decodeBytesCurve(firstLog)
-		
+
 		if (asset0_index == nil) {
 			t.Errorf("No asset0_index decoded")
 		}
@@ -218,8 +216,8 @@ func testDecodeBytesCurve(t *testing.T) {
 		}
 		//lastLog = log
 	}
-	
-	
+
+
 	asset0_index, asset0_volume, asset1_index, asset1_volume := getTradingVolumeFromTxLog(txlog.Logs, poolTopics)
 
 	if (asset0_index == nil) {
@@ -247,37 +245,37 @@ func TestGetTradingVolumeFromTxLog(t *testing.T) {
 
 	asset0_index, asset0_volume, asset1_index, asset1_volume := getTradingVolumeFromTxLogCurve(txlog.Logs, poolTopics)
 
-	if(asset0_index == nil) {
+	if asset0_index == nil {
 		t.Errorf("Index of asset0 not retrieved!")
 	}
 
-	if(asset0_volume == nil) {
+	if asset0_volume == nil {
 		t.Errorf("Volume of asset0 not retrieved!")
 	}
 
-	if(asset1_index == nil) {
+	if asset1_index == nil {
 		t.Errorf("Index of asset1 not retrieved!")
 	}
 
-	if(asset1_volume == nil) {
+	if asset1_volume == nil {
 		t.Errorf("Volume of asset1 not retrieved!")
 	}
-
 
 }
 
 func TestNegPow(t *testing.T) {
-	
-	if (negPow(big.NewFloat(1234567890), 10) != 0.123456789) {
+
+	if negPow(big.NewFloat(1234567890), 10) != 0.123456789 {
 		t.Errorf("Wrong value for negative power")
 	}
 }
 
 func TestZero(t *testing.T) {
-	if (Zero() != 0.0) {
+	if Zero() != 0.0 {
 		t.Errorf("Zero is not returned")
 	}
 }
+
 /*
 func TestMul(t.*testing.T) {
 	//to test: don't know what the function is doing lol
