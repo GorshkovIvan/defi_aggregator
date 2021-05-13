@@ -56,10 +56,10 @@ func (database *Database) AddRecordfromAPI() {
 	// 4 - run data queries on each pool
 	U := UniswapInputStruct{clientUniswap, reqUniswapIDFromTokenTicker, reqUniswapHist}
 
-	//getUniswapData(database, U)
-	//getAave2Data(database, U)
+	getUniswapData(database, U)
+	getAave2Data(database, U)
 	getCurveData(database, U)
-	//getBalancerData(database, U)
+	getBalancerData(database, U)
 
 	fmt.Println("Ran all download functions and appended data")
 }

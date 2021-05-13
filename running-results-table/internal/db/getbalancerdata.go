@@ -585,6 +585,10 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				fmt.Print("vol: ")
 				fmt.Print(volatility)
 
+				if volatility == 0.0 {
+					volatility = 0.276
+				} 
+
 				imp_loss_hist := estimate_impermanent_loss_hist(volatility, 1, "Balancer")
 				px_return_hist := calculate_price_return_x_days(Histrecord, 30)
 

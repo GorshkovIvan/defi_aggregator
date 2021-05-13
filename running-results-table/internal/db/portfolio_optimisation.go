@@ -257,6 +257,7 @@ if len(pool_tkn0s) == 0 {
 		// get leftovers
 		// Update return matrix with actual token returns
 		for ii := 0; ii < len(own_pf); ii++ {
+		/*
 			fmt.Print("ii: ")
 			fmt.Print(ii)
 			fmt.Print(" | tkn: ")
@@ -265,7 +266,7 @@ if len(pool_tkn0s) == 0 {
 			fmt.Print(own_pf[ii].Amount)
 			fmt.Print(" | tkn bal res: ")
 			fmt.Print(token_balances_resulting_from_entered_weights[ii])
-
+		*/
 			diff := float64(own_pf[ii].Amount)*own_pf_px[ii] - token_balances_resulting_from_entered_weights[ii]
 			fmt.Print(" | diff: ")
 			fmt.Println(diff)

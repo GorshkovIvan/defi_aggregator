@@ -294,10 +294,10 @@ func calculatehistoricalvolatility(H HistoricalCurrencyData, days int) float32 {
 
 func calculateROI_hist(interestrate float32, pool_reward_pct float32, pool_sz_hist float32, daily_volume_hist float32, imp_loss_hist_est float32, px_return_hist float32) float32 {
 	var ROI float32
-	ROI = 0.069
+	ROI = 0.0676
 
 	if pool_sz_hist == 0.0 {
-		return -992.0
+		return 0.0 // -992
 	} else {
 		ROI = interestrate + (pool_reward_pct * daily_volume_hist * 365 / pool_sz_hist) + px_return_hist + imp_loss_hist_est
 	}
@@ -320,7 +320,7 @@ func calculateROI_vol_adj(ROI_raw_est float32, volatility_est float32) float32 {
 		return 888.0
 	}
 
-	if volatility_est <= 0.03 { // if not volatile - do not adjust by volatility
+	if volatility_est <= 0.01 { // if not volatile - do not adjust by volatility
 		return ROI_raw_est
 	} else {
 		if !math.IsInf(float64(ROI_raw_est/volatility_est), 0) {
@@ -588,15 +588,16 @@ func isPoolPartOfFilter(token0 string, token1 string) bool {
 	t7 := "SNX"
 	t8 := "UNI"
 	t9 := "RLY"
+	t10 := "LINK"
 
 	var t0ok bool
 	var t1ok bool
 
-	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 || token0 == t5 || token0 == t6 || token0 == t7 || token0 == t8 || token0 == t9 {
+	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 || token0 == t5 || token0 == t6 || token0 == t7 || token0 == t8 || token0 == t9 || token0 == t10 {
 		t0ok = true
 	}
 
-	if token1 == t0 || token1 == t1 || token1 == t2 || token1 == t3 || token1 == t4 || token0 == t5 || token0 == t6 || token0 == t7 || token0 == t8 || token0 == t9 {
+	if token1 == t0 || token1 == t1 || token1 == t2 || token1 == t3 || token1 == t4 || token0 == t5 || token0 == t6 || token0 == t7 || token0 == t8 || token0 == t9 || token0 == t10 {
 		t1ok = true
 	}
 
@@ -617,8 +618,9 @@ func isCoinPartOfFilter(token0 string) bool {
 	t7 := "SNX"
 	t8 := "UNI"
 	t9 := "RLY"
+	t10 := "LINK"
 	// var t0ok bool // var t1ok bool
-	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 || token0 == t5 || token0 == t6 || token0 == t7 || token0 == t8 || token0 == t9 {
+	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 || token0 == t5 || token0 == t6 || token0 == t7 || token0 == t8 || token0 == t9 || token0 == t10 {
 		return true
 	}
 

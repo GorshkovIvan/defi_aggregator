@@ -39,10 +39,16 @@ func conv_curve_token_to_uniswap(curve_token string) string {
 		assetName = "DAI"
 	} else if curve_token == "ycDAI" {
 		assetName = "DAI"
+		} else if curve_token == "ycUSDC" {
+			assetName = "USDC"
+			} else if curve_token == "yBUSD" {
+				assetName = "USDC"
 			} else if curve_token == "oBTC" {
 				assetName = "WBTC"
 			} else if curve_token == "HBTC" {
 				assetName = "WBTC"
+				} else if curve_token == "yUSDT" {
+					assetName = "USDT"
 		} else if curve_token == "oBTC" {
 				assetName = "WBTC"
 			} else if curve_token == "TBTC" {
@@ -93,7 +99,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 		log.Fatal(err)
 	}
 
-	pools_to_pull := int64(8)
+	pools_to_pull := int64(16)
 	var pool_addresses []common.Address
 	var i int64
 
@@ -153,6 +159,9 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 				log.Fatal(err)
 			}
 			name = conv_curve_token_to_uniswap(name)
+
+			fmt.Print("token: ")
+			fmt.Println(name)
 
 			if !isCoinPartOfFilter(name) {
 				// coin not part of our filter - skip this whole pool
@@ -231,6 +240,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 		fmt.Print(len(tokenqueue))
 
 		for jj := 0; jj < len(tokenqueue); jj++ {
+			fmt.Print("jj: ")
 			fmt.Print(tokenqueue[jj])
 			fmt.Print(" | ")
 		}
@@ -261,7 +271,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			if data_is_old { // download it
 				//3)  Query between oldest and current block for Curve-specific addresses
 				dates, tradingvolumes, poolsizes, fees, interest = curveGetPoolVolume(pool_address, client, balances, tokenqueue, decimals)
-				/*
+				
 					fmt.Print("dates retrieved from curveGetPoolVolume: ")
 					fmt.Print(len(dates))
 					fmt.Print(" | tradingvolumes : ")
@@ -272,7 +282,7 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 					fmt.Print(len(fees))
 					fmt.Print(" | interest: ")
 					fmt.Print(len(interest))
-				*/
+				
 				for jjj := 0; jjj < len(dates); jjj++ {
 					// interest[jjj]
 					recordID := append_record_to_database("Curve", tokenqueue, dates[jjj], tradingvolumes[jjj], fees[jjj], poolsizes[jjj], 0.0, float64(0))
@@ -288,18 +298,22 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			}
 
 			// ROI calculation
-			currentSize := 0.0
+			currentSize := float64(0)
+			for jkx := 0; jkx < len(poolsizes); jkx++ {
+				currentSize += float64(poolsizes[jkx])
+			}
+			/*
 			if len(poolsizes) > 0 {
 				currentSize = float64(poolsizes[len(poolsizes)-1])
 				fmt.Print("poolsizes: ")
 				fmt.Print(poolsizes[0])
-			}
-
+			}*/
+			
 			currentVolume := 0.0
-			if len(tradingvolumes) > 0 {
-				currentVolume = float64(tradingvolumes[len(tradingvolumes)-1])
-				fmt.Print("volumes: ")
-				fmt.Print(tradingvolumes[0])
+			for jkx := 0; jkx < len(tradingvolumes); jkx++ {
+				currentVolume += float64(tradingvolumes[jkx])
+			//	fmt.Print("volumes: ")
+			//	fmt.Print(tradingvolumes[jkx])
 			}
 
 			// Use balancer function - also applicable for curve
@@ -334,20 +348,23 @@ func getCurveData(database *Database, uniswapreqdata UniswapInputStruct) {
 			//AVG volatility
 			volatility = totl / vol_count
 
+			fmt.Print("avg vol: ")
+
 			imp_loss_hist := estimate_impermanent_loss_hist(volatility, 1, "Curve")
 			px_return_hist := calculate_price_return_x_days(Histrecord, 30)
 
 			ROI_raw_est := calculateROI_raw_est(currentInterestrate, float32(CurveRewardPercentage), float32(future_pool_sz_est), float32(future_daily_volume_est), imp_loss_hist)      // + imp
+			if ROI_raw_est > 50 {ROI_raw_est = ROI_raw_est / 20}
 			ROI_vol_adj_est := calculateROI_vol_adj(ROI_raw_est, volatility)                                                                                                            // Sharpe ratio
 			ROI_hist := calculateROI_hist(currentInterestrate, float32(CurveRewardPercentage), historical_pool_sz_avg, historical_pool_daily_volume_avg, imp_loss_hist, px_return_hist) // + imp + hist
-
+/*
 			fmt.Print("| ROI_raw_est: ")
 			fmt.Print(ROI_raw_est)
 			fmt.Print("| ROI_vol_adj_est: ")
 			fmt.Print(ROI_vol_adj_est)
 			fmt.Print("| ROI_hist: ")
 			fmt.Print(ROI_hist)
-
+*/
 			var recordalreadyexists bool
 			recordalreadyexists = false
 
@@ -409,8 +426,8 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 	days_ago := 1
 	oldest_lookup_time := time.Now()
 	oldest_lookup_time = oldest_lookup_time.AddDate(0, 0, -days_ago)
-	fmt.Print("oldest_lookup_time: ")
-	fmt.Print(oldest_lookup_time)
+	//fmt.Print("oldest_lookup_time: ")
+	//fmt.Print(oldest_lookup_time)
 
 	j := int64(0) // compute block id [days_ago] days away from now
 	for {
@@ -423,11 +440,13 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 		}
 
 		if block.Time() <= uint64(oldest_lookup_time.Unix()) {
+			/*
 			fmt.Print("oldest lkp block: ")
 			fmt.Println(oldest_block)
 			fmt.Print(" | t: ")
 			fmt.Print(block.Time())
 			fmt.Print("| curr blk - oldest blk: ")
+			*/
 			diff := current_block.Sub(current_block, oldest_block)
 			fmt.Println(diff)
 			break
@@ -474,15 +493,16 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 	//fmt.Print("in ballen: ")
 	//fmt.Print(len(balances))
 	for balLen := 0; balLen < len(balances); balLen++ {
-		fmt.Print("tokenqueue[balLen]: ")
+	/*	fmt.Print("tokenqueue[balLen]: ")
 		fmt.Print(tokenqueue[balLen])
-		fmt.Print(" | balances[balLen]: ")
+		fmt.Print(" | b[balLen]: ")
 		fmt.Print(balances[balLen])
+	*/
 		totalBal += int(balances[balLen])
 	}
-	fmt.Print(" | total bal: ")
-	fmt.Print(totalBal)
-	fmt.Print("..")
+//	fmt.Print(" | total bal: ")
+//	fmt.Print(totalBal)
+//	fmt.Print("..")
 
 	// loop through whole log
 	for i := 0; i < len(logsX); i++ {
@@ -555,14 +575,18 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 			if asset0_index < int64(len(decimals)) && asset1_index < int64(len(decimals)) {
 			sz_0 := negPowF(float64(asset0_volume), decimals[asset0_index]) * exch0
 			sz_1 := negPowF(float64(asset1_volume), decimals[asset1_index]) * exch1
-		//	fmt.Print("decimals[asset0_index]: ")
-		//	fmt.Print(decimals[asset0_index])
-		//	fmt.Print(" sz0: ")
-		//	fmt.Print(sz_0)
-		//	fmt.Print(" | sz1: ")
-		//	fmt.Print(sz_1)
-		//	fmt.Print(" | ")
 
+			if sz_0 < 0 {sz_0 = -sz_0 }
+			if sz_1 < 0 {sz_1 = -sz_1 }
+			/*
+			fmt.Print("decimals[asset0_index]: ")
+			fmt.Print(decimals[asset0_index])
+			fmt.Print(" sz0: ")
+			fmt.Print(sz_0)
+			fmt.Print(" | sz1: ")
+			fmt.Print(sz_1)
+			fmt.Print(" | ")
+			*/
 			pool_fee := 0.02 // Standard curve fee
 
 			f0 := int64(float64(sz_0) * pool_fee)
@@ -570,6 +594,7 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 			// Add it to tally for that day
 			cumulative_for_day_fees += (f0 + f1)
 			cumulative_for_day_volume += int64(sz_1) // sz_0
+			cumulative_for_day_volume += int64(sz_0) // sz_0
 			}
 		} // else - if not a new day
 	} // loop through logs ends
