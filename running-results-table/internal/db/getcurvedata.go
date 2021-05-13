@@ -534,10 +534,10 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 			//	fmt.Print(" | ")
 			//	fmt.Print(asset1_index)
 
-			fmt.Print("asset0 vlm raw: ")
-			fmt.Print(asset0_volume)
-			fmt.Print(" | asset1 vlm raw: ")
-			fmt.Print(asset1_volume)
+		//	fmt.Print("asset0 vlm raw: ")
+		//	fmt.Print(asset0_volume)
+		//	fmt.Print(" | asset1 vlm raw: ")
+		//	fmt.Print(asset1_volume)
 
 			exch0 := float64(1.0) // assumed to be stablecoin
 			exch1 := float64(1.0) // assumed to be stablecoin
@@ -555,13 +555,13 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 			if asset0_index < int64(len(decimals)) && asset1_index < int64(len(decimals)) {
 			sz_0 := negPowF(float64(asset0_volume), decimals[asset0_index]) * exch0
 			sz_1 := negPowF(float64(asset1_volume), decimals[asset1_index]) * exch1
-			fmt.Print("decimals[asset0_index]: ")
-			fmt.Print(decimals[asset0_index])
-			fmt.Print(" sz0: ")
-			fmt.Print(sz_0)
-			fmt.Print(" | sz1: ")
-			fmt.Print(sz_1)
-			fmt.Print(" | ")
+		//	fmt.Print("decimals[asset0_index]: ")
+		//	fmt.Print(decimals[asset0_index])
+		//	fmt.Print(" sz0: ")
+		//	fmt.Print(sz_0)
+		//	fmt.Print(" | sz1: ")
+		//	fmt.Print(sz_1)
+		//	fmt.Print(" | ")
 
 			pool_fee := 0.02 // Standard curve fee
 
