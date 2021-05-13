@@ -39,8 +39,11 @@
 h1 {
   color: var(--theme-page-text);
   text-align: center;
-  padding-top: 25px;
   font-family: LemonMilkBoldItalic;
+}
+
+.about-hyfm {
+  padding-top: 100px;
 }
 
 h5 {

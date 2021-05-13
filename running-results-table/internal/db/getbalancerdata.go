@@ -130,7 +130,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 	// 2 - declare queries
 	reqBalancerListOfPools := graphql.NewRequest(`
 	query {
-		pools(first: 25, orderDirection: desc, orderBy: liquidity, where: {publicSwap: true}) {
+		pools(first: 50, orderDirection: desc, orderBy: liquidity, where: {publicSwap: true}) {
 		  id
 		  tokensList
 		  tokens {
@@ -256,6 +256,10 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 					// Check if database already has historical data
 					if !isHistDataAlreadyDownloadedDatabase(convBalancerToken(tokenqueue[j])) {
 						// Get Uniswap Ids of these tokens
+						fmt.Print("NOT FOUND DATA FOR TOKEN IN DATABASE..QUERYING UNISWAP: ")
+						fmt.Print(convBalancerToken(tokenqueue[j]))
+						fmt.Print("CHECKPOINT 777")
+
 						uniswapreqdata.reqUniswapIDFromTokenTicker.Var("ticker", convBalancerToken(tokenqueue[j]))
 						if err := uniswapreqdata.clientUniswap.Run(ctx, uniswapreqdata.reqUniswapIDFromTokenTicker, &respUniswapTicker); err != nil {
 							log.Fatal(err)
@@ -304,7 +308,6 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 						}
 					//fmt.Print("Queried historical volume from BALANCER - number of items: ")
 					//fmt.Println(len(respBalancerHistVolume.Pool.Swaps))
-
 				*/
 
 				/////////////////////////////////////////////////////////////////////////
@@ -318,8 +321,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				oldest_available_record := time.Unix(get_newest_timestamp_from_db("Balancer", tokens), 0) //time.Unix(sec, nano)
 				fmt.Print("NEWEST TIMESTAMP FROM DB:")
 				fmt.Print(oldest_available_record)
-				fmt.Print("checkpoint 1")
-				//oldest_available_record = oldest_available_record.AddDate(0, 0, -days_ago)
+				// fmt.Print("checkpoint 1")
+				// oldest_available_record = oldest_available_record.AddDate(0, 0, -days_ago)
 				oldest_lookup_time := time.Now() //.Unix()
 
 				fmt.Print("TIME SINCE UPDATE: ")
@@ -334,6 +337,8 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 					oldest_lookup_time = oldest_lookup_time.AddDate(0, 0, -days_ago) // oldest_available_record.Unix()
 					// math.Max(now.AddDate(0, 0, -days_ago)
 				}
+				fmt.Print("  is data in Balancer db old: ")
+				fmt.Println(data_is_old)
 
 				var dates []int64
 				var tradingvolumes []int64
@@ -343,7 +348,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				var utilization []float64
 
 				fmt.Print(data_is_old)
-				if len(utilization) > 0 {
+				if len(utilization) > 0 || len(fees) > 0 {
 					fmt.Print("placeholder")
 				}
 
@@ -503,7 +508,10 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 
 
 						if t_prev == 0 || (t_new-uint64(math.Mod(float64(t_new), 86400)))/86400 != (t_prev-uint64(math.Mod(float64(t_prev), 86400)))/86400 { // 1 day
-							dates = append(dates, int64(BoD(time.Unix(int64(t_new), 0)).Unix()))
+							// check if dates is already in db
+							tn := int64(BoD(time.Unix(int64(t_new), 0)).Unix())
+							if tn > 0 && tn > MaxIntSlice(dates) {
+							dates = append(dates, tn)
 							tradingvolumes = append(tradingvolumes, cumulative_for_day)
 							bal_int, _ := bal_float.Int64()
 							bal_intT2, _ := bal_floatT2.Int64()
@@ -514,6 +522,7 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 							//poolsizes = append(poolsizes, bal_int) // bal.Int64()
 							poolsizes = append(poolsizes, bal_int+bal_intT2) // bal.Int64()
 							cumulative_for_day = 0
+						}
 							//fmt.Println(" t new:")
 							//fmt.Print(t_new)
 							//fmt.Print(" | prev: ")
@@ -543,9 +552,17 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 						fmt.Print(dates[i])
 						fmt.Print("| volumes: ")
 						fmt.Println(tradingvolumes[i])
-						if tradingvolumes[i] > 0 {
+						
+						vlm := tradingvolumes[i]
+						if vlm == 0.0 {vlm = 1000}
+						
+						//if len(interest[i])
+						interest_x := float64(0) // interest[i]
+						fees_x := int64(0)
+
+						if vlm > 0.0 {
 							// respBalancerById.Pool.Tokens[0].Symbol, respBalancerById.Pool.Tokens[1].Symbol
-							recordID := append_record_to_database("Balancer", tokens, dates[i], tradingvolumes[i], poolsizes[i], fees[i], interest[i], float64(0)) //-----implemented Function
+							recordID := append_record_to_database("Balancer", tokens, dates[i], vlm, poolsizes[i], fees_x, interest_x, float64(0)) //-----implemented Function
 							if recordID == "x" {
 							}
 						} // respBalancerById.Pool.ID
@@ -565,9 +582,15 @@ func getBalancerData(database *Database, uniswapreqdata UniswapInputStruct) {
 				currentInterestrate := float32(0.00) // Zero for liquidity pool
 				BalancerRewardPercentage, _ := strconv.ParseFloat(respBalancerById.Pool.SwapFee, 32)
 				volatility := calculatehistoricalvolatility(retrieveDataForTokensFromDatabase2(token0symbol, token1symbol), 30)
+				fmt.Print("vol: ")
+				fmt.Print(volatility)
 
 				imp_loss_hist := estimate_impermanent_loss_hist(volatility, 1, "Balancer")
 				px_return_hist := calculate_price_return_x_days(Histrecord, 30)
+
+				if px_return_hist < -1 {
+					px_return_hist = 0
+				}
 
 				ROI_raw_est := calculateROI_raw_est(currentInterestrate, float32(BalancerRewardPercentage), float32(future_pool_sz_est), float32(future_daily_volume_est), imp_loss_hist)      // + imp
 				ROI_vol_adj_est := calculateROI_vol_adj(ROI_raw_est, volatility)                                                                                                               // Sharpe ratio

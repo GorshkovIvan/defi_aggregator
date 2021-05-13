@@ -9,7 +9,7 @@ function Contact() {
 
     return (
         <div class="Contact">
-            <h1>High Yield 4 Me</h1>
+            <h1 className="about-hyfm">High Yield 4 Me</h1>
             <div className="about-header">Meet the Team:</div>
             <div class="paragraph">
                 <p>We are a group of MSc Computer Science students at Imperial College London. We are cryptocurrency enthusiasts and have created this project to help cryptocurrency users make better choices for earning a yield from their investments.</p>

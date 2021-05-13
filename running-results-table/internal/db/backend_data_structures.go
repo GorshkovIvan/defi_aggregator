@@ -126,6 +126,20 @@ func append_record_to_database(pool string, tokens []string, date int64, trading
 	return hexID
 }
 
+func get_newest_timestamp_for_token_from_db(token string) int64 {
+	dates := returnDatesInCollection(token)
+
+	max := int64(0)
+	for _, v := range dates {
+		if v > max {
+			max = v
+		}
+	}
+
+	return max
+}
+
+
 func get_newest_timestamp_from_db(pool string, tokens []string) int64 {
 	var name []string
 	name = append(name, pool)
@@ -141,7 +155,8 @@ func get_newest_timestamp_from_db(pool string, tokens []string) int64 {
 		name = append(name, tokenJoined)
 	}
 	v := strings.Join(name, " ")
-	dates := returnDatesInCollection(v)
+	fmt.Print(v)
+	dates := returnDatesInCollection_pools(v)
 
 	max := int64(0)
 	for _, v := range dates {
@@ -326,8 +341,8 @@ func addHistoricalCurrencyData(date int64, price float32, CollectionOrTicker str
 		log.Fatal(err)
 	}
 
-	fmt.Print("Collection Filtered: ")
-	fmt.Println(collectionFiltered)
+//	fmt.Print("Collection Filtered: ")
+//	fmt.Println(collectionFiltered)
 
 	if len(collectionFiltered) > 0 {
 		return "data already there"
@@ -433,6 +448,43 @@ func dropEntireCollection(collectionName string) {
 	}
 }
 */
+
+
+func returnDatesInCollection_pools(collectionName string) []int64 {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+
+	Database := client.Database("De-Fi_Aggregator")
+	collection := Database.Collection(collectionName)
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var records []bson.M
+
+	if err = cursor.All(ctx, &records); err != nil {
+		log.Fatal(err)
+	}
+
+	var dates []int64
+	for _, record := range records {
+		date := record["date"]
+		dates = append(dates, date.(int64))
+	}
+
+	return dates
+}
+
 
 func returnDatesInCollection(collectionName string) []int64 {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:highyield4me@cluster0.tmmmg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
@@ -739,8 +791,8 @@ func (database *Database) GetOptimisedPortfolio() []OptimisedPortfolioRecord {
 
 // Retrieve Data
 func (database *Database) GetRawPortfolio() []OwnPortfolioRecord {
-	fmt.Print("CHECKPOINT len of db being returned: ")
-	fmt.Print(len(database.ownstartingportfolio))
+//	fmt.Print("CHECKPOINT len of db being returned: ")
+//	fmt.Print(len(database.ownstartingportfolio))
 	return database.ownstartingportfolio
 }
 

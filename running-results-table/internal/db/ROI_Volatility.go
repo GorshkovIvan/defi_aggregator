@@ -64,8 +64,8 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 	token0dataishere := isHistDataAlreadyDownloadedDatabase(token0)
 	token1dataishere := isHistDataAlreadyDownloadedDatabase(token1)
 
-	//	fmt.Println(token0dataishere)
-	//	fmt.Println(token1dataishere)
+	fmt.Println(token0dataishere)
+	fmt.Println(token1dataishere)
 
 	if !token0dataishere || !token1dataishere && (token1 != "USD") {
 		fmt.Println("ERROR 899: ticker combo not found in database..returning blank object")
@@ -386,16 +386,15 @@ func isHistDataAlreadyDownloadedDatabase(token string) bool {
 
 	for i := 0; i < len(array); i++ {
 		if array[i] == token {
-			// also add date check LATER : if latest date is within 24 hours of NOW database.historicalcurrencydata[i].
-			/*
-				fmt.Print("Checking if data already downloaded for: ")
-				fmt.Print(token)
-				fmt.Print("..Data found!!")
-			*/
-			return true
+			t := time.Unix(get_newest_timestamp_for_token_from_db(token), 0)
+			fmt.Print(t)
+			if len(returnDatesInCollection(token)) >= 3 {
+				return true
+			}
+		
 		}
 	}
-
+// time.Since(t).Hours() <= 25 && 
 	return false
 }
 
@@ -551,6 +550,11 @@ func setUniswapQueryIDForToken(token string, ID string) string {
 		// TO CHECK
 		return "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
 	}
+	if token == "BAL" {
+		// TO CHECK
+		return "0xba100000625a3754423978a60c9317c58a424e3d"
+	}
+
 	return ID
 }
 
@@ -580,15 +584,19 @@ func isPoolPartOfFilter(token0 string, token1 string) bool {
 	t3 := "WETH"
 	t4 := "WBTC"
 	t5 := "DOGE"
+	t6 := "BAL"
+	t7 := "SNX"
+	t8 := "UNI"
+	t9 := "RLY"
 
 	var t0ok bool
 	var t1ok bool
 
-	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 || token0 == t5 {
+	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 || token0 == t5 || token0 == t6 || token0 == t7 || token0 == t8 || token0 == t9 {
 		t0ok = true
 	}
 
-	if token1 == t0 || token1 == t1 || token1 == t2 || token1 == t3 || token1 == t4 || token0 == t5 {
+	if token1 == t0 || token1 == t1 || token1 == t2 || token1 == t3 || token1 == t4 || token0 == t5 || token0 == t6 || token0 == t7 || token0 == t8 || token0 == t9 {
 		t1ok = true
 	}
 
@@ -596,7 +604,6 @@ func isPoolPartOfFilter(token0 string, token1 string) bool {
 		return true
 	}
 	return false
-
 }
 
 func isCoinPartOfFilter(token0 string) bool {
@@ -606,11 +613,12 @@ func isCoinPartOfFilter(token0 string) bool {
 	t3 := "WETH"
 	t4 := "WBTC"
 	t5 := "DOGE"
-
-	//	var t0ok bool
-	//	var t1ok bool
-
-	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 || token0 == t5 {
+	t6 := "BAL"
+	t7 := "SNX"
+	t8 := "UNI"
+	t9 := "RLY"
+	// var t0ok bool // var t1ok bool
+	if token0 == t0 || token0 == t1 || token0 == t2 || token0 == t3 || token0 == t4 || token0 == t5 || token0 == t6 || token0 == t7 || token0 == t8 || token0 == t9 {
 		return true
 	}
 

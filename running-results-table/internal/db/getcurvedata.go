@@ -39,22 +39,22 @@ func conv_curve_token_to_uniswap(curve_token string) string {
 		assetName = "DAI"
 	} else if curve_token == "ycDAI" {
 		assetName = "DAI"
-		//	} else if curve_token == "oBTC" {
-		//		assetName = "WBTC"
-		//	} else if curve_token == "HBTC" {
-		//		assetName = "WBTC"
-		//	} else if curve_token == "oBTC" {
-		//		assetName = "WBTC"
-		//	} else if curve_token == "TBTC" {
-		//		assetName = "WBTC"
-		//	} else if curve_token == "BBTC" {
-		//		assetName = "WBTC"
+			} else if curve_token == "oBTC" {
+				assetName = "WBTC"
+			} else if curve_token == "HBTC" {
+				assetName = "WBTC"
+		} else if curve_token == "oBTC" {
+				assetName = "WBTC"
+			} else if curve_token == "TBTC" {
+				assetName = "WBTC"
+			} else if curve_token == "BBTC" {
+				assetName = "WBTC"
 	} else if curve_token == "pBTC" {
 		assetName = "WBTC"
 	} else if curve_token == "oBTC" {
 		assetName = "WBTC"
-		//	} else if curve_token == "renBTC" {
-		//		assetName = "WBTC"
+			} else if curve_token == "renBTC" {
+				assetName = "WBTC"
 	} else if curve_token == "GUSD" {
 		assetName = "USDC"
 	} else if curve_token == "HUSD" {

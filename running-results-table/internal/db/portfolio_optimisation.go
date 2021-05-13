@@ -87,9 +87,9 @@ func nrm_pool_wgts(pool_weights_raw []float64, pool_tkn0s []string, pool_tkn1s [
 //	fmt.Print("starting point: ")
 //	fmt.Println(len(pool_weights_raw))
 //	fmt.Println(len(pool_tkn0s))
-///	fmt.Println(len(pool_tkn1s))
-	//fmt.Println(len(pool_ratios))
-	//fmt.Println(len(own_pf_px))
+//	fmt.Println(len(pool_tkn1s))
+//	fmt.Println(len(pool_ratios))
+//	fmt.Println(len(own_pf_px))
 	if len(pool_weights_raw) == len(pool_tkn0s) && len(pool_weights_raw) == len(own_pf_px) {
 	for i:=0; i < len(pool_weights_raw); i++ {
 	//	fmt.Print("i: ")
@@ -103,7 +103,48 @@ func nrm_pool_wgts(pool_weights_raw []float64, pool_tkn0s []string, pool_tkn1s [
 	}
 }
 
-	if len(pool_tkn0s) == 0 {
+//fmt.Print("Checkpoint 992")
+
+if len(pool_tkn0s) == 0 {
+
+		for jjj := 0; jjj < len(own_pf);jjj++ {
+			weights_optimised = append(weights_optimised,0.0)		
+		}
+
+		total := 0.0
+		for i := 0; i < len(own_pf); i++ {
+			total += own_pf_px[i] * float64(own_pf[i].Amount)
+		}
+	
+		token_balances_resulting_from_entered_weights := recalculate_balances_from_weights(weights_optimised, total, pool_tkn0s, pool_tkn1s, pool_ratios, own_pf)
+
+		//fmt.Print("Checkpoint 993")
+	//	fmt.Print("len: ")
+	//	fmt.Print(len(own_pf))
+		for ii := 0; ii < len(own_pf); ii++ {
+		/*
+			fmt.Print("Checkpoint 994")
+			fmt.Print("ii: ")
+			fmt.Print(ii)
+			fmt.Print(" | tkn: ")
+			fmt.Print(own_pf[ii].Token)
+			fmt.Print(" | ")
+			fmt.Print(own_pf[ii].Amount)
+			fmt.Print(" | tkn bal res: ")
+			fmt.Print(token_balances_resulting_from_entered_weights[ii])
+		*/
+			diff := float64(own_pf[ii].Amount)*own_pf_px[ii] - token_balances_resulting_from_entered_weights[ii]
+			fmt.Print(" | diff: ")
+			fmt.Println(diff)
+
+			//if diff > 0.0000000000001 {
+				leftovertokens = append(leftovertokens,own_pf[ii].Token)
+				leftoveramounts = append(leftoveramounts,diff)
+			//}
+		}
+
+	//	fmt.Print("Number of leftovers: ")
+	//	fmt.Print(len(leftovertokens))
 		return weights_optimised, leftovertokens,leftoveramounts
 	}
 
@@ -196,8 +237,8 @@ func nrm_pool_wgts(pool_weights_raw []float64, pool_tkn0s []string, pool_tkn1s [
 
 			rat := math.Min(rat0, rat1)
 
-			fmt.Print("ratio in optimiser: ")	
-			fmt.Print(rat)
+		//	fmt.Print("ratio in optimiser: ")	
+		//	fmt.Print(rat)
 			if rat < 1 && rat > 0 { // scale pool % by rat
 				weights_optimised[j] = weights_optimised[j] * rat
 			} // if rat
@@ -229,10 +270,10 @@ func nrm_pool_wgts(pool_weights_raw []float64, pool_tkn0s []string, pool_tkn1s [
 			fmt.Print(" | diff: ")
 			fmt.Println(diff)
 
-			if diff > 0.00000000000001 {
+			//if diff > 0.0000000000001 {
 				leftovertokens = append(leftovertokens,own_pf[ii].Token)
 				leftoveramounts = append(leftoveramounts,diff)
-			}
+			//}
 		}
 		//fmt.Print("..violations AFTER change: ")
 		//fmt.Print(violation_count)
@@ -412,8 +453,12 @@ for i:=0; i < len(pool_tkn1s); i++ {
 		//var leftovertokens []string
 		//var leftoveramounts []float64
 		// Normalise weights
+	//	fmt.Print("calculating x weights...")
+	//	fmt.Print("pool_tkn0s len: ")
+	//	fmt.Print(len(pool_tkn0s))
 
 		x_weights, _, _ = nrm_pool_wgts(x_weights, pool_tkn0s, pool_tkn1s, pool_ratios, deployable_portfolio_array, own_pf_px)
+	//	fmt.Print("calculated x weights...")
 		weights := mat.NewVecDense(number_of_tokens, x_weights)
 		// Calculate covariance matrix is outside
 		// Calculate blended return and risk
@@ -475,6 +520,13 @@ for i:=0; i < len(pool_tkn1s); i++ {
 	fmt.Println(len(result_norm))
 	fmt.Println("..OPTIMIZATION COMPLETE..")
 
+	if len(leftovertokens) == 0 && len(result_norm) == 0 && len(database.ownstartingportfolio) > 0 {
+		// populate leftovers here
+		for i:= 0; i < len(database.ownstartingportfolio); i++ {
+			leftovertokens = append(leftovertokens,database.ownstartingportfolio[i].Token)
+			leftoveramounts = append(leftoveramounts,float64(database.ownstartingportfolio[i].Amount))
+		}
+	}
 
 	total_pf_val := 0.0
 	for i:=0; i < len(deployable_portfolio_array); i++ {
@@ -488,6 +540,7 @@ for i:=0; i < len(pool_tkn1s); i++ {
 		// search database
 		if amount > 0 {
 		for ii := 0; ii < len(database.currencyinputdata); ii++ {
+			/*
 			fmt.Print("SEARCHING FOR YIELD IN DB!!!: ")
 			fmt.Print(ii)
 			fmt.Print(" pair: ")
@@ -500,10 +553,10 @@ for i:=0; i < len(pool_tkn1s); i++ {
 			fmt.Print(pool_tkn0s[i] + "/" + pool_tkn1s[i])
 			fmt.Print(" | our pool name: ")
 			fmt.Print(pool_name_array[i])
-
 			fmt.Println(" | ")
+			*/
 			if database.currencyinputdata[ii].Pair == (pool_tkn0s[i] + "/" + pool_tkn1s[i]) && database.currencyinputdata[ii].Pool == pool_name_array[i] {
-				fmt.Print("MATCHED!!!!! ")
+	//			fmt.Print("MATCHED!!!!! ")
 				yield = database.currencyinputdata[ii].ROI_raw_est
 			}
 		}
@@ -512,29 +565,33 @@ for i:=0; i < len(pool_tkn1s); i++ {
 	}
 }
 
-	//totl := 0.0
-	//for i:= 0; i < len(result_norm);i++ {
-		// how much individual token balances are left over
-		// loop through tokens deployable_portfolio_array
-		// loop through tokens of optimised pdf
-		// calculate difference for each token
-		// result shld be array of undeployedtoken []string, undeployedamount []float64
-		// deploy each of these into uniswap
-	//	totl += result_norm[i]
-	//}
-
 //	if totl > 0 && totl < 1 {
+	//fmt.Print("NUMBER OF LEFTOVER TOKENS: ")
+	//fmt.Print(len(leftovertokens))
 	for i:= 0; i < len(leftovertokens); i++ {
 		fmt.Print("adding leftover..")
 		fmt.Print(leftovertokens[i])
 		//amount := float32(420) // XX - get total pool amt
 		yield := float32(0.0) // XX - get pool yield for that pool
 		//leftover := 1 - totl
-		pool := "N/A"
+		pool := "NA"
 		//	fmt.Print("Remainder to Uniswap DAI!!")
 		// same loop searching yieold in db - slightly different
-		optimised_pf = append(optimised_pf, OptimisedPortfolioRecord{leftovertokens[i], pool, float32(leftoveramounts[i]), float32(leftoveramounts[i]/total_pf_val), yield, database.Risksetting})
+		pct := float32(0.0)
+		if total_pf_val > 0 {
+			pct = float32(leftoveramounts[i]/total_pf_val)			
+		}
+		//pct = float32(leftoveramounts[i]/total_pf_val)
+		optimised_pf = append(optimised_pf, OptimisedPortfolioRecord{leftovertokens[i], pool, float32(leftoveramounts[i]), pct, yield, database.Risksetting})
 	}
+
+	for i := 0; i < len(optimised_pf); i++ {
+		fmt.Print(optimised_pf[i].TokenOrPair)
+		fmt.Print(optimised_pf[i].PercentageOfPortfolio)
+		fmt.Print(optimised_pf[i].Pool)
+		fmt.Print(optimised_pf[i].Amount)
+	}
+
 
 	return optimised_pf
 }

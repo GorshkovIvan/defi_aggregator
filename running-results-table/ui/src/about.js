@@ -9,7 +9,7 @@ function About() {
 
     return (
         <div class="About">
-            <h1>High Yield 4 Me</h1>
+            <h1 className="about-hyfm">High Yield 4 Me</h1>
             <div className="about-header">About High Yield 4 Me</div>
             <div class="paragraph">
                 <p>Decentralised finance offers a new way to manage your finances: without banks or other intermediaries.</p>

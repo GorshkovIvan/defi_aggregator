@@ -62,8 +62,8 @@ export default function ResultsTable2({currencyoutputtable}) {
                 <td><Label class="ui horizontal label" color={color}>{ index + 1 }</Label></td>
                 <td>{ result.backend_pair }</td>
                 <td>{ result.pool_source }</td>
-                <td class="right aligned">{ result.backend_poolsize === 0 ? result.backend_poolsize : result.backend_poolsize.toFixed(7) }</td>
-                <td class="right aligned">{ result.backend_volume === 0 ? result.backend_volume : result.backend_volume.toFixed(7) }</td>
+                <td class="right aligned">{ result.backend_poolsize === 0 ? result.backend_poolsize : result.backend_poolsize.toFixed(2) }</td>
+                <td class="right aligned">{ result.backend_volume === 0 ? result.backend_volume : result.backend_volume.toFixed(2) }</td>
                 <td class="right aligned">{ result.backend_yield === 0 ? result.backend_yield : result.backend_yield.toFixed(7) }</td>
                 <td class="right aligned">{ result.volatility === 0 ? (result.volatility * 100) : (result.volatility * 100).toFixed(7) }</td>
                 <td class="right aligned">{ result.ROIestimate === 0 ? (result.ROIestimate * 100) : (result.ROIestimate * 100).toFixed(7) }</td>
@@ -98,7 +98,7 @@ export default function ResultsTable2({currencyoutputtable}) {
                             <Table.HeaderCell><h3 className="headerTitle">Pool</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Pool Size</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Pool Vol. <Popup header="Pool Volume" content="Average daily trading volume over the last 30 days." position="top center" trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">% Yield <Popup trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">% Yield <Popup header="% Yield" content="Calculated from the interest rate (if applicable) of the pool." position="top center" trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">% Historical Volatility <Popup header="Historical Volatility" content="Standard deviation of returns of assets in a pool over the last 30 days." position="top center" trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">% Raw ROI Est. <Popup header="Raw Return On Investment Estimate" content="Interest rate (if applicable) + impermanent loss (to arbitrageurs) + returns from share of pool commissions + native token rewards. In USD terms. Prices of tokens assumed to stay constant compared to current prices." position="top center" trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Sharpe Ratio <Popup header="Sharpe Ratio" content="Historical returns divided by volatility of returns (a standardised metric for evaluating risk-adjusted pool returns). Higher Sharpe = better risk-adjusted returns. Historical returns estimated over the last 30 days. In USD terms. Includes components used in calculation of ROI estimate + historical changes in token values in USD terms." position="top center" trigger={<i class="info circle icon"></i>} /></h3></Table.HeaderCell>

@@ -47,8 +47,8 @@ export default function ResultsTable({results}) {
                 <td>{ result.tokenorpair }</td>
                 <td>{ result.pool}</td>
                 <td class="right aligned">{ result.amount }</td>
-                <td class="right aligned">{ result.percentageofportfolio }</td>
-                <td class="right aligned">{ result.roi_estimate }</td>
+                <td class="right aligned">{ result.percentageofportfolio * 100 }</td>
+                <td class="right aligned">{ result.roi_estimate * 100 }</td>
                 <td class="right aligned">{ result.risk_setting }</td>
             </Table.Row>
         );
@@ -65,7 +65,7 @@ export default function ResultsTable({results}) {
                             <Table.HeaderCell><h3 className="headerTitle">Pool</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Amount</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">% Portfolio</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">ROI Estimate</h3></Table.HeaderCell>
+                            <Table.HeaderCell><h3 className="headerTitle">% ROI Estimate</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Risk Setting</h3></Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>

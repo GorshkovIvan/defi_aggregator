@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Link, BrowserRouter as Router } from 'react-router-dom';
 import ConnectedResultsTable from './ConnectedResultsTable';
 import NewResultsForm from './NewResultsForm';
 import RankedCurrenciesTable from './RankedCurrenciesTable';
@@ -10,7 +9,6 @@ import Toggle from './toggle.js';
 import { keepTheme } from './themes.js';
 import './about.js';
 import './contact.js';
-import LogoBox from './LogoBox'
 import ConnectedMyPortfolioTable from './ConnectedMyPortfolioTable';
 
 function App() {
@@ -25,15 +23,8 @@ function App() {
     //<Router>
     <div className="App">
       <div className="TopTable">
-        <LogoBox className="logobox"></LogoBox>
-        <h1>High Yield 4 Me</h1>
-        <h5>The place to find optimal yield for your cryptocurrency portfolio.*</h5>
-        <div class="menuBar">
-            <Link to="/about" class="about">About</Link>
-            <Link to="/contact" class="contact">Contact</Link>
-        </div>
+        <Toggle className="logobox"></Toggle>
       </div>
-      <Toggle></Toggle>
       <RankedCurrenciesTable />
 
       <div className="MiddleDivider"></div>

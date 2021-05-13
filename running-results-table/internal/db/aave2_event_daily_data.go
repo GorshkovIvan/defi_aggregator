@@ -53,6 +53,9 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 
 	data_is_old := true
 
+	fmt.Print("time since oldest avail record: ")
+	fmt.Print(time.Since(oldest_available_record).Hours())
+
 	if time.Since(oldest_available_record).Hours() < 35 {
 		data_is_old = false
 	}
@@ -75,20 +78,24 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 	days_needed := 2
 
 	for i := days_needed; i > 1 && data_is_old; i-- {
-
 		fmt.Print("Day: ")
 		fmt.Println(i)
 		aave_daily_data = getAave2DataDaily(client, aave_daily_data, i, aave2_data_provider)
-
 	}
-
 
 	// Getting current balances for aave2
 	fmt.Print("len(aave_daily_data): ")
 	fmt.Print(len(aave_daily_data))
 
+	availableLiquidity := big.NewInt(0) // new(big.Int)
+	totalStableDebt := big.NewInt(0) // new(big.Int)
+	totalVariableDebt := big.NewInt(0) // new(big.Int)
+	balanceFloat := big.NewFloat(0.0) // new(big.Float) // negPow(new(big.Float).SetInt(aave_daily_data[i].currentBalance), aave_daily_data[i].decimals)
+	volumesFloat := big.NewFloat(0.0) // negPow(new(big.Float).SetInt(aave_daily_data[i].volumes[j]), aave_daily_data[i].decimals)
+	totalBorrowed := big.NewInt(0)
+	totalBorrowedFloat := big.NewFloat(0.0)
+	// 
 	for i := 0; i < len(aave_daily_data); i++ {
-
 		pool_address := common.HexToAddress(aave_daily_data[i].assetAddress)
 		reserveData, err := aave2_data_provider.GetReserveData(&bind.CallOpts{}, pool_address)
 
@@ -105,9 +112,9 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 			fmt.Print(j)
 
 			sum := big.NewInt(0)
-			availableLiquidity := reserveData.AvailableLiquidity
-			totalStableDebt := reserveData.TotalStableDebt
-			totalVariableDebt := reserveData.TotalVariableDebt
+			availableLiquidity = reserveData.AvailableLiquidity
+			totalStableDebt = reserveData.TotalStableDebt
+			totalVariableDebt = reserveData.TotalVariableDebt
 			sum.Add(sum, availableLiquidity)
 			sum.Add(sum, totalStableDebt)
 			sum.Add(sum, totalVariableDebt)
@@ -122,8 +129,6 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 			fmt.Print(cmp)
 
 			if cmp == 0 {
-				
-
 				var token_ []string
 				token_ = append(token_, aave_daily_data[i].assetName)
 				timestamp := aave_daily_data[i].timestamp[j]
@@ -138,13 +143,13 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 				continue
 			}
 
-			balanceFloat := negPow(new(big.Float).SetInt(aave_daily_data[i].currentBalance), aave_daily_data[i].decimals)
-			volumesFloat := negPow(new(big.Float).SetInt(aave_daily_data[i].volumes[j]), aave_daily_data[i].decimals)
+			balanceFloat = negPow(new(big.Float).SetInt(aave_daily_data[i].currentBalance), aave_daily_data[i].decimals)
+			volumesFloat = negPow(new(big.Float).SetInt(aave_daily_data[i].volumes[j]), aave_daily_data[i].decimals)
 			weightedAverageInterest := Div(aave_daily_data[i].fees[j], volumesFloat)
-			totalBorrowed := big.NewInt(0)
+			totalBorrowed = big.NewInt(0)
 			totalBorrowed.Add(totalBorrowed, totalStableDebt)
 			totalBorrowed.Add(totalBorrowed, totalVariableDebt)
-			totalBorrowedFloat := negPow(new(big.Float).SetInt(totalBorrowed), aave_daily_data[i].decimals)
+			totalBorrowedFloat = negPow(new(big.Float).SetInt(totalBorrowed), aave_daily_data[i].decimals)
 			utilisationRate := Div(totalBorrowedFloat, balanceFloat)
 			returns := Mul(utilisationRate, weightedAverageInterest)
 			returnsSum.Add(returnsSum, returns)
@@ -162,8 +167,11 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 
 			fmt.Print("Appending TOKEN TO AAVE: ")
 			fmt.Print(token_[0])
+			// vlm, poolsizes[i], fees_x, interest_x, float64(0)
+			pool_sz,_ := balanceFloat.Int64()
+			vlm,_ := totalBorrowedFloat.Int64()
 
-			append_record_to_database("Aave2", token_, timestamp, int64(0), int64(0), int64(0), w_int, uti)
+			append_record_to_database("Aave2", token_, timestamp, vlm, pool_sz, int64(0), w_int, uti)
 		} // daily record -- finished 1 pool
 		// roi stuff goes here
 
@@ -237,8 +245,31 @@ func getAave2Data(database *Database, uniswapreqdata UniswapInputStruct) {
 
 		// APPEND IF NEW
 		if !recordalreadyexists {
-			database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(0.0),
-				float32(0.0), currentInterestrate, "Aave2", volatility, ROI_raw_est, ROI_vol_adj_est, ROI_hist})
+			pool_sz := int64(0)
+			vlm := int64(0)
+			idx := len(aave_daily_data) - 1
+			fmt.Print("idx: ")
+			fmt.Print(idx)
+			fmt.Print("vs len: ")
+			fmt.Print(len(aave_daily_data))
+
+			if idx >= 0 {
+				fmt.Print("DIGGING OUT VOLUME DATA FOR AAVE")
+			//	fmt.Print("aave_daily_data[idx].currentBalance: ")
+			//	fmt.Print(aave_daily_data[idx].currentBalance)
+			/*
+				balanceFloat = negPow(new(big.Float).SetInt(aave_daily_data[idx].currentBalance), aave_daily_data[idx].decimals)
+				totalBorrowed = big.NewInt(0)
+				totalBorrowed.Add(totalBorrowed, totalStableDebt)
+				totalBorrowed.Add(totalBorrowed, totalVariableDebt)
+				totalBorrowedFloat := negPow(new(big.Float).SetInt(totalBorrowed), aave_daily_data[idx].decimals)
+			*/	
+				pool_sz,_ = balanceFloat.Int64()
+				vlm,_ = totalBorrowedFloat.Int64()	
+			}
+
+			database.currencyinputdata = append(database.currencyinputdata, CurrencyInputData{token0symbol + "/" + token1symbol, float32(pool_sz),
+				float32(vlm), currentInterestrate, "Aave2", volatility, ROI_raw_est, ROI_vol_adj_est, ROI_hist})
 
 		}
 
@@ -357,7 +388,7 @@ func getOldestBlock(client *ethclient.Client, daysAgo int) (*big.Int, *big.Int) 
 	j = 0
 	latest_block_found := false
 	for {
-		j -= 50
+		j -= 200
 		oldest_block.Add(oldest_block, big.NewInt(j))
 
 		if !latest_block_found {
@@ -371,14 +402,20 @@ func getOldestBlock(client *ethclient.Client, daysAgo int) (*big.Int, *big.Int) 
 
 		if block.Time() < time_for_latest_block {
 			latest_block_found = true
+			fmt.Println("Got to the end of the oldest block")
+			fmt.Print(" | t: ")
+			fmt.Print(block.Time())
+		
 		}
 
 		if block.Time() < time_needed {
+			fmt.Print(" | ttttt: ")
+			fmt.Print(block.Time())
 
 			break
 		}
 	}
-	fmt.Println("Got to the end of the oldest block")
+
 	return oldest_block, latest_block
 }
 
