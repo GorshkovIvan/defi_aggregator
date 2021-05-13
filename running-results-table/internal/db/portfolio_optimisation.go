@@ -249,12 +249,36 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 		pool_ratios = append(pool_ratios, 1.25) // NEED TO CHANGE THIS
 	}
 
+fmt.Print("Before filter tokn0s: ")
+for i:=0; i < len(pool_tkn0s); i++ {
+	fmt.Print(i)
+	fmt.Print(": ")
+	fmt.Println(pool_tkn0s)
+}
+
+fmt.Print("Before filter pool_tkn1s: ")
+for i:=0; i < len(pool_tkn1s); i++ {
+	fmt.Print(i)
+	fmt.Print(": ")
+	fmt.Println(pool_tkn1s)
+}
+
 	// 4 - Filter out OWN portfolio tokens which have pools to be deployed into
 	for i := 0; i < len(database.ownstartingportfolio); i++ {
+		fmt.Print(i)
+		fmt.Print(": ")
+		fmt.Print(database.ownstartingportfolio[i].Token)
 		// if tokens are in our pool_tkn0s or pool_tkn1s - then filter it out
 		if stringInSlice(database.ownstartingportfolio[i].Token, pool_tkn0s) || stringInSlice(database.ownstartingportfolio[i].Token, pool_tkn1s) {
 			deployable_portfolio_array = append(deployable_portfolio_array, database.ownstartingportfolio[i])
 			own_pf_px = append(own_pf_px, get_latest_token_price(database.ownstartingportfolio[i].Token))
+			fmt.Print(" | deployable portfolio i : ")
+			fmt.Print(i)
+			fmt.Print(" | ")
+			fmt.Print(deployable_portfolio_array[int(len(deployable_portfolio_array)-1)])
+			fmt.Print(" | ")
+			fmt.Print(" | px: ")
+			fmt.Print(own_pf_px[int(len(deployable_portfolio_array)-1)])
 		}
 	}
 
@@ -353,11 +377,14 @@ func OptimisePortfolio(database *Database) []OptimisedPortfolioRecord {
 	}
 
 	// Print results out
-	fmt.Print("RAW WEIGHTS OPTIMIZED:")
+	fmt.Print("RAW WEIGHTS OPTIMIZED: ")
 	fmt.Println(result)
+	fmt.Print("------------------------------------")
 	result_norm := nrm_pool_wgts(result.X, pool_tkn0s, pool_tkn1s, pool_ratios, deployable_portfolio_array, own_pf_px)
-	fmt.Print("FINAL WEIGHTS OPTIMIZED:")
+	fmt.Print("FINAL WEIGHTS OPTIMIZED: ")
 	fmt.Println(result_norm)
+	fmt.Print("..sz: ")
+	fmt.Println(len(result_norm))
 	fmt.Println("..OPTIMIZATION COMPLETE..")
 
 	// Pack results into output struct array

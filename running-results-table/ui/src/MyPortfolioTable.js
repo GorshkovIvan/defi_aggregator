@@ -37,10 +37,8 @@ export default function MyPortfolioTable({results}) {
         return (
             <Table.Row key={ index }>
                 <td><Label class="ui horizontal label" color={color}>{ index + 1 }</Label></td>
-                <td>{ result.tokenorpair }</td>
+                <td>{ result.token }</td>
                 <td class="right aligned">{ result.amount }</td>
-                <td class="right aligned">{ result.percentageofportfolio }</td>
-                <td class="right aligned">{ result.risk_setting }</td>
             </Table.Row>
         );
     }));
@@ -61,8 +59,7 @@ export default function MyPortfolioTable({results}) {
                             <Table.HeaderCell><h3 className="headerTitle">Ranking</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Token/Pair</h3></Table.HeaderCell>
                             <Table.HeaderCell><h3 className="headerTitle">Amount</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">% Portfolio</h3></Table.HeaderCell>
-                            <Table.HeaderCell><h3 className="headerTitle">Risk Setting</h3></Table.HeaderCell>
+
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -73,3 +70,9 @@ export default function MyPortfolioTable({results}) {
         </div>
     );
 }
+
+//<td class="right aligned">{ result.percentageofportfolio }</td>
+//<td class="right aligned">{ result.risk_setting }</td>
+
+//<Table.HeaderCell><h3 className="headerTitle">% Portfolio</h3></Table.HeaderCell>
+//<Table.HeaderCell><h3 className="headerTitle">Risk Setting</h3></Table.HeaderCell>

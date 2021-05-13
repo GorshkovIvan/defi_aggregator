@@ -443,7 +443,7 @@ func aaveGetPoolVolume(pool_address common.Address, oldest_block *big.Int, lates
 				name, err = instance.Symbol(&bind.CallOpts{})
 
 				if err != nil {
-					name = "Unknown"
+					name = "MKR"
 					
 				}
 			} else {

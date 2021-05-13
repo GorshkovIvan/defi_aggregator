@@ -552,7 +552,7 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 
 			// sz_0 := int64(float64(asset0_volume) * exch0)
 			// sz_1 := int64(float64(asset1_volume) * exch1)
-
+			if asset0_index < int64(len(decimals)) && asset1_index < int64(len(decimals)) {
 			sz_0 := negPowF(float64(asset0_volume), decimals[asset0_index]) * exch0
 			sz_1 := negPowF(float64(asset1_volume), decimals[asset1_index]) * exch1
 			fmt.Print("decimals[asset0_index]: ")
@@ -567,10 +567,10 @@ func curveGetPoolVolume(pool_address common.Address, client *ethclient.Client, b
 
 			f0 := int64(float64(sz_0) * pool_fee)
 			f1 := int64(float64(sz_1) * pool_fee)
-
 			// Add it to tally for that day
 			cumulative_for_day_fees += (f0 + f1)
 			cumulative_for_day_volume += int64(sz_1) // sz_0
+			}
 		} // else - if not a new day
 	} // loop through logs ends
 

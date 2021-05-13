@@ -9,12 +9,12 @@ const socket = new Pusher('7885860875bb513c3e34', {
 
 export default class ConnectedMyPortfolioTable extends React.Component {
     state = {
-        results: []
+        results_original: []
     };
     componentDidMount() {
-        const channel = socket.subscribe('results');
-        channel.bind('results', (data) => {
-            this.setState(data);
+        const channel = socket.subscribe('results_original');
+        channel.bind('results_original', (data2) => {
+            this.setState(data2);
         });
 
 
@@ -25,6 +25,6 @@ export default class ConnectedMyPortfolioTable extends React.Component {
             .then((response) => this.setState(response));
     }
     render() {
-        return <MyPortfolioTable results={this.state.results} />;
+        return <MyPortfolioTable results={this.state.results_original} />;
     }
 }
