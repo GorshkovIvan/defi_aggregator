@@ -28,3 +28,4 @@ export default class ConnectedMyPortfolioTable extends React.Component {
         return <MyPortfolioTable results={this.state.results_original} />;
     }
 }
+		

@@ -18,19 +18,19 @@ func StartServer(database *db.Database, notifierClient *notifier.Notifier) {
 	r := gin.Default()
 	r.Use(cors.Default())
 
+	//Returns currency for table3
+	r.GET("/results_original", func(c *gin.Context) {
+		data2 := database.GetRawPortfolio()
+		c.JSON(http.StatusOK, gin.H{
+			"results_original": data2,
+		})
+	})
+
 	//Returns currency for table2
 	r.GET("/currencyoutputtable", func(c *gin.Context) {
 		currencyoutputtable := database.GetCurrencyInputData()
 		c.JSON(http.StatusOK, gin.H{
 			"currencyoutputtable": currencyoutputtable,
-		})
-	})
-
-	//Returns currency for table2
-	r.GET("/results_original", func(c *gin.Context) {
-		data2 := database.GetRawPortfolio()
-		c.JSON(http.StatusOK, gin.H{
-			"results_original": data2,
 		})
 	})
 

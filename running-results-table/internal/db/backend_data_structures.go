@@ -732,8 +732,8 @@ func (database *Database) AddRiskRecord(risk RiskWrapper) {
 
 // Retrieve Data
 func (database *Database) GetOptimisedPortfolio() []OptimisedPortfolioRecord {
-	fmt.Print("CHECKPOINT len of db being returned: ")
-	fmt.Print(len(database.ownstartingportfolio))
+//	fmt.Print("CHECKPOINT len of db being returned: ")
+//	fmt.Print(len(database.ownstartingportfolio))
 	return OptimisePortfolio(database)
 }
 

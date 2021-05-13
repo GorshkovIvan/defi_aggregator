@@ -22,9 +22,12 @@ export default class NewResultsForm extends React.Component {
                             <label><div className="inputLabel">Token</div></label>
                             <select value={this.state.token} onChange={this.onChangeName}>
                                 <option value="" selected disabled hidden>Select Token</option>
-                                <option value="ETH">ETH</option>
                                 <option value="DAI">DAI</option>
-                                <option value="UNI">UNI</option>
+                                <option value="USDC">USDC</option>
+                                <option value="USDT">USDT</option>
+                                <option value="WETH">WETH</option>
+                                <option value="WBTC">WBTC</option>
+                                <option value="DOGE">DOGE</option>
                             </select>
                         </Form.Field>
                         <Form.Field>

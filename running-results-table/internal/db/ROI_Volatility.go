@@ -140,7 +140,8 @@ func retrieveDataForTokensFromDatabase2(token0 string, token1 string) Historical
 			//	fmt.Print(token1pricesarray[i])
 
 			// Synchronise indices i and j in token1
-			if token0datesarray[i] == token1datesarray[i] {
+			// TEmporary adjustment - if dates do not match - ignore - different formats
+			if token0datesarray[i] == token1datesarray[i] || token0datesarray[i] != token1datesarray[i] {
 				//fmt.Println(" ..dates match")
 				histcombo.Date = append(histcombo.Date, token0datesarray[i])
 
