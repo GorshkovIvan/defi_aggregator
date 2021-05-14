@@ -62,13 +62,13 @@ export default function ResultsTable2({currencyoutputtable}) {
                 <td><Label class="ui horizontal label" color={color}>{ index + 1 }</Label></td>
                 <td>{ result.backend_pair }</td>
                 <td>{ result.pool_source }</td>
-                <td class="right aligned">{ result.backend_poolsize === 0 ? result.backend_poolsize : result.backend_poolsize.toFixed(2) }</td>
-                <td class="right aligned">{ result.backend_volume === 0 ? result.backend_volume : result.backend_volume.toFixed(2) }</td>
-                <td class="right aligned">{ result.backend_yield === 0 ? result.backend_yield : result.backend_yield.toFixed(7) }</td>
-                <td class="right aligned">{ result.volatility === 0 ? (result.volatility * 100) : (result.volatility * 100).toFixed(7) }</td>
-                <td class="right aligned">{ result.ROIestimate === 0 ? (result.ROIestimate * 100) : (result.ROIestimate * 100).toFixed(7) }</td>
-                <td class="right aligned">{ result.ROIvoladjest === 0 ? result.ROIvoladjest : result.ROIvoladjest.toFixed(7) }</td>
-                <td class="right aligned">{ result.ROIhist === 0 ? (result.ROIhist * 100) : (result.ROIhist * 100).toFixed(7) }</td>
+                <td class="right aligned">{ result.backend_poolsize === 0 ? result.backend_poolsize : result.backend_poolsize.toFixed(1) }</td>
+                <td class="right aligned">{ result.backend_volume === 0 ? result.backend_volume : result.backend_volume.toFixed(1) }</td>
+                <td class="right aligned">{ result.backend_yield === 0 ? result.backend_yield : result.backend_yield.toFixed(3) }</td>
+                <td class="right aligned">{ result.volatility === 0 ? (result.volatility * 100) : (result.volatility * 100).toFixed(3) }</td>
+                <td class="right aligned">{ result.ROIestimate === 0 ? (result.ROIestimate * 100) : (result.ROIestimate * 100).toFixed(3) }</td>
+                <td class="right aligned">{ result.ROIvoladjest === 0 ? result.ROIvoladjest : result.ROIvoladjest.toFixed(3) }</td>
+                <td class="right aligned">{ result.ROIhist === 0 ? (result.ROIhist * 100) : (result.ROIhist * 100).toFixed(3) }</td>
             </Table.Row>
         );
     }));
